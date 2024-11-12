@@ -3,7 +3,7 @@ int open_all(void);
 int close_all(void);
 int read_sample(void);
 int doorfind(int x, int y, unsigned long keytype);
-void main(int argc,char argv[]);
+int main(int argc, char **argv);
 int xfer(int xtest, int ytest, int flag);
 int find_place(int flag);
 int load_actors(void);

@@ -1126,7 +1126,7 @@ found:
 
 extern char titletext[];
 
-void main(int argc,char argv[])
+int main(int argc,char **argv)
 {	register long i;
 	short j, k; char key;
 	short dif_x, dif_y, xstart, ystart, xstop, ystop;

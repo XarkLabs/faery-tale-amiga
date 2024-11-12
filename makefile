@@ -1,4 +1,5 @@
-CFLAGS = -pp -hi amiga39.pre -qf
+#Xark: CFLAGS = -pp -hi amiga39.pre -qf
+CFLAGS = -g -include amiga39.h
 
 OBJS = fmain.o fsubs.o narr.o fmain2.o iffsubs.o gdriver.o makebitmap.o hdrive.o
 

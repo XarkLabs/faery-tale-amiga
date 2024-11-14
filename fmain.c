@@ -71,12 +71,12 @@ struct shape anim_list[20];	/* 7 people + 7 objects */
 
 /* weapon: 0=none, 1=dagger, 2=mace, 3=sword, 4=bow, 5=wand */
 
-unsigned char anim_index[20];		/* for sorting */
-short anix, anix2;			/* allocation index - how many monsters + 1 */
-short mdex;
+uint8_t anim_index[20];		/* for sorting */
+int16_t anix, anix2;			/* allocation index - how many monsters + 1 */
+int16_t mdex;
 
 struct missile {
-	unsigned short	abs_x, abs_y;
+	uint16_t	abs_x, abs_y;
 	char	missile_type,	/* NULL, arrow, rock, 'thing', or fireball */
 			time_of_flight, /* in frames? */
 			speed,			/* 0 = still unshot */
@@ -231,7 +231,7 @@ extern char bow_x[], bow_y[], bowshotx[], bowshoty[], gunshoty[];
 #define DOORCOUNT 86
 
 struct door {				/* mark locations of all doors */
-	unsigned short
+	uint16_t
 		xc1, yc1,			/* outside image coords relative to F1 */
 		xc2, yc2;			/* inside image coords relative to F9 */
 	char type;				/* wood, stone */
@@ -371,7 +371,7 @@ struct extent {
 
 #define EXT_COUNT 22
 
-unsigned char stone_list[] = 
+uint8_t stone_list[] = 
 {	54,43, 71,77, 78,102, 66,121, 12,85, 79,40,
 	107,38, 73,21, 12,26, 26,53, 84,60 };
 
@@ -434,8 +434,8 @@ UBYTE *stuff, julstuff[ARROWBASE], philstuff[ARROWBASE], kevstuff[ARROWBASE];
 /* defines the variables for on-screen animated shapes */
 
 struct sshape {
-	unsigned char *backsave;
-	short	savesize, blitsize, Coff, Cmod;
+	uint8_t *backsave;
+	int16_t	savesize, blitsize, Coff, Cmod;
 };
 
 struct sshape *shp;
@@ -462,7 +462,7 @@ extern UBYTE hinor, hivar;
 
 struct SimpleSprite pointer = { 0,16,0,0,0 };
 
-long *sprite_data, _sprite_data[] = 
+int32_t *sprite_data, _sprite_data[] = 
 {	0,
 	0x80060000, 0x60010002, 0x40012000, 0x10030000,
 	0x08FE0001, 0x0581007F, 0x03000081, 0x06010101,
@@ -554,28 +554,28 @@ char	hit;	/* which menu we hit */
 extern UBYTE place_tbl[], inside_tbl[];
 extern char place_msg[], inside_msg[];
 
-unsigned short	map_x, map_y,	/* absolute map coordinates in pixels */
+uint16_t	map_x, map_y,	/* absolute map coordinates in pixels */
 				hero_x, hero_y, /* shorthand variables for hero location */
 				safe_x, safe_y,	safe_r, /* last 'safe zone' visited */
 				img_x, img_y;	/* absolute sector coordinates */
 /* 18 */
-short	cheat1;
-short	riding, flying, wcarry;
-short	turtleprox, raftprox;
-short	brave, luck, kind, wealth, hunger, fatigue;
+int16_t	cheat1;
+int16_t	riding, flying, wcarry;
+int16_t	turtleprox, raftprox;
+int16_t	brave, luck, kind, wealth, hunger, fatigue;
 /* 24 */
-short	brother;
-short	princess;
-short	hero_sector;			/* what sector is the hero on?? */
+int16_t	brother;
+int16_t	princess;
+int16_t	hero_sector;			/* what sector is the hero on?? */
 USHORT	hero_place;				/* what place name is this? */
 /* 8 */
 USHORT	daynight, lightlevel;
-short	actor_file, set_file;	/* which actor or setfig file is loaded */
-short	active_carrier;			/* is turtle of bird active */
+int16_t	actor_file, set_file;	/* which actor or setfig file is loaded */
+int16_t	active_carrier;			/* is turtle of bird active */
 USHORT	xtype;
-short	leader;					/* leader of the enemies */
-short	secret_timer, light_timer, freeze_timer;
-short	cmode;
+int16_t	leader;					/* leader of the enemies */
+int16_t	secret_timer, light_timer, freeze_timer;
+int16_t	cmode;
 USHORT	encounter_type;
 /* 28 */
 USHORT	pad1,pad2,pad3,pad4,pad5,pad6,pad7;
@@ -589,21 +589,21 @@ char	battleflag;				/* are we in battle? */
 char	frustflag;				/* is the character blocked ?? */
 char	quitflag;				/* is it time to quit?? */
 char	witchflag, wdir;		/* is the witch on the screen */
-unsigned char goodfairy;		/* good fairy on screen? */
-extern short s1,s2;
-short	nearest;				/* nearest object/character to player */
-short	nearest_person, perdist;/* nearest character to player */
-short	last_person;			/* last character near to player */
+uint8_t goodfairy;		/* good fairy on screen? */
+extern int16_t s1,s2;
+int16_t	nearest;				/* nearest object/character to player */
+int16_t	nearest_person, perdist;/* nearest character to player */
+int16_t	last_person;			/* last character near to player */
 UBYTE	witchindex;
-short	dayperiod;
-short	sleepwait;
-unsigned char	encounter_number, danger_level;
-unsigned short	encounter_x, encounter_y;	/* encounter origin */
-short mixflag, wt;
+int16_t	dayperiod;
+int16_t	sleepwait;
+uint8_t	encounter_number, danger_level;
+uint16_t	encounter_x, encounter_y;	/* encounter origin */
+int16_t mixflag, wt;
 
 char *datanames[] = { "Julian","Phillip","Kevin", };
 
-unsigned short xreg, yreg;	/* where the region is */
+uint16_t xreg, yreg;	/* where the region is */
 
 #define TERRA_BLOCK	149
 #define NO_REGION	10
@@ -627,7 +627,7 @@ struct need file_index[10] = {
 
 /* playing map is 6 * 19 = 114 */
 
-extern short minimap[114];
+extern int16_t minimap[114];
 
 #define MAXCOORD (16*16*128)
 #define MAXMASK	 MAXCOORD - 1
@@ -644,12 +644,12 @@ extern short minimap[114];
 #define	SECTOR_OFF	(128*256)		/* 256 sectors - 32K */
 #define SAMPLE_SZ	(5632)			/* 5K for samples */
 
-long	/* Xark: LoadSeg(), */seg;
+int32_t	/* Xark: LoadSeg(), */seg;
 struct	DiskFontHeader *font;
 struct  TextFont *tfont, *afont;
 struct  TextAttr topaz_ta = { "topaz.font", 8, 0, FPF_ROMFONT };
 
-unsigned char 
+uint8_t 
 //	*into_chip(),	// Xark: removeed since added prototype
 	*image_mem, *sector_mem, *map_mem, *shadow_mem, 
 	*shape_mem,
@@ -657,15 +657,15 @@ unsigned char
 	*sample_mem,
 	*terra_mem;	/* Terrain data */
 
-unsigned char *nextshape, *tempshape;
+uint8_t *nextshape, *tempshape;
 
 #define  S_WAVBUF	(128 * 8)
 #define  S_VOLBUF	(10 * 256)
 #define VOICE_SZ  (S_WAVBUF	+ S_VOLBUF)
 #define SCORE_SZ	5900
 
-unsigned char  *wavmem, *volmem, *scoremem;
-short new_wave[] = 
+uint8_t  *wavmem, *volmem, *scoremem;
+int16_t new_wave[] = 
 { 	0x0000, 0x0000, 0x0000, 0x0000, 0x0005,
 	0x0202, 0x0101, 0x0103, 0x0004, 0x0504, 
 	0x0100, 0x0500 };
@@ -673,12 +673,12 @@ short new_wave[] =
 UWORD	openflags;
 PLANEPTR	*planes;
 
-unsigned char *mask_buffer, *shapedata;
-short	shift, aoff, boff, bmod, planesize, wmask;
+uint8_t *mask_buffer, *shapedata;
+int16_t	shift, aoff, boff, bmod, planesize, wmask;
 
 #define	CBK_SIZE	(96<<6)+5
 
-long seed1 = 19837325, seed2 = 23098324;
+int32_t seed1 = 19837325, seed2 = 23098324;
 
 /* features:
 	1 = impassable, 2 = sink, 3 = slow/brush;
@@ -725,8 +725,8 @@ BOOL			audio_open;
 struct BitMap work_bm;
 
 int open_all(void)
-{	register long i;
-	long file;
+{	register int32_t i;
+	int32_t file;
 
 	openflags = 0;
 
@@ -771,7 +771,8 @@ int open_all(void)
 #endif
 
 	if ((seg = LoadSeg("fonts/Amber/9")) == 0) return 15;	// Xark: NULL -> 0 (since BPTR)
-	font = (struct DiskFontHeader *) ((seg<<2)+8);
+// Xark:	font = (struct DiskFontHeader *) ((seg<<2)+8);
+	font = BPTR_OFFSET_ADDR(seg, 8, struct DiskFontHeader);
 	SETFN(AL_FONT);		/* opened the font */
 
 	tfont = OpenFont(&topaz_ta);
@@ -937,7 +938,7 @@ int open_all(void)
 
 	bm_scroll.Planes[0] = bm_text->Planes[0];
 
-	sprite_data = (long *)into_chip((void *)_sprite_data,88);
+	sprite_data = (int32_t *)into_chip((void *)_sprite_data,88);
 
 	ChangeSprite(&vp_text,&pointer,(void *)sprite_data);
 	handler_data.vbase = &vp_text;
@@ -948,7 +949,7 @@ int open_all(void)
 }
 
 int close_all(void)
-{	register long i;
+{	register int32_t i;
 	if (TSTFN(AL_TERR)) FreeMem(terra_mem,1024);
 	if (TSTFN(AL_SAMPLE)) FreeMem(sample_mem,SAMPLE_SZ);
 	if (TSTFN(AL_SHADOW)) FreeMem(shadow_mem,SHADOW_SZ);
@@ -1005,24 +1006,24 @@ int close_all(void)
 	exit(0);
 }
 
-short oldir = 9;
-short keydir = 0, keyfight;
+int16_t oldir = 9;
+int16_t keydir = 0, keyfight;
 char diroffs[16] = {16,16,24,24,0,0,8,8,56,56,68,68,32,32,44,44};
 
 /* music variables */
-unsigned char *(track[32]);
-unsigned char *(sample[6]);
-unsigned long sample_size[6];
+uint8_t *(track[32]);
+uint8_t *(sample[6]);
+uint32_t sample_size[6];
 
 char pass, passmode;
 
-extern long myfile, header, blocklength;
+extern int32_t myfile, header, blocklength;
 
 /* reads an IFF sample - shorten file format later */
 
 void read_sample(void)
-{	long ifflen; register unsigned char *num, *smem; register long i;
-	register long sp_load, sp_count;
+{	int32_t ifflen; register uint8_t *num, *smem; register int32_t i;
+	register int32_t sp_load, sp_count;
 
 	sp_load = sp_count = 0;
 	load_track_range(920,11,sample_mem,8);
@@ -1032,7 +1033,7 @@ void read_sample(void)
 
 	smem = sample_mem;
 	for (i=0; i<6; i++)
-	{	num = (unsigned char *)(&ifflen);
+	{	num = (uint8_t *)(&ifflen);
 		*num++ = *smem++; *num++ = *smem++;
 		*num++ = *smem++; *num++ = *smem++;
 		sample[i] = smem;
@@ -1079,7 +1080,7 @@ struct door_open {
 // Xark: UBYTE *mapxy();
 
 int doorfind(USHORT x, USHORT y, ULONG keytype)
-{	UBYTE sec_id; short reg_id, j, k; register ULONG l;
+{	UBYTE sec_id; int16_t reg_id, j, k; register ULONG l;
 	if (px_to_im(x,y)==15) goto found;
 	x += 4; if (px_to_im(x,y)==15) goto found;
 	x -= 8; if (px_to_im(x,y)==15) goto found;
@@ -1127,10 +1128,10 @@ found:
 extern char titletext[];
 
 int main(int argc,char **argv)
-{	register long i;
-	short j, k; char key;
-	short dif_x, dif_y, xstart, ystart, xstop, ystop;
-	unsigned short	xtest, ytest;
+{	register int32_t i;
+	int16_t j, k; char key;
+	int16_t dif_x, dif_y, xstart, ystart, xstop, ystop;
+	uint16_t	xtest, ytest;
 	struct shape *an;
 		
 	if (argc == 0)
@@ -1271,9 +1272,9 @@ no_intro:
 
 	cheat1 = quitflag = FALSE;
 	while (!quitflag)
-	{	short cycle, atype, inum, notpause;
+	{	int16_t cycle, atype, inum, notpause;
 		BYTE *pia = (BYTE *)0xbfe001;
-		unsigned char *backalloc, crack;
+		uint8_t *backalloc, crack;
 
 		cycle++;
 		flasher++;
@@ -1348,7 +1349,7 @@ no_intro:
 			else if (key == ' ' || notpause)
 			{	for (i=0; i<LMENUS; i++)
 				{	if (letter_list[i].letter == key)
-					{	short menu;
+					{	int16_t menu;
 						menu = letter_list[i].menu;
 						if (menu == SAVEX && cmode != SAVEX) break;
 						cmode = menu;
@@ -1468,7 +1469,7 @@ no_intro:
 
 		noswan:
 		for (i=0; i<anix; i++)
-		{	short d, e, s, dex, nvx, nvy, nvx1, nvy1;
+		{	int16_t d, e, s, dex, nvx, nvy, nvx1, nvy1;
 			struct missile *ms;
 			char k;
 
@@ -1646,8 +1647,8 @@ no_intro:
 						((j == 4) && (k > 10)) ) 
 					{	if (hero_sector != 181) k--; goto raise; }
 				}
-				an->vel_x = ((short)(xtest - an->abs_x))*4;
-				an->vel_y = ((short)(ytest - an->abs_y))*4;
+				an->vel_x = ((int16_t)(xtest - an->abs_x))*4;
+				an->vel_y = ((int16_t)(ytest - an->abs_y))*4;
 				an->abs_x = xtest;
 				an->abs_y = ytest;
 				frustflag = 0;
@@ -2113,7 +2114,7 @@ no_intro:
 				battle2 = battleflag;
 				battleflag = FALSE;
 				for (i=2; i<anix; i++) /* skip raft */
-				{	short xd, yd, mode, tactic, r;
+				{	int16_t xd, yd, mode, tactic, r;
 
 					if (goodfairy && goodfairy < 120) break;
 					an = &(anim_list[i]);					
@@ -2242,7 +2243,7 @@ no_intro:
 		SetAPen(&rp_map,31);
 
 		for (i=0; i<anix; i++)
-		{	short xs,ys,wt,fc,bv,xd,yd;
+		{	int16_t xs,ys,wt,fc,bv,xd,yd;
 			if (i > 0 && freeze_timer) break;
 			if (i==1 || anim_list[i].state >= WALKING) continue;
 			wt = anim_list[i].weapon;
@@ -2271,7 +2272,7 @@ no_intro:
 		}
 
 		if (!freeze_timer) for (i=0; i<6; i++)
-		{	short xs,ys,fc,xd,yd,mt,bv,s; struct missile *ms;
+		{	int16_t xs,ys,fc,xd,yd,mt,bv,s; struct missile *ms;
 
 			ms = missile_list + i;
 			s = ms->speed*2;
@@ -2312,7 +2313,7 @@ no_intro:
 		/* now stuff the flying missiles */
 
 		for (i=0; i<6; i++)
-		{	short t; struct shape *an; struct missile *ms;
+		{	int16_t t; struct shape *an; struct missile *ms;
 			ms = missile_list + i;
 			if (!(t = ms->missile_type)) continue;
 			xstart = ms->abs_x - map_x - 9;
@@ -2339,7 +2340,7 @@ no_intro:
 		perdist = 50;
 		for (i=0; i<anix2; i++) anim_index[i] = i;
 		for (i=0; i<anix2; i++)
-		{	short k1, k2, y1, y2;
+		{	int16_t k1, k2, y1, y2;
 			an = anim_list + i;
 			if (i && an->type!=OBJECTS && an->state!=DEAD && riding != 11)
 			{	j = calc_dist(i,0);
@@ -2385,11 +2386,11 @@ no_intro:
 		backalloc = fp_drawing->backsave;
 
 		for (j=0; j<anix2; j++)
-		{	short	ground, cm;
+		{	int16_t	ground, cm;
 			BYTE	xsize,ysize,xbw,xew,xoff,yoff;
 			BYTE	blithigh, blitwide, cwide;
 			UBYTE 	xm, ym, ym1, ym2;
-			short	xstart1, ystart1, xstop1, ystop1;
+			int16_t	xstart1, ystart1, xstop1, ystop1;
 
 			/* passmodes: 0=char, 1=weapon */
 			passmode = pass = 0;
@@ -2650,8 +2651,8 @@ void xfer(USHORT xtest, USHORT ytest, USHORT flag)
 	while (proxcheck(hero_x,hero_y,0)) hero_y++;
 }
 
-void find_place(short flag)
-{	register UBYTE *tbl; char *ms; register long i;
+void find_place(int16_t flag)
+{	register UBYTE *tbl; char *ms; register int32_t i;
 
 	findagain:
 	j = hero_sector = hero_sector & 255;
@@ -2741,7 +2742,7 @@ void load_actors(void)
 
 BOOL set_encounter(USHORT i, USHORT spread)
 {	register struct shape *an; USHORT xtest, ytest;
-	register long race, w, j;
+	register int32_t race, w, j;
 
 	an = &(anim_list[i]);
 	if (extn->v3==7) { xtest = 21635; ytest = 25762; }
@@ -2772,7 +2773,7 @@ BOOL set_encounter(USHORT i, USHORT spread)
 	return TRUE;
 }
 
-void checkdead(long i, long dtype)
+void checkdead(int32_t i, int32_t dtype)
 {	register struct shape *an;
 	an = &(anim_list[i]);
 	if (an->vitality < 1 && an->state != DYING && an->state != DEAD)
@@ -2787,9 +2788,9 @@ void checkdead(long i, long dtype)
 	if (i == 0) prq(4);
 }
 
-void load_carrier(short n)
+void load_carrier(int16_t n)
 {	register struct shape *an;
-	register long i;
+	register int32_t i;
 	an = &(anim_list[3]);
 	if (n == 10) an->type = DRAGON; else an->type = CARRIER;
 	if (n==10) i = 2; else if (n==5) i = 1; else i = 0;
@@ -2817,7 +2818,7 @@ struct bro {
 	{ 20,35,15,15,philstuff },	/* phillip's attributes */
 	{ 15,20,35,10,kevstuff } };	/* kevin's attributes */
 
-void revive(short is_new)	// Xark: renamed new -> is_new
+void revive(int16_t is_new)	// Xark: renamed new -> is_new
 {	/* is_new tells if this is a new character */
 	register struct bro *br;
 	register struct shape *an;
@@ -2917,8 +2918,8 @@ void revive(short is_new)	// Xark: renamed new -> is_new
 	fiery_death = xtype = 0;
 }
 
-void screen_size(long x)
-{	register long y;
+void screen_size(int32_t x)
+{	register int32_t y;
 
 	y = (x*5)/8;
 
@@ -2940,7 +2941,7 @@ void screen_size(long x)
 }
 
 void setmood(char now)
-{	register long off;
+{	register int32_t off;
 	if (anim_list[0].vitality == 0) off = (6*4);
 	else if (hero_x > 0x2400 && hero_x < 0x3100 &&
 			hero_y > 0x8200 && hero_y < 0x8a00)
@@ -2963,7 +2964,7 @@ void setmood(char now)
 }
 
 void gen_mini(void)
-{	register unsigned long xr,yr; register long xs, ys;
+{	register uint32_t xr,yr; register int32_t xs, ys;
 
 	/* lregion is what region are supposed to be in */
 
@@ -3052,7 +3053,7 @@ void wrap_device(void)
 }
 
 void print_options(void)
-{	short i,j,x,y;
+{	int16_t i,j,x,y;
 	j = 0;
 	for (i = 0; i<menus[cmode].num; i++)
 	{	x = menus[cmode].enabled[i];
@@ -3073,8 +3074,8 @@ void print_options(void)
 	}
 }
 
-void propt(short j, short pena)
-{	register long x,y,k,penb;
+void propt(int16_t j, int16_t pena)
+{	register int32_t x,y,k,penb;
 
 	k = real_options[j];
 	if (cmode==USE) penb=14;
@@ -3097,7 +3098,7 @@ void propt(short j, short pena)
 	else Text(&rp_text2,menus[cmode].label_list+(k-25),5);
 }
 
-long secx, secy;
+int32_t secx, secy;
 extern BYTE svflag;
 
 extern UBYTE itrans[];
@@ -3105,8 +3106,8 @@ extern char jtrans[];
 
 LONG	dbg;
 
-void do_option(short hit)
-{	short dist;
+void do_option(int16_t hit)
+{	int16_t dist;
 	USHORT y;
 	register ULONG i, j, x, k;
 	register struct shape *an;
@@ -3116,8 +3117,8 @@ void do_option(short hit)
 	case ITEMS:
 		if (hit == 8) gomenu(USE);
 		else if (hit == 5)
-		{	short n,num,h;
-			unsigned char *data;
+		{	int16_t n,num,h;
+			uint8_t *data;
 			bm = fp_drawing->ri_page->BitMap;
 			rp_map.BitMap = bm;
 			SetRast(&rp_map,0);
@@ -3293,7 +3294,7 @@ void do_option(short hit)
 			else prq(10);
 		}
 		else if (hit==7)					/* Look */
-		{	long flag = 0;
+		{	int32_t flag = 0;
 			an = anim_list;
 			for (i=0; i<anix2; i++)
 			{	if (an->type==OBJECTS && an->race==0 && (calc_dist(i,0) < 40) )
@@ -3332,7 +3333,7 @@ void do_option(short hit)
 		case 5:
 			if (hero_sector == 144)
 			{	if ((hero_x & 255)/85 == 1 && (hero_y & 255)/64 == 1)
-				{	short x1, y1;
+				{	int16_t x1, y1;
 					x = hero_x>>8; y = hero_y>>8;
 					for (i=0; i<11; i++)
 					{	if (stone_list[i+i]==x && stone_list[i+i+1]==y)
@@ -3523,7 +3524,7 @@ void get_turtle()
 	load_carrier(5);
 }
 
-void gomenu(short mode)
+void gomenu(int16_t mode)
 {	if (menus[GAME].enabled[5] & 1) return;
 	cmode = mode;
 	handler_data.lastmenu = 0;
@@ -3531,7 +3532,7 @@ void gomenu(short mode)
 }
 
 void set_options(void)
-{	register long i,j;
+{	register int32_t i,j;
 	for (i=0; i<7; i++)
 	{	menus[MAGIC].enabled[i+5] = stuff_flag(i+9);
 		menus[USE].enabled[i] = stuff_flag(i);
@@ -3552,9 +3553,9 @@ void load_all(void)
 {	while (MAP_FLUX) load_new_region(); }
 
 void load_new_region(void)
-{	register struct need *nd; register long i;
-	register unsigned char *imem;
-	unsigned char *imem0;
+{	register struct need *nd; register int32_t i;
+	register uint8_t *imem;
+	uint8_t *imem0;
 
 	if (MAP_STABLE) return;
 	nd = &(file_index[new_region]);
@@ -3619,7 +3620,7 @@ void load_new_region(void)
 	new_region = NO_REGION;
 }
 
-void effect(short num, long speed)
+void effect(int16_t num, int32_t speed)
 {	if (menus[GAME].enabled[7] & 1)
 	{	playsample(sample[num],sample_size[num]/2,speed); }
 }

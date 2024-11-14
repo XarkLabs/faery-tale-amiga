@@ -17,38 +17,38 @@
 #define	CRNG	tags[7]
 
 char *kluge = "FORMILBMBMHDCMAPGRABBODYCAMGCRNG";
-long *tags;
+int32_t *tags;
 
-long file_length;
-long myfile;
-long header;
-long blocklength;
+int32_t file_length;
+int32_t myfile;
+int32_t header;
+int32_t blocklength;
 
 #define	cmpNone		0
 #define	cmpByteRun1	1
 
 typedef struct {
-	short	width, height;
-	short	xpic, ypic;
+	int16_t	width, height;
+	int16_t	xpic, ypic;
 	UBYTE	nPlanes;
 	UBYTE	masking;
 	UBYTE	compression;
 	UBYTE	pad1;
-	short	transcolor;
-	short	xAspect, yAspect;
-	short	pageWidth, pageHeight;
+	int16_t	transcolor;
+	int16_t	xAspect, yAspect;
+	int16_t	pageWidth, pageHeight;
 } BitMapHeader;
 
 BitMapHeader bmhd;
 
 typedef struct {
-	unsigned char colors[32][3];
+	uint8_t colors[32][3];
 } ColorMap;
 
 /* ColorMap cmap; */
 
 typedef struct {
-	short xgrab, ygrab;
+	int16_t xgrab, ygrab;
 } GrabPoint;
 
 /* GrabPoint grab; */
@@ -75,7 +75,7 @@ void ReadLength(void)
 
 extern char *GfxBase;
 char	*plane0, *plane1, *plane2, *plane3, *plane4;
-long	bytecount;
+int32_t	bytecount;
 char	*packdata;
 extern struct ViewPort *vp;
 extern char *shape_mem;
@@ -92,7 +92,7 @@ unpackpic(filename,bitmap) char *filename; struct BitMap *bitmap;
 	if (myfile == 0)
 	{	printf("couldn't get file\n"); return FALSE; }
 
-	tags = (long *) kluge;
+	tags = (int32_t *) kluge;
 	ReadHeader();
 	if (header != FORM)
 	{	printf("Unrecognizable format\n"); Close(myfile); return FALSE; }
@@ -143,13 +143,13 @@ unpackpic(filename,bitmap) char *filename; struct BitMap *bitmap;
 }
 #endif
 
-BOOL unpackbrush(char *filename, struct BitMap *bitmap, short x, short y)
+BOOL unpackbrush(char *filename, struct BitMap *bitmap, int16_t x, int16_t y)
 {	int bitoffset = (x + (bitmap->BytesPerRow)*y);
 
 	myfile = Open(filename,1005);
 	if (myfile == 0) {	return FALSE; }
 
-	tags = (long *) kluge;
+	tags = (int32_t *) kluge;
 	ReadHeader();
 	if (header != FORM)
 	{	Close(myfile); return FALSE; }
@@ -195,7 +195,7 @@ BOOL unpackbrush(char *filename, struct BitMap *bitmap, short x, short y)
 }
 
 #ifdef blarg
-erasebrush(bitmap,x,y) struct BitMap *bitmap; short x,y;
+erasebrush(bitmap,x,y) struct BitMap *bitmap; int16_t x,y;
 {	int bitoffset = (x + 40*y);
 	int i;
 	bytecount = (bmhd.width+7)/8;
@@ -221,14 +221,14 @@ erase_line(dest) char *dest;
 #endif
 
 /* unpack_line(dest) char *dest;
-{	short j, upc;
+{	int16_t j, upc;
 	if (bmhd.compression == 0) unpack_line1(dest); else unpack_line2(dest);
 }
 */
 
 // Xark: Uncommented (asm version in fsubs.asm)
 void unpack_line(char *dest)
-{	short j, upc;
+{	int16_t j, upc;
 	if (bmhd.compression == 0)
 	{	for (j=0; j<bytecount; j++) *dest++ = *packdata++; }
 	else for (j=0; j<bytecount; )

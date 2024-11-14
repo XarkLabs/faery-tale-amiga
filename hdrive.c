@@ -30,7 +30,7 @@ struct MsgPort *diskport;
 struct IOExtTD *diskreq1, diskreqs[10], *lastreq;
 
 int AllocDiskIO()
-{	short	i;
+{	int16_t	i;
 	BPTR	lock;
 
 	if ((lock = Lock("image",ACCESS_READ)))
@@ -117,8 +117,8 @@ int IsReadLastDiskIO()
 	return FALSE;
 }
 
-void load_track_range(short f_block, short b_count, APTR buffer, short dr)
-{	short error;
+void load_track_range(int16_t f_block, int16_t b_count, APTR buffer, int16_t dr)
+{	int16_t error;
 
 	if (hdrive == FALSE)
 	{

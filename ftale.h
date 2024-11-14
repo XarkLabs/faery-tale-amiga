@@ -11,6 +11,12 @@
     if (new != old)                                                                                \
         FreeMem(new, size);
 
+        // TODO: used based pointer
+#define BPTR_ADDR(bptr, ptype) (ptype *)((intptr_t)bptr << 2)
+// TODO: used based pointer
+#define BPTR_OFFSET_ADDR(bptr, byteoff, ptype)                                                     \
+    (ptype *)((intptr_t)(bptr << 2) + byteoff)        
+
 /* motion states */
 #define WALKING  12
 #define STILL    13
@@ -60,16 +66,16 @@
 
 struct shape
 {
-    unsigned short abs_x, abs_y, rel_x, rel_y;
-    char           type;
-    UBYTE          race;
-    char           index, visible, /* image index and on-screen flag */
+    uint16_t abs_x, abs_y, rel_x, rel_y;
+    char     type;
+    UBYTE    race;
+    char     index, visible,       /* image index and on-screen flag */
         weapon,                    /* type of weapon carried */
         environ,                   /* environment variable */
         goal, tactic,              /* current goal mode and means to carry it out */
         state, facing;             /* current movement state and facing */
-    short vitality;                /* also original object number */
-    char  vel_x, vel_y;            /* velocity for slippery areas */
+    int16_t vitality;              /* also original object number */
+    char    vel_x, vel_y;          /* velocity for slippery areas */
     /*	APTR	source_struct;	*/ /* address of generating structure */
 };
 
@@ -77,20 +83,20 @@ struct fpage
 {
     struct RasInfo * ri_page;
     struct cprlist * savecop;
-    long             isv_x, isv_y;
-    short            obcount;
+    int32_t          isv_x, isv_y;
+    int16_t          obcount;
     struct sshape *  shape_queue;
-    unsigned char *  backsave;
-    long             saveused;
-    short            witchx, witchy, witchdir, wflag; /* for erasure */
+    uint8_t *        backsave;
+    int32_t          saveused;
+    int16_t          witchx, witchy, witchdir, wflag; /* for erasure */
 };
 
 struct seq_info
 {
-    short          width, height, count; /* this part loaded in */
-    unsigned char *location, *maskloc;
-    short          bytes; /* this part calculated */
-    short          current_file;
+    int16_t  width, height, count; /* this part loaded in */
+    uint8_t *location, *maskloc;
+    int16_t  bytes; /* this part calculated */
+    int16_t  current_file;
 };
 
 enum sequences
@@ -106,8 +112,8 @@ enum sequences
 
 struct object
 { /* 250 objects, for a start */
-    unsigned short xc, yc;
-    char           ob_id, ob_stat;
+    uint16_t xc, yc;
+    char     ob_id, ob_stat;
 };
 
 struct inv_item
@@ -127,15 +133,15 @@ struct need
 
 struct in_work
 { /* input handler data area */
-    short                 xsprite, ysprite;
-    short                 qualifier; /* input qualifier */
+    int16_t               xsprite, ysprite;
+    int16_t               qualifier; /* input qualifier */
     UBYTE                 laydown, pickup;
     char                  newdisk, lastmenu;
     struct GfxBase *      gbase;
     struct SimpleSprite * pbase;
     struct ViewPort *     vbase;
-    unsigned char         keybuf[128];
-    short                 ticker;
+    uint8_t               keybuf[128];
+    int16_t               ticker;
 };
 
 // Xark includes after structs
@@ -169,7 +175,7 @@ void    row_draw(int r);
 void    maskit(int x, int y, int mod, char c);
 void    make_mask(UBYTE * s, UBYTE * d, int words, int lines, int len);
 void    prdec(int val, int len);
-void    dohit(long i, long j, long fc, short wt);
+void    dohit(int32_t i, int32_t j, int32_t fc, int16_t wt);
 int     page_det(int d);
 
 int  AllocDiskIO(void);

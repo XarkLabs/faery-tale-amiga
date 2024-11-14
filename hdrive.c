@@ -1,155 +1,173 @@
-#include "ftale.h"		// Xark: Added to verify headers in sync
+#include "ftale.h"        // Xark: Added to verify headers in sync
 
-#define	SETFN(n)	openflags |= n
-#define TSTFN(n)	openflags & n
+#define SETFN(n) openflags |= n
+#define TSTFN(n) openflags & n
 
-#define	AL_BMAP		0x0001
-#define	AL_GBASE	0x0002
-#define	AL_HANDLE	0x0004
-#define	AL_MUSIC	0x0008
-#define	AL_IMAGE	0x0010
-#define	AL_SECTOR	0x0020
-#define	AL_MASK		0x0040
-#define	AL_SHAPE	0x0080
-#define	AL_SHADOW	0x0100
-#define	AL_FONT		0x0200
-#define	AL_SAMPLE	0x0400
-#define AL_PORT		0x0800
-#define AL_IOREQ	0x1000
-#define AL_TDISK	0x2000
-#define AL_TERR		0x4000
+#define AL_BMAP   0x0001
+#define AL_GBASE  0x0002
+#define AL_HANDLE 0x0004
+#define AL_MUSIC  0x0008
+#define AL_IMAGE  0x0010
+#define AL_SECTOR 0x0020
+#define AL_MASK   0x0040
+#define AL_SHAPE  0x0080
+#define AL_SHADOW 0x0100
+#define AL_FONT   0x0200
+#define AL_SAMPLE 0x0400
+#define AL_PORT   0x0800
+#define AL_IOREQ  0x1000
+#define AL_TDISK  0x2000
+#define AL_TERR   0x4000
 
 extern UWORD openflags;
 
-static BOOL	hdrive = FALSE;
-static BPTR	file;
+static BOOL hdrive = FALSE;
+static BPTR file;
 
 /* 9 diskreqs: 5 landscape, 2 Terrain, 1 map, 1 sector, 1 monster */
 
-struct MsgPort *diskport;
-struct IOExtTD *diskreq1, diskreqs[10], *lastreq;
+struct MsgPort * diskport;
+struct IOExtTD * diskreq1, diskreqs[10], *lastreq;
 
 int AllocDiskIO()
-{	int16_t	i;
-	BPTR	lock;
+{
+    int16_t i;
+    BPTR    lock;
 
-	if ((lock = Lock("image",ACCESS_READ)))
-	{
-		hdrive = TRUE;
-		UnLock(lock);
+    if ((lock = Lock("image", ACCESS_READ)))
+    {
+        hdrive = TRUE;
+        UnLock(lock);
 
-		if ( (file = Open("image",MODE_OLDFILE)) == 0 ) return 30;	// Xark: NULL -> 0 (since BPTR)
-	}
-	else
-	{
-		if ((diskport = CreatePort(0,0))==0) return 30;
-		SETFN(AL_PORT);
-		if ((diskreq1=(struct IOExtTD *)CreateExtIO(diskport,sizeof(struct IOExtTD)))==0) return 31;
-		SETFN(AL_IOREQ);
-		if (OpenDevice(TD_NAME,0,(struct IORequest *)diskreq1,0)) return 32;
-		SETFN(AL_TDISK);
-		for (i=0; i<9; i++)
-		{	diskreqs[i] = *diskreq1;
-		}
-	}
+        if ((file = Open("image", MODE_OLDFILE)) == 0)
+            return 30;        // Xark: NULL -> 0 (since BPTR)
+    }
+    else
+    {
+        if ((diskport = CreatePort(0, 0)) == 0)
+            return 30;
+        SETFN(AL_PORT);
+        if ((diskreq1 = (struct IOExtTD *)CreateExtIO(diskport, sizeof(struct IOExtTD))) == 0)
+            return 31;
+        SETFN(AL_IOREQ);
+        if (OpenDevice(TD_NAME, 0, (struct IORequest *)diskreq1, 0))
+            return 32;
+        SETFN(AL_TDISK);
+        for (i = 0; i < 9; i++)
+        {
+            diskreqs[i] = *diskreq1;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 void FreeDiskIO()
 {
-	if (file) Close(file);
+    if (file)
+        Close(file);
 
-	if (TSTFN(AL_TDISK)) CloseDevice((struct IORequest *)diskreq1);
-	if (TSTFN(AL_IOREQ))  DeleteExtIO((struct IORequest *)diskreq1);
-	if (TSTFN(AL_PORT)) DeletePort(diskport);
+    if (TSTFN(AL_TDISK))
+        CloseDevice((struct IORequest *)diskreq1);
+    if (TSTFN(AL_IOREQ))
+        DeleteExtIO((struct IORequest *)diskreq1);
+    if (TSTFN(AL_PORT))
+        DeletePort(diskport);
 }
 
 void WaitDiskIO(int num)
 {
-	if (hdrive == FALSE)
-		WaitIO((struct IORequest *)&diskreqs[num]);
+    if (hdrive == FALSE)
+        WaitIO((struct IORequest *)&diskreqs[num]);
 }
 
 void InvalidDiskIO(int num)
 {
-	if (hdrive == FALSE)
-		diskreqs[num].iotd_Req.io_Command = CMD_INVALID;
+    if (hdrive == FALSE)
+        diskreqs[num].iotd_Req.io_Command = CMD_INVALID;
 }
 
 int CheckDiskIO(int num)
 {
-	if (hdrive == FALSE) return (CheckIO((struct IORequest *)&diskreqs[num]) == NULL) ? FALSE : TRUE;		// Xark: Converting ptr to int, test added
+    if (hdrive == FALSE)
+        return (CheckIO((struct IORequest *)&diskreqs[num]) == NULL)
+                   ? FALSE
+                   : TRUE;        // Xark: Converting ptr to int, test added
 
-	return TRUE;
+    return TRUE;
 }
 
 int IsReadDiskIO(int num)
 {
-	if (hdrive == FALSE) return (diskreqs[num].iotd_Req.io_Command == CMD_READ);
+    if (hdrive == FALSE)
+        return (diskreqs[num].iotd_Req.io_Command == CMD_READ);
 
-	return FALSE;
+    return FALSE;
 }
 
 void WaitLastDiskIO()
 {
-	if (hdrive == FALSE)
-		WaitIO((struct IORequest *)lastreq);
+    if (hdrive == FALSE)
+        WaitIO((struct IORequest *)lastreq);
 }
 
 void InvalidLastDiskIO()
 {
-	if (hdrive == FALSE)
-		lastreq->iotd_Req.io_Command = CMD_INVALID;
+    if (hdrive == FALSE)
+        lastreq->iotd_Req.io_Command = CMD_INVALID;
 }
 
 int CheckLastDiskIO()
 {
-	if (hdrive == FALSE) return (CheckIO((struct IORequest *)lastreq) == NULL) ? FALSE : TRUE;
+    if (hdrive == FALSE)
+        return (CheckIO((struct IORequest *)lastreq) == NULL) ? FALSE : TRUE;
 
-	return TRUE;
+    return TRUE;
 }
 
 int IsReadLastDiskIO()
 {
-	if (hdrive == FALSE) return (lastreq->iotd_Req.io_Command == CMD_READ);
+    if (hdrive == FALSE)
+        return (lastreq->iotd_Req.io_Command == CMD_READ);
 
-	return FALSE;
+    return FALSE;
 }
 
 void load_track_range(int16_t f_block, int16_t b_count, APTR buffer, int16_t dr)
-{	int16_t error;
+{
+    int16_t error;
 
-	if (hdrive == FALSE)
-	{
-		lastreq = &(diskreqs[dr]);
-		if (lastreq->iotd_Req.io_Command == CMD_READ) WaitIO((struct IORequest *)lastreq);
-		*lastreq = *diskreq1;
-		lastreq->iotd_Req.io_Length = b_count * 512;
-		lastreq->iotd_Req.io_Data = buffer;
-		lastreq->iotd_Req.io_Command = CMD_READ;
-		lastreq->iotd_Req.io_Offset = f_block * 512;
-		SendIO((struct IORequest *)lastreq);
-	}
-	else
-	{
-		Seek(file,f_block * 512,OFFSET_BEGINNING);
-		Read(file,buffer,b_count * 512);
-	}
+    if (hdrive == FALSE)
+    {
+        lastreq = &(diskreqs[dr]);
+        if (lastreq->iotd_Req.io_Command == CMD_READ)
+            WaitIO((struct IORequest *)lastreq);
+        *lastreq                     = *diskreq1;
+        lastreq->iotd_Req.io_Length  = b_count * 512;
+        lastreq->iotd_Req.io_Data    = buffer;
+        lastreq->iotd_Req.io_Command = CMD_READ;
+        lastreq->iotd_Req.io_Offset  = f_block * 512;
+        SendIO((struct IORequest *)lastreq);
+    }
+    else
+    {
+        Seek(file, f_block * 512, OFFSET_BEGINNING);
+        Read(file, buffer, b_count * 512);
+    }
 }
 
 void motor_off(void)
 {
-	if (hdrive == FALSE)
-	{
-		diskreqs[9] = *diskreq1;
-		diskreqs[9].iotd_Req.io_Length = 0;
-		diskreqs[9].iotd_Req.io_Command = TD_MOTOR;
-		DoIO((struct IORequest *)&diskreqs[9]); 
-	}
+    if (hdrive == FALSE)
+    {
+        diskreqs[9]                     = *diskreq1;
+        diskreqs[9].iotd_Req.io_Length  = 0;
+        diskreqs[9].iotd_Req.io_Command = TD_MOTOR;
+        DoIO((struct IORequest *)&diskreqs[9]);
+    }
 }
 
 BOOL IsHardDrive(void)
 {
-	return hdrive;
+    return hdrive;
 }

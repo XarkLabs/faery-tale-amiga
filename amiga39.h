@@ -3,39 +3,40 @@
 #if !defined(AMIGA39_H)
 #define AMIGA39_H
 
-#define FTA_NEXGEN	1
-#define	FTA_LOG		1
+#define FTA_NEXGEN 1
+#define FTA_LOG    1
 
 #if defined(FTA_LOG)
-#define RUNLOG(msg) fprintf(stdout, "%s\n", msg) 
+#define RUNLOG(msg)          fprintf(stdout, "%s\n", msg)
 #define RUNLOGF(fmtmsg, ...) fprintf(stdout, fmtmsg "\n", ##__VA_ARGS__)
 #else
-#define RUNLOG()	(void)
+#define RUNLOG()  (void)
 #define RUNLOGF() (void)
 #endif
 
-#define timeval amigaOS_timeval // Xark: Avoid conflicting with native OS
+#define timeval amigaOS_timeval        // Xark: Avoid conflicting with native OS
 
 #include "exec/types.h"
-#include "exec/memory.h"
+
 #include "devices/audio.h"
-#include "graphics/view.h"
-#include "graphics/scale.h"
-#include "hardware/blit.h"
-#include "hardware/custom.h"
-#include "dos/exall.h"
-#include "graphics/gfxmacros.h"
-#include "graphics/copper.h"
-#include "graphics/display.h"
-#include "graphics/text.h"
-#include "graphics/gfxbase.h"
-#include "graphics/sprite.h"
-#include "exec/devices.h"
-#include "libraries/diskfont.h"
-#include "libraries/dosextens.h"
 #include "devices/input.h"
 #include "devices/inputevent.h"
 #include "devices/trackdisk.h"
+#include "dos/exall.h"
+#include "exec/devices.h"
+#include "exec/memory.h"
+#include "graphics/copper.h"
+#include "graphics/display.h"
+#include "graphics/gfxbase.h"
+#include "graphics/gfxmacros.h"
+#include "graphics/scale.h"
+#include "graphics/sprite.h"
+#include "graphics/text.h"
+#include "graphics/view.h"
+#include "hardware/blit.h"
+#include "hardware/custom.h"
+#include "libraries/diskfont.h"
+#include "libraries/dosextens.h"
 
 #include "clib/alib_protos.h"
 #include "clib/cia_protos.h"
@@ -61,7 +62,7 @@
 
 #undef timeval
 
-#define TRUE 1
+#define TRUE  1
 #define FALSE 0
 
 #endif

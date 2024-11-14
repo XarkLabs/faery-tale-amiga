@@ -1,10 +1,10 @@
 /* fmain.c */
 // Xark: NOTE Types altered to match C file (not Manx C promotion rules)
-int open_all(void);
-int close_all(void)  __attribute__ ((noreturn));
+int  open_all(void);
+int  close_all(void) __attribute__((noreturn));
 void read_sample(void);
-int doorfind(USHORT x, USHORT y, ULONG keytype);
-int main(int argc, char **argv);
+int  doorfind(USHORT x, USHORT y, ULONG keytype);
+int  main(int argc, char ** argv);
 void xfer(USHORT xtest, USHORT ytest, USHORT flag);
 void find_place(int16_t flag);
 void load_actors(void);

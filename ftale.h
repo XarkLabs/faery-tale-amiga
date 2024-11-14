@@ -11,11 +11,10 @@
     if (new != old)                                                                                \
         FreeMem(new, size);
 
-        // TODO: used based pointer
+// TODO: used based pointer
 #define BPTR_ADDR(bptr, ptype) (ptype *)((intptr_t)bptr << 2)
 // TODO: used based pointer
-#define BPTR_OFFSET_ADDR(bptr, byteoff, ptype)                                                     \
-    (ptype *)((intptr_t)(bptr << 2) + byteoff)        
+#define BPTR_OFFSET_ADDR(bptr, byteoff, ptype) (ptype *)((intptr_t)(bptr << 2) + byteoff)
 
 /* motion states */
 #define WALKING  12

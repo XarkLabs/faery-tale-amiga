@@ -127,8 +127,8 @@ struct FileInfoBlock {
 
 /* All BCPL data must be long word aligned.  BCPL pointers are the long word
  *  address (i.e byte address divided by 4 (>>2)) */
-typedef long  BPTR;		    /* Long word pointer */
-typedef long  BSTR;		    /* Long word pointer to BCPL string	 */
+typedef int32_t  BPTR;		    /* Long word pointer */                     // Xark: long -> int32_t
+typedef int32_t  BSTR;		    /* Long word pointer to BCPL string	 */   // Xark: long -> int32_t
 
 /* Convert BPTR to typical C pointer */
 #ifdef OBSOLETE_LIBRARIES_DOS_H
@@ -245,7 +245,7 @@ struct InfoData {
 #define SIGBREAKF_CTRL_C   (1<<SIGBREAKB_CTRL_C)
 #define SIGBREAKF_CTRL_D   (1<<SIGBREAKB_CTRL_D)
 #define SIGBREAKF_CTRL_E   (1<<SIGBREAKB_CTRL_E)
-#define SIGBREAKF_CTRL_F   ((long)1<<SIGBREAKB_CTRL_F)
+#define SIGBREAKF_CTRL_F   ((int32_t)1<<SIGBREAKB_CTRL_F)
 
 /* Values returned by SameLock() */
 #define LOCK_DIFFERENT		-1

@@ -22,8 +22,8 @@ MAKEFLAGS += --no-builtin-rules
 CFLAGS  = -g -Os -Wno-pointer-sign -I AmigaOS_NDK_3.1/Includes_Libs/include_h $(shell sdl2-config --cflags)
 LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image
 
-SRCS = fmain.c fmain2.c hdrive.c iffsubs.c amigaos_exec.c
-OBJS = fmain.o fmain2.o hdrive.o iffsubs.o amigaos_exec.o
+SRCS = fmain.c fmain2.c hdrive.c iffsubs.c amigaos_alib.c amigaos_dos.c amigaos_exec.c amigaos_graphics.c
+OBJS = fmain.o fmain2.o hdrive.o iffsubs.o amigaos_alib.o amigaos_dos.o amigaos_exec.o amigaos_graphics.o
 INCS = amiga39.h ftale.h fmain.p fmain2.p iffsubs.p
 
 all: fta

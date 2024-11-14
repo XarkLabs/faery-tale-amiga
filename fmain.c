@@ -656,7 +656,6 @@ unsigned char
 	*bmask_mem, *queue_mem,
 	*sample_mem,
 	*terra_mem;	/* Terrain data */
-#define free_chip(new,old,size) if (new!=old) FreeMem(new,size);
 
 unsigned char *nextshape, *tempshape;
 

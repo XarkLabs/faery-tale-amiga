@@ -3,5 +3,9 @@
         "*.h": "c",
         "*.p": "c",
     },
-    "makefile.configureOnOpen": true
+    "makefile.configureOnOpen": true,
+    "[m68k]": {
+        "editor.rulers": []
+    },
+    "editor.comments.ignoreEmptyLines": false
 }

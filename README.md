@@ -1,6 +1,6 @@
 # The Faery Tale Adventure - macOS/SDL2
 
-Xark@
+Xark of [XarkLabs](https://XarkLabs.com)
 
 This is my attempt to get The Faery Tale Adventure to run on a modern platform.
 

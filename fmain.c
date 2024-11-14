@@ -60,7 +60,7 @@ struct encounter {
 	{ 40, TRUE,7,1,0, 8 },	/* 7 - DKnight - elf glade */
 	{ 12, TRUE,6,1,0, 9 },	/* 8 - Loraii - astral plane */
 	{ 50, TRUE,5,0,0, 9 },	/* 9 - Necromancer - final arena */
-	{ 4,  NULL,0,0,0, 9 },	/* 10 - Woodcutter */
+	{ 4,  FALSE,0,0,0, 9 },	/* 10 - Woodcutter */		// Xark: NULL -> FALSE
 };
 
 extern char treasure_probs[], weapon_probs[];
@@ -771,7 +771,7 @@ int open_all(void)
 	}
 #endif
 
-	if ((seg = LoadSeg("fonts/Amber/9")) == NULL) return 15;
+	if ((seg = LoadSeg("fonts/Amber/9")) == 0) return 15;	// Xark: NULL -> 0 (since BPTR)
 	font = (struct DiskFontHeader *) ((seg<<2)+8);
 	SETFN(AL_FONT);		/* opened the font */
 

@@ -28,7 +28,7 @@
 void OpenIntuition( void );
 void Intuition( struct InputEvent *iEvent );
 UWORD AddGadget( struct Window *window, struct Gadget *gadget,
-	unsigned long position );
+	uint32_t position );
 BOOL ClearDMRequest( struct Window *window );
 void ClearMenuStrip( struct Window *window );
 void ClearPointer( struct Window *window );
@@ -36,67 +36,67 @@ BOOL CloseScreen( struct Screen *screen );
 void CloseWindow( struct Window *window );
 LONG CloseWorkBench( void );
 void CurrentTime( ULONG *seconds, ULONG *micros );
-BOOL DisplayAlert( unsigned long alertNumber, UBYTE *string,
-	unsigned long height );
+BOOL DisplayAlert( uint32_t alertNumber, UBYTE *string,
+	uint32_t height );
 void DisplayBeep( struct Screen *screen );
-BOOL DoubleClick( unsigned long sSeconds, unsigned long sMicros,
-	unsigned long cSeconds, unsigned long cMicros );
-void DrawBorder( struct RastPort *rp, struct Border *border, long leftOffset,
-	long topOffset );
-void DrawImage( struct RastPort *rp, struct Image *image, long leftOffset,
-	long topOffset );
+BOOL DoubleClick( uint32_t sSeconds, uint32_t sMicros,
+	uint32_t cSeconds, uint32_t cMicros );
+void DrawBorder( struct RastPort *rp, struct Border *border, int32_t leftOffset,
+	int32_t topOffset );
+void DrawImage( struct RastPort *rp, struct Image *image, int32_t leftOffset,
+	int32_t topOffset );
 void EndRequest( struct Requester *requester, struct Window *window );
-struct Preferences *GetDefPrefs( struct Preferences *preferences, long size );
-struct Preferences *GetPrefs( struct Preferences *preferences, long size );
+struct Preferences *GetDefPrefs( struct Preferences *preferences, int32_t size );
+struct Preferences *GetPrefs( struct Preferences *preferences, int32_t size );
 void InitRequester( struct Requester *requester );
 struct MenuItem *ItemAddress( struct Menu *menuStrip,
-	unsigned long menuNumber );
-BOOL ModifyIDCMP( struct Window *window, unsigned long flags );
+	uint32_t menuNumber );
+BOOL ModifyIDCMP( struct Window *window, uint32_t flags );
 void ModifyProp( struct Gadget *gadget, struct Window *window,
-	struct Requester *requester, unsigned long flags,
-	unsigned long horizPot, unsigned long vertPot,
-	unsigned long horizBody, unsigned long vertBody );
-void MoveScreen( struct Screen *screen, long dx, long dy );
-void MoveWindow( struct Window *window, long dx, long dy );
+	struct Requester *requester, uint32_t flags,
+	uint32_t horizPot, uint32_t vertPot,
+	uint32_t horizBody, uint32_t vertBody );
+void MoveScreen( struct Screen *screen, int32_t dx, int32_t dy );
+void MoveWindow( struct Window *window, int32_t dx, int32_t dy );
 void OffGadget( struct Gadget *gadget, struct Window *window,
 	struct Requester *requester );
-void OffMenu( struct Window *window, unsigned long menuNumber );
+void OffMenu( struct Window *window, uint32_t menuNumber );
 void OnGadget( struct Gadget *gadget, struct Window *window,
 	struct Requester *requester );
-void OnMenu( struct Window *window, unsigned long menuNumber );
+void OnMenu( struct Window *window, uint32_t menuNumber );
 struct Screen *OpenScreen( struct NewScreen *newScreen );
 struct Window *OpenWindow( struct NewWindow *newWindow );
 ULONG OpenWorkBench( void );
-void PrintIText( struct RastPort *rp, struct IntuiText *iText, long left,
-	long top );
+void PrintIText( struct RastPort *rp, struct IntuiText *iText, int32_t left,
+	int32_t top );
 void RefreshGadgets( struct Gadget *gadgets, struct Window *window,
 	struct Requester *requester );
 UWORD RemoveGadget( struct Window *window, struct Gadget *gadget );
 /* The official calling sequence for ReportMouse is given below. */
 /* Note the register order.  For the complete story, read the ReportMouse */
 /* autodoc. */
-void ReportMouse( long flag, struct Window *window );
-void ReportMouse1( struct Window *window, long flag );
+void ReportMouse( int32_t flag, struct Window *window );
+void ReportMouse1( struct Window *window, int32_t flag );
 BOOL Request( struct Requester *requester, struct Window *window );
 void ScreenToBack( struct Screen *screen );
 void ScreenToFront( struct Screen *screen );
 BOOL SetDMRequest( struct Window *window, struct Requester *requester );
 BOOL SetMenuStrip( struct Window *window, struct Menu *menu );
-void SetPointer( struct Window *window, UWORD *pointer, long height,
-	long width, long xOffset, long yOffset );
+void SetPointer( struct Window *window, UWORD *pointer, int32_t height,
+	int32_t width, int32_t xOffset, int32_t yOffset );
 void SetWindowTitles( struct Window *window, UBYTE *windowTitle,
 	UBYTE *screenTitle );
-void ShowTitle( struct Screen *screen, long showIt );
-void SizeWindow( struct Window *window, long dx, long dy );
+void ShowTitle( struct Screen *screen, int32_t showIt );
+void SizeWindow( struct Window *window, int32_t dx, int32_t dy );
 struct View *ViewAddress( void );
 struct ViewPort *ViewPortAddress( struct Window *window );
 void WindowToBack( struct Window *window );
 void WindowToFront( struct Window *window );
-BOOL WindowLimits( struct Window *window, long widthMin, long heightMin,
-	unsigned long widthMax, unsigned long heightMax );
+BOOL WindowLimits( struct Window *window, int32_t widthMin, int32_t heightMin,
+	uint32_t widthMax, uint32_t heightMax );
 /*--- start of next generation of names -------------------------------------*/
-struct Preferences *SetPrefs( struct Preferences *preferences, long size,
-	long inform );
+struct Preferences *SetPrefs( struct Preferences *preferences, int32_t size,
+	int32_t inform );
 /*--- start of next next generation of names --------------------------------*/
 LONG IntuiTextLength( struct IntuiText *iText );
 BOOL WBenchToBack( void );
@@ -104,13 +104,13 @@ BOOL WBenchToFront( void );
 /*--- start of next next next generation of names ---------------------------*/
 BOOL AutoRequest( struct Window *window, struct IntuiText *body,
 	struct IntuiText *posText, struct IntuiText *negText,
-	unsigned long pFlag, unsigned long nFlag, unsigned long width,
-	unsigned long height );
+	uint32_t pFlag, uint32_t nFlag, uint32_t width,
+	uint32_t height );
 void BeginRefresh( struct Window *window );
 struct Window *BuildSysRequest( struct Window *window, struct IntuiText *body,
 	struct IntuiText *posText, struct IntuiText *negText,
-	unsigned long flags, unsigned long width, unsigned long height );
-void EndRefresh( struct Window *window, long complete );
+	uint32_t flags, uint32_t width, uint32_t height );
+void EndRefresh( struct Window *window, int32_t complete );
 void FreeSysRequest( struct Window *window );
 /* The return codes for MakeScreen(), RemakeDisplay(), and RethinkDisplay() */
 /* are only valid under V39 and greater.  Do not examine them when running */
@@ -119,40 +119,40 @@ LONG MakeScreen( struct Screen *screen );
 LONG RemakeDisplay( void );
 LONG RethinkDisplay( void );
 /*--- start of next next next next generation of names ----------------------*/
-APTR AllocRemember( struct Remember **rememberKey, unsigned long size,
-	unsigned long flags );
+APTR AllocRemember( struct Remember **rememberKey, uint32_t size,
+	uint32_t flags );
 /* Public function AlohaWorkbench() is intentionally not documented */
-void AlohaWorkbench( long wbport );
-void FreeRemember( struct Remember **rememberKey, long reallyForget );
+void AlohaWorkbench( int32_t wbport );
+void FreeRemember( struct Remember **rememberKey, int32_t reallyForget );
 /*--- start of 15 Nov 85 names ------------------------*/
-ULONG LockIBase( unsigned long dontknow );
-void UnlockIBase( unsigned long ibLock );
+ULONG LockIBase( uint32_t dontknow );
+void UnlockIBase( uint32_t ibLock );
 /*--- functions in V33 or higher (Release 1.2) ---*/
-LONG GetScreenData( APTR buffer, unsigned long size, unsigned long type,
+LONG GetScreenData( APTR buffer, uint32_t size, uint32_t type,
 	struct Screen *screen );
 void RefreshGList( struct Gadget *gadgets, struct Window *window,
-	struct Requester *requester, long numGad );
+	struct Requester *requester, int32_t numGad );
 UWORD AddGList( struct Window *window, struct Gadget *gadget,
-	unsigned long position, long numGad, struct Requester *requester );
+	uint32_t position, int32_t numGad, struct Requester *requester );
 UWORD RemoveGList( struct Window *remPtr, struct Gadget *gadget,
-	long numGad );
+	int32_t numGad );
 void ActivateWindow( struct Window *window );
 void RefreshWindowFrame( struct Window *window );
 BOOL ActivateGadget( struct Gadget *gadgets, struct Window *window,
 	struct Requester *requester );
 void NewModifyProp( struct Gadget *gadget, struct Window *window,
-	struct Requester *requester, unsigned long flags,
-	unsigned long horizPot, unsigned long vertPot,
-	unsigned long horizBody, unsigned long vertBody, long numGad );
+	struct Requester *requester, uint32_t flags,
+	uint32_t horizPot, uint32_t vertPot,
+	uint32_t horizBody, uint32_t vertBody, int32_t numGad );
 /*--- functions in V36 or higher (Release 2.0) ---*/
-LONG QueryOverscan( unsigned long displayID, struct Rectangle *rect,
-	long oScanType );
+LONG QueryOverscan( uint32_t displayID, struct Rectangle *rect,
+	int32_t oScanType );
 void MoveWindowInFrontOf( struct Window *window,
 	struct Window *behindWindow );
-void ChangeWindowBox( struct Window *window, long left, long top, long width,
-	long height );
+void ChangeWindowBox( struct Window *window, int32_t left, int32_t top, int32_t width,
+	int32_t height );
 struct Hook *SetEditHook( struct Hook *hook );
-LONG SetMouseQueue( struct Window *window, unsigned long queueLength );
+LONG SetMouseQueue( struct Window *window, uint32_t queueLength );
 void ZipWindow( struct Window *window );
 /*--- public screens ---*/
 struct Screen *LockPubScreen( UBYTE *name );
@@ -161,8 +161,8 @@ struct List *LockPubScreenList( void );
 void UnlockPubScreenList( void );
 UBYTE *NextPubScreen( struct Screen *screen, UBYTE *namebuf );
 void SetDefaultPubScreen( UBYTE *name );
-UWORD SetPubScreenModes( unsigned long modes );
-UWORD PubScreenStatus( struct Screen *screen, unsigned long statusFlags );
+UWORD SetPubScreenModes( uint32_t modes );
+UWORD PubScreenStatus( struct Screen *screen, uint32_t statusFlags );
 
 struct RastPort *ObtainGIRPort( struct GadgetInfo *gInfo );
 void ReleaseGIRPort( struct RastPort *rp );
@@ -174,48 +174,48 @@ LONG EasyRequestArgs( struct Window *window, struct EasyStruct *easyStruct,
 LONG EasyRequest( struct Window *window, struct EasyStruct *easyStruct,
 	ULONG *idcmpPtr, ... );
 struct Window *BuildEasyRequestArgs( struct Window *window,
-	struct EasyStruct *easyStruct, unsigned long idcmp, APTR args );
+	struct EasyStruct *easyStruct, uint32_t idcmp, APTR args );
 struct Window *BuildEasyRequest( struct Window *window,
-	struct EasyStruct *easyStruct, unsigned long idcmp, ... );
-LONG SysReqHandler( struct Window *window, ULONG *idcmpPtr, long waitInput );
+	struct EasyStruct *easyStruct, uint32_t idcmp, ... );
+LONG SysReqHandler( struct Window *window, ULONG *idcmpPtr, int32_t waitInput );
 struct Window *OpenWindowTagList( struct NewWindow *newWindow,
 	struct TagItem *tagList );
 struct Window *OpenWindowTags( struct NewWindow *newWindow,
-	unsigned long tag1Type, ... );
+	uint32_t tag1Type, ... );
 struct Screen *OpenScreenTagList( struct NewScreen *newScreen,
 	struct TagItem *tagList );
 struct Screen *OpenScreenTags( struct NewScreen *newScreen,
-	unsigned long tag1Type, ... );
+	uint32_t tag1Type, ... );
 
 /*	new Image functions */
-void DrawImageState( struct RastPort *rp, struct Image *image, long leftOffset,
-	long topOffset, unsigned long state, struct DrawInfo *drawInfo );
-BOOL PointInImage( unsigned long point, struct Image *image );
-void EraseImage( struct RastPort *rp, struct Image *image, long leftOffset,
-	long topOffset );
+void DrawImageState( struct RastPort *rp, struct Image *image, int32_t leftOffset,
+	int32_t topOffset, uint32_t state, struct DrawInfo *drawInfo );
+BOOL PointInImage( uint32_t point, struct Image *image );
+void EraseImage( struct RastPort *rp, struct Image *image, int32_t leftOffset,
+	int32_t topOffset );
 
 APTR NewObjectA( struct IClass *classPtr, UBYTE *classID,
 	struct TagItem *tagList );
-APTR NewObject( struct IClass *classPtr, UBYTE *classID, unsigned long tag1,
+APTR NewObject( struct IClass *classPtr, UBYTE *classID, uint32_t tag1,
 	... );
 
 void DisposeObject( APTR object );
 ULONG SetAttrsA( APTR object, struct TagItem *tagList );
-ULONG SetAttrs( APTR object, unsigned long tag1, ... );
+ULONG SetAttrs( APTR object, uint32_t tag1, ... );
 
-ULONG GetAttr( unsigned long attrID, APTR object, ULONG *storagePtr );
+ULONG GetAttr( uint32_t attrID, APTR object, ULONG *storagePtr );
 
 /*	special set attribute call for gadgets */
 ULONG SetGadgetAttrsA( struct Gadget *gadget, struct Window *window,
 	struct Requester *requester, struct TagItem *tagList );
 ULONG SetGadgetAttrs( struct Gadget *gadget, struct Window *window,
-	struct Requester *requester, unsigned long tag1, ... );
+	struct Requester *requester, uint32_t tag1, ... );
 
 /*	for class implementors only */
 APTR NextObject( APTR objectPtrPtr );
 struct IClass *MakeClass( UBYTE *classID, UBYTE *superClassID,
-	struct IClass *superClassPtr, unsigned long instanceSize,
-	unsigned long flags );
+	struct IClass *superClassPtr, uint32_t instanceSize,
+	uint32_t flags );
 void AddClass( struct IClass *classPtr );
 
 
@@ -227,22 +227,22 @@ void RemoveClass( struct IClass *classPtr );
 BOOL FreeClass( struct IClass *classPtr );
 /*--- functions in V39 or higher (Release 3) ---*/
 struct ScreenBuffer *AllocScreenBuffer( struct Screen *sc, struct BitMap *bm,
-	unsigned long flags );
+	uint32_t flags );
 void FreeScreenBuffer( struct Screen *sc, struct ScreenBuffer *sb );
 ULONG ChangeScreenBuffer( struct Screen *sc, struct ScreenBuffer *sb );
-void ScreenDepth( struct Screen *screen, unsigned long flags, APTR reserved );
-void ScreenPosition( struct Screen *screen, unsigned long flags, long x1,
-	long y1, long x2, long y2 );
-void ScrollWindowRaster( struct Window *win, long dx, long dy, long xMin,
-	long yMin, long xMax, long yMax );
+void ScreenDepth( struct Screen *screen, uint32_t flags, APTR reserved );
+void ScreenPosition( struct Screen *screen, uint32_t flags, int32_t x1,
+	int32_t y1, int32_t x2, int32_t y2 );
+void ScrollWindowRaster( struct Window *win, int32_t dx, int32_t dy, int32_t xMin,
+	int32_t yMin, int32_t xMax, int32_t yMax );
 void LendMenus( struct Window *fromwindow, struct Window *towindow );
 ULONG DoGadgetMethodA( struct Gadget *gad, struct Window *win,
 	struct Requester *req, Msg message );
 ULONG DoGadgetMethod( struct Gadget *gad, struct Window *win,
-	struct Requester *req, unsigned long MethodID, ... );
+	struct Requester *req, uint32_t MethodID, ... );
 void SetWindowPointerA( struct Window *win, struct TagItem *taglist );
-void SetWindowPointer( struct Window *win, unsigned long tag1, ... );
-BOOL TimedDisplayAlert( unsigned long alertNumber, UBYTE *string,
-	unsigned long height, unsigned long time );
-void HelpControl( struct Window *win, unsigned long flags );
+void SetWindowPointer( struct Window *win, uint32_t tag1, ... );
+BOOL TimedDisplayAlert( uint32_t alertNumber, UBYTE *string,
+	uint32_t height, uint32_t time );
+void HelpControl( struct Window *win, uint32_t flags );
 #endif	 /* CLIB_INTUITION_PROTOS_H */

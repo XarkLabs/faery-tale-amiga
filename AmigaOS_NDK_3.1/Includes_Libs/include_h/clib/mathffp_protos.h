@@ -15,7 +15,7 @@
 #include <exec/types.h>
 #endif
 LONG SPFix( FLOAT parm );
-FLOAT SPFlt( long integer );
+FLOAT SPFlt( int32_t integer );
 LONG SPCmp( FLOAT leftParm, FLOAT rightParm );
 LONG SPTst( FLOAT parm );
 FLOAT SPAbs( FLOAT parm );

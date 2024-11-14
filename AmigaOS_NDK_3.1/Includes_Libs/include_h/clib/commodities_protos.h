@@ -30,15 +30,15 @@
 
 /*  OBJECT UTILITIES */
 
-CxObj *CreateCxObj( unsigned long type, long arg1, long arg2 );
+CxObj *CreateCxObj( uint32_t type, int32_t arg1, int32_t arg2 );
 CxObj *CxBroker( struct NewBroker *nb, LONG *error );
-LONG ActivateCxObj( CxObj *co, long true );
+LONG ActivateCxObj( CxObj *co, int32_t true );
 void DeleteCxObj( CxObj *co );
 void DeleteCxObjAll( CxObj *co );
 ULONG CxObjType( CxObj *co );
 LONG CxObjError( CxObj *co );
 void ClearCxObjError( CxObj *co );
-LONG SetCxObjPri( CxObj *co, long pri );
+LONG SetCxObjPri( CxObj *co, int32_t pri );
 
 /*  OBJECT ATTACHMENT */
 
@@ -68,7 +68,7 @@ void DisposeCxMsg( CxMsg *cxm );
 
 /*  INPUT EVENT HANDLING */
 
-BOOL InvertKeyMap( unsigned long ansiCode, struct InputEvent *event,
+BOOL InvertKeyMap( uint32_t ansiCode, struct InputEvent *event,
 	struct KeyMap *km );
 void AddIEvents( struct InputEvent *events );
 /*--- functions in V38 or higher (Release 2.1) ---*/

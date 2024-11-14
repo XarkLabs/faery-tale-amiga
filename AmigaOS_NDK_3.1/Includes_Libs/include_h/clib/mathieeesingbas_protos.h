@@ -15,7 +15,7 @@
 #include <exec/types.h>
 #endif
 LONG IEEESPFix( FLOAT parm );
-FLOAT IEEESPFlt( long integer );
+FLOAT IEEESPFlt( int32_t integer );
 LONG IEEESPCmp( FLOAT leftParm, FLOAT rightParm );
 LONG IEEESPTst( FLOAT parm );
 FLOAT IEEESPAbs( FLOAT parm );

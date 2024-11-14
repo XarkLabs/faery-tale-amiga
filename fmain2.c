@@ -961,7 +961,7 @@ void witch_fx(struct fpage *fp)
 		r->AreaInfo = oldarea;
 	}
 	r->Layer = oldlayer;
-	DeleteLayer(NULL,layer);
+	DeleteLayer(0,layer);	// Xark: NULL -> 0 (long dummy)
 }
 
 enum obytes {

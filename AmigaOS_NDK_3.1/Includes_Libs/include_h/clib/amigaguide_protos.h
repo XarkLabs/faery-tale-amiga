@@ -37,7 +37,7 @@
 /* Public entries */
 
 LONG LockAmigaGuideBase( APTR handle );
-void UnlockAmigaGuideBase( long key );
+void UnlockAmigaGuideBase( int32_t key );
 APTR OpenAmigaGuideA( struct NewAmigaGuide *nag, struct TagItem * );
 APTR OpenAmigaGuide( struct NewAmigaGuide *nag, Tag tag1, ... );
 APTR OpenAmigaGuideAsyncA( struct NewAmigaGuide *nag, struct TagItem *attrs );
@@ -46,9 +46,9 @@ void CloseAmigaGuide( APTR cl );
 ULONG AmigaGuideSignal( APTR cl );
 struct AmigaGuideMsg *GetAmigaGuideMsg( APTR cl );
 void ReplyAmigaGuideMsg( struct AmigaGuideMsg *amsg );
-LONG SetAmigaGuideContextA( APTR cl, unsigned long id,
+LONG SetAmigaGuideContextA( APTR cl, uint32_t id,
 	struct TagItem *attrs );
-LONG SetAmigaGuideContext( APTR cl, unsigned long id, Tag tag1, ... );
+LONG SetAmigaGuideContext( APTR cl, uint32_t id, Tag tag1, ... );
 LONG SendAmigaGuideContextA( APTR cl, struct TagItem *attrs );
 LONG SendAmigaGuideContext( APTR cl, Tag tag1, ... );
 LONG SendAmigaGuideCmdA( APTR cl, STRPTR cmd, struct TagItem *attrs );
@@ -62,5 +62,5 @@ APTR AddAmigaGuideHostA( struct Hook *h, STRPTR name, struct TagItem *attrs );
 APTR AddAmigaGuideHost( struct Hook *h, STRPTR name, Tag tag1, ... );
 LONG RemoveAmigaGuideHostA( APTR hh, struct TagItem *attrs );
 LONG RemoveAmigaGuideHost( APTR hh, Tag tag1, ... );
-STRPTR GetAmigaGuideString( long id );
+STRPTR GetAmigaGuideString( int32_t id );
 #endif	 /* CLIB_AMIGAGUIDE_PROTOS_H */

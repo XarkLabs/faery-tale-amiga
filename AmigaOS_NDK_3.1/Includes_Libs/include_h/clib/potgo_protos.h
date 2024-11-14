@@ -14,7 +14,7 @@
 #ifndef  EXEC_TYPES_H
 #include <exec/types.h>
 #endif
-UWORD AllocPotBits( unsigned long bits );
-void FreePotBits( unsigned long bits );
-void WritePotgo( unsigned long word, unsigned long mask );
+UWORD AllocPotBits( uint32_t bits );
+void FreePotBits( uint32_t bits );
+void WritePotgo( uint32_t word, uint32_t mask );
 #endif	 /* CLIB_POTGO_PROTOS_H */

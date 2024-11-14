@@ -22,14 +22,16 @@ MAKEFLAGS += --no-builtin-rules
 CFLAGS  = -g -Os -Wno-pointer-sign -I AmigaOS_NDK_3.1/Includes_Libs/include_h $(shell sdl2-config --cflags)
 LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image
 
-SRCS = fmain.c fmain2.c hdrive.c iffsubs.c
-OBJS = fmain.o fmain2.o hdrive.o iffsubs.o
+SRCS = fmain.c fmain2.c hdrive.c iffsubs.c amigaos_exec.c
+OBJS = fmain.o fmain2.o hdrive.o iffsubs.o amigaos_exec.o
 INCS = amiga39.h ftale.h fmain.p fmain2.p iffsubs.p
 
 all: fta
 
 fta: $(OBJS)
-	ld $(LDFLAGS) -o $@ $(OBJS)
+	-ld $(LDFLAGS) -o $@ $(OBJS) 2>ld.log
+	@echo "Symbols left to define:"
+	@grep "referenced" ld.log | sort | uniq | cut -d "," -f 1
 
 $(OBJS): $(INCLUDE) Makefile
 

@@ -16,5 +16,5 @@
 #endif
 void ResetBattClock( void );
 ULONG ReadBattClock( void );
-void WriteBattClock( unsigned long time );
+void WriteBattClock( uint32_t time );
 #endif	 /* CLIB_BATTCLOCK_PROTOS_H */

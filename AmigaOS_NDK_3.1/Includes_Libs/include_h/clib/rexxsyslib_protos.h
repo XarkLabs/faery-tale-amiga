@@ -22,19 +22,19 @@
 #include <rexx/rexxio.h>
 #endif
 
-UBYTE *CreateArgstring( UBYTE *string, unsigned long length );
+UBYTE *CreateArgstring( UBYTE *string, uint32_t length );
 void DeleteArgstring( UBYTE *argstring );
 ULONG LengthArgstring( UBYTE *argstring );
 struct RexxMsg *CreateRexxMsg( struct MsgPort *port, UBYTE *extension,
 	UBYTE *host );
 void DeleteRexxMsg( struct RexxMsg *packet );
-void ClearRexxMsg( struct RexxMsg *msgptr, unsigned long count );
-BOOL FillRexxMsg( struct RexxMsg *msgptr, unsigned long count,
-	unsigned long mask );
+void ClearRexxMsg( struct RexxMsg *msgptr, uint32_t count );
+BOOL FillRexxMsg( struct RexxMsg *msgptr, uint32_t count,
+	uint32_t mask );
 BOOL IsRexxMsg( struct RexxMsg *msgptr );
 
 
-void LockRexxBase( unsigned long resource );
-void UnlockRexxBase( unsigned long resource );
+void LockRexxBase( uint32_t resource );
+void UnlockRexxBase( uint32_t resource );
 
 #endif	 /* CLIB_REXXSYSLIB_PROTOS_H */

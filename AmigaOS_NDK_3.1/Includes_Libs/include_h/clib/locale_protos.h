@@ -32,26 +32,26 @@
 /*--- functions in V38 or higher (Release 2.1) ---*/
 void CloseCatalog( struct Catalog *catalog );
 void CloseLocale( struct Locale *locale );
-ULONG ConvToLower( struct Locale *locale, unsigned long character );
-ULONG ConvToUpper( struct Locale *locale, unsigned long character );
+ULONG ConvToLower( struct Locale *locale, uint32_t character );
+ULONG ConvToUpper( struct Locale *locale, uint32_t character );
 void FormatDate( struct Locale *locale, STRPTR fmtTemplate,
 	struct DateStamp *date, struct Hook *putCharFunc );
 APTR FormatString( struct Locale *locale, STRPTR fmtTemplate, APTR dataStream,
 	struct Hook *putCharFunc );
-STRPTR GetCatalogStr( struct Catalog *catalog, long stringNum,
+STRPTR GetCatalogStr( struct Catalog *catalog, int32_t stringNum,
 	STRPTR defaultString );
-STRPTR GetLocaleStr( struct Locale *locale, unsigned long stringNum );
-BOOL IsAlNum( struct Locale *locale, unsigned long character );
-BOOL IsAlpha( struct Locale *locale, unsigned long character );
-BOOL IsCntrl( struct Locale *locale, unsigned long character );
-BOOL IsDigit( struct Locale *locale, unsigned long character );
-BOOL IsGraph( struct Locale *locale, unsigned long character );
-BOOL IsLower( struct Locale *locale, unsigned long character );
-BOOL IsPrint( struct Locale *locale, unsigned long character );
-BOOL IsPunct( struct Locale *locale, unsigned long character );
-BOOL IsSpace( struct Locale *locale, unsigned long character );
-BOOL IsUpper( struct Locale *locale, unsigned long character );
-BOOL IsXDigit( struct Locale *locale, unsigned long character );
+STRPTR GetLocaleStr( struct Locale *locale, uint32_t stringNum );
+BOOL IsAlNum( struct Locale *locale, uint32_t character );
+BOOL IsAlpha( struct Locale *locale, uint32_t character );
+BOOL IsCntrl( struct Locale *locale, uint32_t character );
+BOOL IsDigit( struct Locale *locale, uint32_t character );
+BOOL IsGraph( struct Locale *locale, uint32_t character );
+BOOL IsLower( struct Locale *locale, uint32_t character );
+BOOL IsPrint( struct Locale *locale, uint32_t character );
+BOOL IsPunct( struct Locale *locale, uint32_t character );
+BOOL IsSpace( struct Locale *locale, uint32_t character );
+BOOL IsUpper( struct Locale *locale, uint32_t character );
+BOOL IsXDigit( struct Locale *locale, uint32_t character );
 struct Catalog *OpenCatalogA( struct Locale *locale, STRPTR name,
 	struct TagItem *tags );
 struct Catalog *OpenCatalog( struct Locale *locale, STRPTR name, Tag tag1,
@@ -60,7 +60,7 @@ struct Locale *OpenLocale( STRPTR name );
 BOOL ParseDate( struct Locale *locale, struct DateStamp *date,
 	STRPTR fmtTemplate, struct Hook *getCharFunc );
 ULONG StrConvert( struct Locale *locale, STRPTR string, APTR buffer,
-	unsigned long bufferSize, unsigned long type );
+	uint32_t bufferSize, uint32_t type );
 LONG StrnCmp( struct Locale *locale, STRPTR string1, STRPTR string2,
-	long length, unsigned long type );
+	int32_t length, uint32_t type );
 #endif	 /* CLIB_LOCALE_PROTOS_H */

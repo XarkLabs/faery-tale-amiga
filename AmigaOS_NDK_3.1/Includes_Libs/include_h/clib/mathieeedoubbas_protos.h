@@ -15,7 +15,7 @@
 #include <exec/types.h>
 #endif
 LONG IEEEDPFix( DOUBLE parm );
-DOUBLE IEEEDPFlt( long integer );
+DOUBLE IEEEDPFlt( int32_t integer );
 LONG IEEEDPCmp( DOUBLE leftParm, DOUBLE rightParm );
 LONG IEEEDPTst( DOUBLE parm );
 DOUBLE IEEEDPAbs( DOUBLE parm );

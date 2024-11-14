@@ -27,8 +27,8 @@
 struct FileRequester *AllocFileRequest( void );
 void FreeFileRequest( struct FileRequester *fileReq );
 BOOL RequestFile( struct FileRequester *fileReq );
-APTR AllocAslRequest( unsigned long reqType, struct TagItem *tagList );
-APTR AllocAslRequestTags( unsigned long reqType, Tag Tag1, ... );
+APTR AllocAslRequest( uint32_t reqType, struct TagItem *tagList );
+APTR AllocAslRequestTags( uint32_t reqType, Tag Tag1, ... );
 void FreeAslRequest( APTR requester );
 BOOL AslRequest( APTR requester, struct TagItem *tagList );
 BOOL AslRequestTags( APTR requester, Tag Tag1, ... );

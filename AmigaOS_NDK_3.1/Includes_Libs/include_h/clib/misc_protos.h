@@ -14,6 +14,6 @@
 #ifndef  EXEC_TYPES_H
 #include <exec/types.h>
 #endif
-UBYTE *AllocMiscResource( unsigned long unitNum, UBYTE *name );
-void FreeMiscResource( unsigned long unitNum );
+UBYTE *AllocMiscResource( uint32_t unitNum, UBYTE *name );
+void FreeMiscResource( uint32_t unitNum );
 #endif	 /* CLIB_MISC_PROTOS_H */

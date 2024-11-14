@@ -38,7 +38,7 @@ int AllocDiskIO()
 		hdrive = TRUE;
 		UnLock(lock);
 
-		if ( (file = Open("image",MODE_OLDFILE)) == NULL ) return 30;
+		if ( (file = Open("image",MODE_OLDFILE)) == 0 ) return 30;	// Xark: NULL -> 0 (since BPTR)
 	}
 	else
 	{

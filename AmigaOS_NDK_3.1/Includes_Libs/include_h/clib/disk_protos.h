@@ -14,11 +14,11 @@
 #ifndef  RESOURCES_DISK_H
 #include <resources/disk.h>
 #endif
-BOOL AllocUnit( long unitNum );
-void FreeUnit( long unitNum );
+BOOL AllocUnit( int32_t unitNum );
+void FreeUnit( int32_t unitNum );
 struct DiskResourceUnit *GetUnit( struct DiskResourceUnit *unitPointer );
 void GiveUnit( void );
-LONG GetUnitID( long unitNum );
+LONG GetUnitID( int32_t unitNum );
 /*------ new for V37 ------*/
-LONG ReadUnitID( long unitNum );
+LONG ReadUnitID( int32_t unitNum );
 #endif	 /* CLIB_DISK_PROTOS_H */

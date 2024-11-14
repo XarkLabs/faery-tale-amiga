@@ -18,7 +18,7 @@
 #include <workbench/workbench.h>
 #endif
 void FreeFreeList( struct FreeList *freelist );
-BOOL AddFreeList( struct FreeList *freelist, APTR mem, unsigned long size );
+BOOL AddFreeList( struct FreeList *freelist, APTR mem, uint32_t size );
 struct DiskObject *GetDiskObject( UBYTE *name );
 BOOL PutDiskObject( UBYTE *name, struct DiskObject *diskobj );
 void FreeDiskObject( struct DiskObject *diskobj );
@@ -26,7 +26,7 @@ UBYTE *FindToolType( UBYTE **toolTypeArray, UBYTE *typeName );
 BOOL MatchToolValue( UBYTE *typeString, UBYTE *value );
 UBYTE *BumpRevision( UBYTE *newname, UBYTE *oldname );
 /*--- functions in V36 or higher (Release 2.0) ---*/
-struct DiskObject *GetDefDiskObject( long type );
+struct DiskObject *GetDefDiskObject( int32_t type );
 BOOL PutDefDiskObject( struct DiskObject *diskObject );
 struct DiskObject *GetDiskObjectNew( UBYTE *name );
 /*--- functions in V37 or higher (Release 2.04) ---*/

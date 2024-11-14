@@ -3,7 +3,16 @@
 #if !defined(AMIGA39_H)
 #define AMIGA39_H
 
-#include <stdint.h>
+#define FTA_NEXGEN	1
+#define	FTA_LOG		1
+
+#if defined(FTA_LOG)
+#define RUNLOG(msg) fprintf(stdout, "%s\n", msg) 
+#define RUNLOGF(fmtmsg, ...) fprintf(stdout, fmtmsg "\n", ##__VA_ARGS__)
+#else
+#define RUNLOG()	(void)
+#define RUNLOGF() (void)
+#endif
 
 #define timeval amigaOS_timeval // Xark: Avoid conflicting with native OS
 

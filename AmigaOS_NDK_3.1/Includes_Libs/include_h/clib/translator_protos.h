@@ -14,6 +14,6 @@
 #ifndef  EXEC_TYPES_H
 #include <exec/types.h>
 #endif
-LONG Translate( STRPTR inputString, long inputLength, STRPTR outputBuffer,
-	long bufferSize );
+LONG Translate( STRPTR inputString, int32_t inputLength, STRPTR outputBuffer,
+	int32_t bufferSize );
 #endif	 /* CLIB_TRANSLATOR_PROTOS_H */

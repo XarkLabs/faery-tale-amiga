@@ -1,12 +1,14 @@
 /* include file for faery tale adventures - by Talin */
 
-#include "amiga39.h"	// Xark: most Amiga includes (like "amiga39.pre")
+// Xark new additions
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "amiga39.h"	// Xark: most AmigaOS includes (like "amiga39.pre")
 
 // Xark: Moved below: #include "fmain2.p"
 // Xark: Moved below: #include "iffsubs.p"
-
-#include <stdlib.h>		// Xark: Added
-#include <stdio.h>		// Xark: Added
 
 #define free_chip(new,old,size) if (new!=old) FreeMem(new,size);
 

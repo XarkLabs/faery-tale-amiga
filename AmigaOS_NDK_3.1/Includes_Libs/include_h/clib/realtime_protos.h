@@ -24,7 +24,7 @@
 
 /* Locks */
 
-APTR LockRealTime( unsigned long lockType );
+APTR LockRealTime( uint32_t lockType );
 void UnlockRealTime( APTR lock );
 
 /* Conductor */
@@ -34,9 +34,9 @@ struct Player *CreatePlayer( Tag tag1, ... );
 void DeletePlayer( struct Player *player );
 BOOL SetPlayerAttrsA( struct Player *player, struct TagItem *tagList );
 BOOL SetPlayerAttrs( struct Player *player, Tag tag1, ... );
-LONG SetConductorState( struct Player *player, unsigned long state,
-	long time );
-BOOL ExternalSync( struct Player *player, long minTime, long maxTime );
+LONG SetConductorState( struct Player *player, uint32_t state,
+	int32_t time );
+BOOL ExternalSync( struct Player *player, int32_t minTime, int32_t maxTime );
 struct Conductor *NextConductor( struct Conductor *previousConductor );
 struct Conductor *FindConductor( STRPTR name );
 ULONG GetPlayerAttrsA( struct Player *player, struct TagItem *tagList );

@@ -1,5 +1,9 @@
+// Xark: Modified to use stdint.h sizes
+
 #ifndef	EXEC_TYPES_H
 #define	EXEC_TYPES_H
+
+#include <stdint.h>
 /*
 **	$VER: types.h 40.1 (10.8.93)
 **	Includes Release 40.15
@@ -33,43 +37,43 @@
 #define APTR_TYPEDEF
 typedef void	       *APTR;	    /* 32-bit untyped pointer */
 #endif
-typedef long		LONG;	    /* signed 32-bit quantity */
-typedef unsigned long	ULONG;	    /* unsigned 32-bit quantity */
-typedef unsigned long	LONGBITS;   /* 32 bits manipulated individually */
-typedef short		WORD;	    /* signed 16-bit quantity */
-typedef unsigned short	UWORD;	    /* unsigned 16-bit quantity */
-typedef unsigned short	WORDBITS;   /* 16 bits manipulated individually */
+typedef int32_t		LONG;	    /* signed 32-bit quantity */
+typedef uint32_t	ULONG;	    /* unsigned 32-bit quantity */
+typedef uint32_t	LONGBITS;   /* 32 bits manipulated individually */
+typedef int16_t		WORD;	    /* signed 16-bit quantity */
+typedef uint16_t	UWORD;	    /* unsigned 16-bit quantity */
+typedef uint16_t	WORDBITS;   /* 16 bits manipulated individually */
 #if __STDC__
-typedef signed char	BYTE;	    /* signed 8-bit quantity */
+typedef int8_t	BYTE;	    /* signed 8-bit quantity */
 #else
 typedef char		BYTE;	    /* signed 8-bit quantity */
 #endif
-typedef unsigned char	UBYTE;	    /* unsigned 8-bit quantity */
-typedef unsigned char	BYTEBITS;   /* 8 bits manipulated individually */
-typedef unsigned short	RPTR;	    /* signed relative pointer */
+typedef uint8_t	UBYTE;	    /* unsigned 8-bit quantity */
+typedef uint8_t	BYTEBITS;   /* 8 bits manipulated individually */
+typedef uint16_t	RPTR;	    /* signed relative pointer */
 
 #ifdef __cplusplus
 typedef char	       *STRPTR;     /* string pointer (NULL terminated) */
 #elif defined(__clang__)          /* Xark: avoid conversion issues */
 typedef char	       *STRPTR;     /* string pointer (NULL terminated) */
 #else
-typedef unsigned char  *STRPTR;     /* string pointer (NULL terminated) */
+typedef uint8_t  *STRPTR;     /* string pointer (NULL terminated) */
 #endif
 
 
 /* For compatibility only: (don't use in new code) */
-typedef short		SHORT;	    /* signed 16-bit quantity (use WORD) */
-typedef unsigned short	USHORT;     /* unsigned 16-bit quantity (use UWORD) */
-typedef short		COUNT;
-typedef unsigned short	UCOUNT;
+typedef int16_t		SHORT;	    /* signed 16-bit quantity (use WORD) */
+typedef uint16_t	USHORT;     /* unsigned 16-bit quantity (use UWORD) */
+typedef int16_t		COUNT;
+typedef uint16_t	UCOUNT;
 typedef ULONG		CPTR;
 
 
 /* Types with specific semantics */
 typedef float		FLOAT;
 typedef double		DOUBLE;
-typedef short		BOOL;
-typedef unsigned char	TEXT;
+typedef int16_t		BOOL;
+typedef uint8_t	TEXT;
 
 #ifndef TRUE
 #define TRUE		1

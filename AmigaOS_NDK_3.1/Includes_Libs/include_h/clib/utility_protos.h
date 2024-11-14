@@ -34,22 +34,22 @@
 /* Tag item functions */
 
 struct TagItem *FindTagItem( Tag tagVal, struct TagItem *tagList );
-ULONG GetTagData( Tag tagValue, unsigned long defaultVal,
+ULONG GetTagData( Tag tagValue, uint32_t defaultVal,
 	struct TagItem *tagList );
-ULONG PackBoolTags( unsigned long initialFlags, struct TagItem *tagList,
+ULONG PackBoolTags( uint32_t initialFlags, struct TagItem *tagList,
 	struct TagItem *boolMap );
 struct TagItem *NextTagItem( struct TagItem **tagListPtr );
 void FilterTagChanges( struct TagItem *changeList,
-	struct TagItem *originalList, unsigned long apply );
+	struct TagItem *originalList, uint32_t apply );
 void MapTags( struct TagItem *tagList, struct TagItem *mapList,
-	unsigned long mapType );
-struct TagItem *AllocateTagItems( unsigned long numTags );
+	uint32_t mapType );
+struct TagItem *AllocateTagItems( uint32_t numTags );
 struct TagItem *CloneTagItems( struct TagItem *tagList );
 void FreeTagItems( struct TagItem *tagList );
 void RefreshTagItemClones( struct TagItem *clone, struct TagItem *original );
 BOOL TagInArray( Tag tagValue, Tag *tagArray );
 ULONG FilterTagItems( struct TagItem *tagList, Tag *filterArray,
-	unsigned long logic );
+	uint32_t logic );
 
 /* Hook functions */
 
@@ -57,28 +57,28 @@ ULONG CallHookPkt( struct Hook *hook, APTR object, APTR paramPacket );
 
 /* Date functions */
 
-void Amiga2Date( unsigned long seconds, struct ClockData *result );
+void Amiga2Date( uint32_t seconds, struct ClockData *result );
 ULONG Date2Amiga( struct ClockData *date );
 ULONG CheckDate( struct ClockData *date );
 
 /* 32 bit integer muliply functions */
 
-LONG SMult32( long arg1, long arg2 );
-ULONG UMult32( unsigned long arg1, unsigned long arg2 );
+LONG SMult32( int32_t arg1, int32_t arg2 );
+ULONG UMult32( uint32_t arg1, uint32_t arg2 );
 
 /* 32 bit integer division funtions. The quotient and the remainder are */
 /* returned respectively in d0 and d1 */
 
-LONG SDivMod32( long dividend, long divisor );
-ULONG UDivMod32( unsigned long dividend, unsigned long divisor );
+LONG SDivMod32( int32_t dividend, int32_t divisor );
+ULONG UDivMod32( uint32_t dividend, uint32_t divisor );
 /*--- functions in V37 or higher (Release 2.04) ---*/
 
 /* International string routines */
 
 LONG Stricmp( STRPTR string1, STRPTR string2 );
-LONG Strnicmp( STRPTR string1, STRPTR string2, long length );
-UBYTE ToUpper( unsigned long character );
-UBYTE ToLower( unsigned long character );
+LONG Strnicmp( STRPTR string1, STRPTR string2, int32_t length );
+UBYTE ToUpper( uint32_t character );
+UBYTE ToLower( uint32_t character );
 /*--- functions in V39 or higher (Release 3) ---*/
 
 /* More tag Item functions */
@@ -88,8 +88,8 @@ void ApplyTagChanges( struct TagItem *list, struct TagItem *changeList );
 /* 64 bit integer muliply functions. The results are 64 bit quantities */
 /* returned in D0 and D1 */
 
-LONG SMult64( long arg1, long arg2 );
-ULONG UMult64( unsigned long arg1, unsigned long arg2 );
+LONG SMult64( int32_t arg1, int32_t arg2 );
+ULONG UMult64( uint32_t arg1, uint32_t arg2 );
 
 /* Structure to Tag and Tag to Structure support routines */
 

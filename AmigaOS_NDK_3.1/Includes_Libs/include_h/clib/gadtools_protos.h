@@ -28,9 +28,9 @@
 
 /* Gadget Functions */
 
-struct Gadget *CreateGadgetA( unsigned long kind, struct Gadget *gad,
+struct Gadget *CreateGadgetA( uint32_t kind, struct Gadget *gad,
 	struct NewGadget *ng, struct TagItem *taglist );
-struct Gadget *CreateGadget( unsigned long kind, struct Gadget *gad,
+struct Gadget *CreateGadget( uint32_t kind, struct Gadget *gad,
 	struct NewGadget *ng, Tag tag1, ... );
 void FreeGadgets( struct Gadget *gad );
 void GT_SetGadgetAttrsA( struct Gadget *gad, struct Window *win,
@@ -55,17 +55,17 @@ struct IntuiMessage *GT_GetIMsg( struct MsgPort *iport );
 void GT_ReplyIMsg( struct IntuiMessage *imsg );
 void GT_RefreshWindow( struct Window *win, struct Requester *req );
 void GT_BeginRefresh( struct Window *win );
-void GT_EndRefresh( struct Window *win, long complete );
+void GT_EndRefresh( struct Window *win, int32_t complete );
 struct IntuiMessage *GT_FilterIMsg( struct IntuiMessage *imsg );
 struct IntuiMessage *GT_PostFilterIMsg( struct IntuiMessage *imsg );
 struct Gadget *CreateContext( struct Gadget **glistptr );
 
 /* Rendering Functions */
 
-void DrawBevelBoxA( struct RastPort *rport, long left, long top, long width,
-	long height, struct TagItem *taglist );
-void DrawBevelBox( struct RastPort *rport, long left, long top, long width,
-	long height, Tag tag1, ... );
+void DrawBevelBoxA( struct RastPort *rport, int32_t left, int32_t top, int32_t width,
+	int32_t height, struct TagItem *taglist );
+void DrawBevelBox( struct RastPort *rport, int32_t left, int32_t top, int32_t width,
+	int32_t height, Tag tag1, ... );
 
 /* Visuals Functions */
 

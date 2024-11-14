@@ -21,13 +21,13 @@
 #include <libraries/nonvolatile.h>
 #endif
 /*--- functions in V40 or higher (Release 3.1) ---*/
-APTR GetCopyNV( STRPTR appName, STRPTR itemName, long killRequesters );
+APTR GetCopyNV( STRPTR appName, STRPTR itemName, int32_t killRequesters );
 void FreeNVData( APTR data );
 UWORD StoreNV( STRPTR appName, STRPTR itemName, APTR data,
-	unsigned long length, long killRequesters );
-BOOL DeleteNV( STRPTR appName, STRPTR itemName, long killRequesters );
-struct NVInfo *GetNVInfo( long killRequesters );
-struct MinList *GetNVList( STRPTR appName, long killRequesters );
-BOOL SetNVProtection( STRPTR appName, STRPTR itemName, long mask,
-	long killRequesters );
+	uint32_t length, int32_t killRequesters );
+BOOL DeleteNV( STRPTR appName, STRPTR itemName, int32_t killRequesters );
+struct NVInfo *GetNVInfo( int32_t killRequesters );
+struct MinList *GetNVList( STRPTR appName, int32_t killRequesters );
+BOOL SetNVProtection( STRPTR appName, STRPTR itemName, int32_t mask,
+	int32_t killRequesters );
 #endif	 /* CLIB_NONVOLATILE_PROTOS_H */

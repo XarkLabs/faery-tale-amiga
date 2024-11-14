@@ -42,9 +42,9 @@
 
 /* Public entries */
 
-struct DataType *ObtainDataTypeA( unsigned long type, APTR handle,
+struct DataType *ObtainDataTypeA( uint32_t type, APTR handle,
 	struct TagItem *attrs );
-struct DataType *ObtainDataType( unsigned long type, APTR handle, Tag Tag1,
+struct DataType *ObtainDataType( uint32_t type, APTR handle, Tag Tag1,
 	... );
 void ReleaseDataType( struct DataType *dt );
 Object *NewDTObjectA( APTR name, struct TagItem *attrs );
@@ -57,7 +57,7 @@ ULONG SetDTAttrs( Object *o, struct Window *win, struct Requester *req,
 ULONG GetDTAttrsA( Object *o, struct TagItem *attrs );
 ULONG GetDTAttrs( Object *o, Tag Tag1, ... );
 LONG AddDTObject( struct Window *win, struct Requester *req, Object *o,
-	long pos );
+	int32_t pos );
 void RefreshDTObjectA( Object *o, struct Window *win, struct Requester *req,
 	struct TagItem *attrs );
 void RefreshDTObjects( Object *o, struct Window *win, struct Requester *req,
@@ -66,13 +66,13 @@ ULONG DoAsyncLayout( Object *o, struct gpLayout *gpl );
 ULONG DoDTMethodA( Object *o, struct Window *win, struct Requester *req,
 	Msg msg );
 ULONG DoDTMethod( Object *o, struct Window *win, struct Requester *req,
-	unsigned long data, ... );
+	uint32_t data, ... );
 LONG RemoveDTObject( struct Window *win, Object *o );
 ULONG *GetDTMethods( Object *object );
 struct DTMethods *GetDTTriggerMethods( Object *object );
 ULONG PrintDTObjectA( Object *o, struct Window *w, struct Requester *r,
 	struct dtPrint *msg );
 ULONG PrintDTObject( Object *o, struct Window *w, struct Requester *r,
-	unsigned long data, ... );
-STRPTR GetDTString( unsigned long id );
+	uint32_t data, ... );
+STRPTR GetDTString( uint32_t id );
 #endif	 /* CLIB_DATATYPES_PROTOS_H */

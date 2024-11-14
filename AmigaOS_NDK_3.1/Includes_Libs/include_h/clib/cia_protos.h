@@ -20,10 +20,10 @@
 #ifndef  EXEC_LIBRARIES_H
 #include <exec/libraries.h>
 #endif
-struct Interrupt *AddICRVector( struct Library *resource, long iCRBit,
+struct Interrupt *AddICRVector( struct Library *resource, int32_t iCRBit,
 	struct Interrupt *interrupt );
-void RemICRVector( struct Library *resource, long iCRBit,
+void RemICRVector( struct Library *resource, int32_t iCRBit,
 	struct Interrupt *interrupt );
-WORD AbleICR( struct Library *resource, long mask );
-WORD SetICR( struct Library *resource, long mask );
+WORD AbleICR( struct Library *resource, int32_t mask );
+WORD SetICR( struct Library *resource, int32_t mask );
 #endif	 /* CLIB_CIA_PROTOS_H */

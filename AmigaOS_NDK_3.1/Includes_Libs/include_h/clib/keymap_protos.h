@@ -20,8 +20,8 @@
 /*--- functions in V36 or higher (Release 2.0) ---*/
 void SetKeyMapDefault( struct KeyMap *keyMap );
 struct KeyMap *AskKeyMapDefault( void );
-WORD MapRawKey( struct InputEvent *event, STRPTR buffer, long length,
+WORD MapRawKey( struct InputEvent *event, STRPTR buffer, int32_t length,
 	struct KeyMap *keyMap );
-LONG MapANSI( STRPTR string, long count, STRPTR buffer, long length,
+LONG MapANSI( STRPTR string, int32_t count, STRPTR buffer, int32_t length,
 	struct KeyMap *keyMap );
 #endif	 /* CLIB_KEYMAP_PROTOS_H */

@@ -16,6 +16,6 @@
 #endif
 void ObtainBattSemaphore( void );
 void ReleaseBattSemaphore( void );
-ULONG ReadBattMem( APTR buffer, unsigned long offset, unsigned long length );
-ULONG WriteBattMem( APTR buffer, unsigned long offset, unsigned long length );
+ULONG ReadBattMem( APTR buffer, uint32_t offset, uint32_t length );
+ULONG WriteBattMem( APTR buffer, uint32_t offset, uint32_t length );
 #endif	 /* CLIB_BATTMEM_PROTOS_H */

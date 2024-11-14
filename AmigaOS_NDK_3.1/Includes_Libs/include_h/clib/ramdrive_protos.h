@@ -17,5 +17,5 @@
 /*--- functions in V34 or higher (Release 1.3) ---*/
 STRPTR KillRAD0( void );
 /*--- functions in V36 or higher (Release 2.0) ---*/
-STRPTR KillRAD( unsigned long unit );
+STRPTR KillRAD( uint32_t unit );
 #endif	 /* CLIB_RAMDRIVE_PROTOS_H */

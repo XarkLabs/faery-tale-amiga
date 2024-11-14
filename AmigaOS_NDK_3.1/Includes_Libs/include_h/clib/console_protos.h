@@ -22,7 +22,7 @@
 #endif
 struct InputEvent *CDInputHandler( struct InputEvent *events,
 	struct Library *consoleDevice );
-LONG RawKeyConvert( struct InputEvent *events, STRPTR buffer, long length,
+LONG RawKeyConvert( struct InputEvent *events, STRPTR buffer, int32_t length,
 	struct KeyMap *keyMap );
 /*--- functions in V36 or higher (Release 2.0) ---*/
 #endif	 /* CLIB_CONSOLE_PROTOS_H */

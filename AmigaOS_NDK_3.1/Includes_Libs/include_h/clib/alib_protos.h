@@ -39,53 +39,53 @@
 /*  Exec support functions */
 
 void BeginIO( struct IORequest *ioReq );
-struct IORequest *CreateExtIO( struct MsgPort *port, long ioSize );
-struct MsgPort *CreatePort( STRPTR name, long pri );
+struct IORequest *CreateExtIO( struct MsgPort *port, int32_t ioSize );
+struct MsgPort *CreatePort( STRPTR name, int32_t pri );
 struct IOStdReq *CreateStdIO( struct MsgPort *port );
-struct Task *CreateTask( STRPTR name, long pri, APTR initPC,
-	unsigned long stackSize );
+struct Task *CreateTask( STRPTR name, int32_t pri, APTR initPC,
+	uint32_t stackSize );
 void DeleteExtIO( struct IORequest *ioReq );
 void DeletePort( struct MsgPort *ioReq );
 void DeleteStdIO( struct IOStdReq *ioReq );
 void DeleteTask( struct Task *task );
 void NewList( struct List *list );
-APTR LibAllocPooled( APTR poolHeader, unsigned long memSize );
-APTR LibCreatePool( unsigned long memFlags, unsigned long puddleSize,
-	unsigned long threshSize );
+APTR LibAllocPooled( APTR poolHeader, uint32_t memSize );
+APTR LibCreatePool( uint32_t memFlags, uint32_t puddleSize,
+	uint32_t threshSize );
 void LibDeletePool( APTR poolHeader );
-void LibFreePooled( APTR poolHeader, APTR memory, unsigned long memSize );
+void LibFreePooled( APTR poolHeader, APTR memory, uint32_t memSize );
 
 /* Assorted functions in amiga.lib */
 
-ULONG FastRand( unsigned long seed );
-UWORD RangeRand( unsigned long maxValue );
+ULONG FastRand( uint32_t seed );
+UWORD RangeRand( uint32_t maxValue );
 
 /* Graphics support functions in amiga.lib */
 
-void AddTOF( struct Isrvstr *i, long (*p)(), long a );
+void AddTOF( struct Isrvstr *i, int32_t (*p)(), int32_t a );
 void RemTOF( struct Isrvstr *i );
-void waitbeam( long b );
+void waitbeam( int32_t b );
 
 /* math support functions in amiga.lib */
 
 FLOAT afp( BYTE *string );
-void arnd( long place, long exp, BYTE *string );
-FLOAT dbf( unsigned long exp, unsigned long mant );
+void arnd( int32_t place, int32_t exp, BYTE *string );
+FLOAT dbf( uint32_t exp, uint32_t mant );
 LONG fpa( FLOAT fnum, BYTE *string );
 void fpbcd( FLOAT fnum, BYTE *string );
 
 /* Timer support functions in amiga.lib (V36 and higher only) */
 
-LONG TimeDelay( long unit, unsigned long secs, unsigned long microsecs );
-LONG DoTimer( struct timeval *, long unit, long command );
+LONG TimeDelay( int32_t unit, uint32_t secs, uint32_t microsecs );
+LONG DoTimer( struct timeval *, int32_t unit, int32_t command );
 
 /*  Commodities functions in amiga.lib (V36 and higher only) */
 
 void ArgArrayDone( void );
-UBYTE **ArgArrayInit( long argc, UBYTE **argv );
-LONG ArgInt( UBYTE **tt, STRPTR entry, long defaultval );
+UBYTE **ArgArrayInit( int32_t argc, UBYTE **argv );
+LONG ArgInt( UBYTE **tt, STRPTR entry, int32_t defaultval );
 STRPTR ArgString( UBYTE **tt, STRPTR entry, STRPTR defaulstring );
-CxObj *HotKey( STRPTR description, struct MsgPort *port, long id );
+CxObj *HotKey( STRPTR description, struct MsgPort *port, int32_t id );
 struct InputEvent *InvertString( STRPTR str, struct KeyMap *km );
 void FreeIEvents( struct InputEvent *events );
 
@@ -103,7 +103,7 @@ void FreeIEvents( struct InputEvent *events );
 BOOL CheckRexxMsg( struct Message *rexxmsg );
 LONG GetRexxVar( struct Message *rexxmsg, UBYTE *name, UBYTE **result );
 LONG SetRexxVar( struct Message *rexxmsg, UBYTE *name, UBYTE *value,
-	long length );
+	int32_t length );
 
 /*  Intuition hook and boopsi support functions in amiga.lib. */
 /*  These functions do not require any particular ROM revision */
@@ -114,14 +114,14 @@ LONG SetRexxVar( struct Message *rexxmsg, UBYTE *name, UBYTE *value,
 ULONG CallHookA( struct Hook *hookPtr, Object *obj, APTR message );
 ULONG CallHook( struct Hook *hookPtr, Object *obj, ... );
 ULONG DoMethodA( Object *obj, Msg message );
-ULONG DoMethod( Object *obj, unsigned long MethodID, ... );
+ULONG DoMethod( Object *obj, uint32_t MethodID, ... );
 ULONG DoSuperMethodA( struct IClass *cl, Object *obj, Msg message );
-ULONG DoSuperMethod( struct IClass *cl, Object *obj, unsigned long MethodID,
+ULONG DoSuperMethod( struct IClass *cl, Object *obj, uint32_t MethodID,
 	... );
 ULONG CoerceMethodA( struct IClass *cl, Object *obj, Msg message );
-ULONG CoerceMethod( struct IClass *cl, Object *obj, unsigned long MethodID,
+ULONG CoerceMethod( struct IClass *cl, Object *obj, uint32_t MethodID,
 	... );
-ULONG SetSuperAttrs( struct IClass *cl, Object *obj, unsigned long Tag1,
+ULONG SetSuperAttrs( struct IClass *cl, Object *obj, uint32_t Tag1,
 	... );
 
 /*  Network-support functions in amiga.lib. */

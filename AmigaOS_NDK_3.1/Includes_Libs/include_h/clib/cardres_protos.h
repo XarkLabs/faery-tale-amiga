@@ -21,19 +21,19 @@
 #include <resources/card.h>
 #endif
 struct CardHandle *OwnCard( struct CardHandle *handle );
-void ReleaseCard( struct CardHandle *handle, unsigned long flags );
+void ReleaseCard( struct CardHandle *handle, uint32_t flags );
 struct CardMemoryMap *GetCardMap( void );
 BOOL BeginCardAccess( struct CardHandle *handle );
 BOOL EndCardAccess( struct CardHandle *handle );
 UBYTE ReadCardStatus( void );
-BOOL CardResetRemove( struct CardHandle *handle, unsigned long flag );
+BOOL CardResetRemove( struct CardHandle *handle, uint32_t flag );
 UBYTE CardMiscControl( struct CardHandle *handle,
-	unsigned long control_bits );
-ULONG CardAccessSpeed( struct CardHandle *handle, unsigned long nanoseconds );
-LONG CardProgramVoltage( struct CardHandle *handle, unsigned long voltage );
+	uint32_t control_bits );
+ULONG CardAccessSpeed( struct CardHandle *handle, uint32_t nanoseconds );
+LONG CardProgramVoltage( struct CardHandle *handle, uint32_t voltage );
 BOOL CardResetCard( struct CardHandle *handle );
 BOOL CopyTuple( struct CardHandle *handle, UBYTE *buffer,
-	unsigned long tuplecode, unsigned long size );
+	uint32_t tuplecode, uint32_t size );
 ULONG DeviceTuple( UBYTE *tuple_data, struct DeviceTData *storage );
 struct Resident *IfAmigaXIP( struct CardHandle *handle );
 BOOL CardForceChange( void );

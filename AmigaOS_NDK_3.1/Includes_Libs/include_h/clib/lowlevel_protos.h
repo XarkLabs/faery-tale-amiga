@@ -30,7 +30,7 @@
 
 /* CONTROLLER HANDLING */
 
-ULONG ReadJoyPort( unsigned long port );
+ULONG ReadJoyPort( uint32_t port );
 
 /* LANGUAGE HANDLING */
 
@@ -39,7 +39,7 @@ UBYTE GetLanguageSelection( void );
 /* KEYBOARD HANDLING */
 
 ULONG GetKey( void );
-void QueryKeys( struct KeyQuery *queryArray, unsigned long arraySize );
+void QueryKeys( struct KeyQuery *queryArray, uint32_t arraySize );
 APTR AddKBInt( APTR intRoutine, APTR intData );
 void RemKBInt( APTR intHandle );
 
@@ -53,8 +53,8 @@ ULONG SystemControl( Tag firstTag, ... );
 APTR AddTimerInt( APTR intRoutine, APTR intData );
 void RemTimerInt( APTR intHandle );
 void StopTimerInt( APTR intHandle );
-void StartTimerInt( APTR intHandle, unsigned long timeInterval,
-	long continuous );
+void StartTimerInt( APTR intHandle, uint32_t timeInterval,
+	int32_t continuous );
 ULONG ElapsedTime( struct EClockVal *context );
 
 /* VBLANK HANDLING */
@@ -64,6 +64,6 @@ void RemVBlankInt( APTR intHandle );
 
 /* MORE CONTROLLER HANDLING */
 
-BOOL SetJoyPortAttrsA( unsigned long portNumber, struct TagItem *tagList );
-BOOL SetJoyPortAttrs( unsigned long portNumber, Tag firstTag, ... );
+BOOL SetJoyPortAttrsA( uint32_t portNumber, struct TagItem *tagList );
+BOOL SetJoyPortAttrs( uint32_t portNumber, Tag firstTag, ... );
 #endif	 /* CLIB_LOWLEVEL_PROTOS_H */

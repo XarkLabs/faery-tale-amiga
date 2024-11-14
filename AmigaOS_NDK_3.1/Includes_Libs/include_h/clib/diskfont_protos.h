@@ -18,7 +18,7 @@
 #include <diskfont/diskfont.h>
 #endif
 struct TextFont *OpenDiskFont( struct TextAttr *textAttr );
-LONG AvailFonts( STRPTR buffer, long bufBytes, long flags );
+LONG AvailFonts( STRPTR buffer, int32_t bufBytes, int32_t flags );
 /*--- functions in V34 or higher (Release 1.3) ---*/
 struct FontContentsHeader *NewFontContents( BPTR fontsLock, STRPTR fontName );
 void DisposeFontContents( struct FontContentsHeader *fontContentsHeader );

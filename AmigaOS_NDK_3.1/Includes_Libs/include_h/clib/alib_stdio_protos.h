@@ -19,12 +19,12 @@
 
 LONG printf( STRPTR fmt, ... );
 LONG sprintf( STRPTR buffer, STRPTR fmt, ... );
-LONG fclose( long stream );
-LONG fgetc( long stream );
-LONG fprintf( long stream, STRPTR fmt, ... );
-LONG fputc( long c, long stream );
-LONG fputs( UBYTE *s, long stream );
+LONG fclose( int32_t stream );
+LONG fgetc( int32_t stream );
+LONG fprintf( int32_t stream, STRPTR fmt, ... );
+LONG fputc( int32_t c, int32_t stream );
+LONG fputs( UBYTE *s, int32_t stream );
 LONG getchar( void );
-LONG putchar( long c );
+LONG putchar( int32_t c );
 LONG puts( BYTE *s );
 #endif	 /* CLIB_ALIB_STDIO_PROTOS_H */

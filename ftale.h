@@ -1,8 +1,12 @@
 /* include file for faery tale adventures - by Talin */
 
-#include "fmain.p"
-#include "fmain2.p"
-#include "iffsubs.p"
+#include "amiga39.h"	// Xark: most Amiga includes (like "amiga39.pre")
+
+// Xark: Moved below: #include "fmain2.p"
+// Xark: Moved below: #include "iffsubs.p"
+
+#include <stdlib.h>		// Xark: Added
+#include <stdio.h>		// Xark: Added
 
 #define free_chip(new,old,size) if (new!=old) FreeMem(new,size);
 
@@ -117,4 +121,80 @@ struct	in_work {			/* input handler data area */
 	short	ticker;
 };
 
+#include "fmain.p"		// Xark: Moved from above
+#include "fmain2.p"		// Xark: Moved from above
+#include "iffsubs.p"	// Xark: Added
 
+// Xark: Functions below are from assembly files
+// TODO: Clean these up
+
+int MakeBitMap(struct BitMap *b,int depth, int width, int height);
+void UnMakeBitMap(struct BitMap *b);
+
+void map_draw(void);
+void scrollmap(int dir);
+int px_to_im(USHORT x,USHORT y);
+int newx(int x,int dir,int speed);
+int newy(int y,int dir,int speed);
+UBYTE *mapxy(int x, int y);
+void map_adjust(int safe_x, int safe_y);
+void bigdraw(int x, int y);
+void genmini(int x, int y);
+void move(int x, int y);
+void rest_blit(UBYTE *);
+void clear_blit(UBYTE *, LONG size);
+void save_blit(UBYTE *);
+void mask_blit(void);
+void shape_blit(void);
+void strip_draw(int s);
+void row_draw(int r);
+void maskit(int x, int y, int mod, char c);
+void make_mask(UBYTE *s, UBYTE *d, int words, int lines, int len);
+void prdec(int val, int len);
+void dohit(long i,long j,long fc, short wt);
+int page_det(int d);
+
+int AllocDiskIO(void);
+void FreeDiskIO(void);
+void WaitDiskIO(int num);
+void InvalidDiskIO(int num);
+int CheckDiskIO(int num);
+int IsReadDiskIO(int num);
+int CheckLastDiskIO();
+int IsReadLastDiskIO();
+
+void do_error(int e);
+void init_music(SHORT *new_wave, UBYTE *wav_mem, UBYTE *vol_mem);
+void wrap_music(void);
+void setscore(UBYTE *v1, UBYTE *v2, UBYTE *v3, UBYTE *v4);
+void stopscore(void);
+void playscore(UBYTE *t1, UBYTE *t2, UBYTE *t3, UBYTE *t4);
+void playsample(UBYTE *ptr, LONG length, LONG rate);
+
+int stuff_flag(int f);
+
+void text(char *, int len);
+void ssp(char *);
+void placard(void);
+void placard_text(int msg);
+void prq(int p);
+int getkey(void);
+int rnd(int x);
+void decode_mouse(void);
+void msg(char *, int len);
+void speak(int p);
+void event(int e);
+void set_course(int object,int target_x,int target_y,int mode);
+void question(int q);
+void cursor(int len, int color);
+
+int bitrand(int m);
+int rand(void);
+int rand2(void);
+int rand4(void);
+int rand8(void);
+int rand64(void);
+int rand256(void);
+int wrap(int v);
+
+int prox(int x, int y);

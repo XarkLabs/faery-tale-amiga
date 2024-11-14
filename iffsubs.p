@@ -1,2 +1,3 @@
 /* iffsubs.c */
-int unpackbrush(unsigned char *filename, struct BitMap *bitmap, int x, int y);
+// Xark: NOTE Types altered to match C file (not Manx C promotion rules)
+BOOL unpackbrush(char *filename, struct BitMap *bitmap, short x, short y);

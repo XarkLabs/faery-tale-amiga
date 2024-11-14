@@ -1,9 +1,11 @@
-#include "exec/types.h"
-#include "exec/memory.h"
-#include "exec/io.h"
-#include "graphics/display.h"
-#include "graphics/gfxbase.h"
-#include "graphics/gfx.h"
+// Xark: From ftale.h: #include "exec/types.h"
+// Xark: From ftale.h: #include "exec/memory.h"
+// Xark: From ftale.h: #include "exec/io.h"
+// Xark: From ftale.h: #include "graphics/display.h"
+// Xark: From ftale.h: #include "graphics/gfxbase.h"
+// Xark: From ftale.h: #include "graphics/gfx.h"
+
+#include "ftale.h"		// Xark: Added to verify headers in sync
 
 #define FORM	tags[0]
 #define ILBM	tags[1]
@@ -59,15 +61,17 @@ typedef struct {
 	UBYTE	planeMask;
 } DestMerge;
 
-/* ReadHeader()
+// Xark: Uncommented (asm version in fsubs.asm)
+void ReadHeader(void)
 {	Read(myfile,&header,4);
 	file_length -= 4;
 }
 
-ReadLength()
+// Xark: Uncommented (asm version in fsubs.asm)
+void ReadLength(void)
 {	Read(myfile,&blocklength,4);
 	file_length = file_length - 4 - blocklength;
-} */
+}
 
 extern char *GfxBase;
 char	*plane0, *plane1, *plane2, *plane3, *plane4;
@@ -78,6 +82,9 @@ extern char *shape_mem;
 char	compress;
 
 /* char *AllocMem(); */
+
+void unpack_line(char *dest);	// Xark
+
 
 #ifdef blarg
 unpackpic(filename,bitmap) char *filename; struct BitMap *bitmap;
@@ -136,8 +143,7 @@ unpackpic(filename,bitmap) char *filename; struct BitMap *bitmap;
 }
 #endif
 
-unpackbrush(filename,bitmap,x,y)
-char *filename; struct BitMap *bitmap; short x,y;
+BOOL unpackbrush(char *filename, struct BitMap *bitmap, short x, short y)
 {	int bitoffset = (x + (bitmap->BytesPerRow)*y);
 
 	myfile = Open(filename,1005);
@@ -220,7 +226,8 @@ erase_line(dest) char *dest;
 }
 */
 
-/* unpack_line(dest) char *dest;
+// Xark: Uncommented (asm version in fsubs.asm)
+void unpack_line(char *dest)
 {	short j, upc;
 	if (bmhd.compression == 0)
 	{	for (j=0; j<bytecount; j++) *dest++ = *packdata++; }
@@ -237,7 +244,6 @@ erase_line(dest) char *dest;
 		}
 	}
 }	
-*/
 
 /* fade_map(level) int level;
 {	unsigned red, green, blue, i;

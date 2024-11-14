@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.h": "c",
+        "*.p": "c",
+    },
+    "makefile.configureOnOpen": true
+}

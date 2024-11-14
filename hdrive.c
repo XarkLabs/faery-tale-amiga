@@ -1,3 +1,4 @@
+#include "ftale.h"		// Xark: Added to verify headers in sync
 
 #define	SETFN(n)	openflags |= n
 #define TSTFN(n)	openflags & n
@@ -32,7 +33,7 @@ int AllocDiskIO()
 {	short	i;
 	BPTR	lock;
 
-	if (lock = Lock("image",ACCESS_READ))
+	if ((lock = Lock("image",ACCESS_READ)))
 	{
 		hdrive = TRUE;
 		UnLock(lock);
@@ -64,26 +65,26 @@ void FreeDiskIO()
 	if (TSTFN(AL_PORT)) DeletePort(diskport);
 }
 
-void WaitDiskIO(num) int num;
+void WaitDiskIO(int num)
 {
 	if (hdrive == FALSE)
 		WaitIO((struct IORequest *)&diskreqs[num]);
 }
 
-void InvalidDiskIO(num) int num;
+void InvalidDiskIO(int num)
 {
 	if (hdrive == FALSE)
 		diskreqs[num].iotd_Req.io_Command = CMD_INVALID;
 }
 
-int CheckDiskIO(num) int num;
+int CheckDiskIO(int num)
 {
-	if (hdrive == FALSE) return CheckIO((struct IORequest *)&diskreqs[num]);
+	if (hdrive == FALSE) return (CheckIO((struct IORequest *)&diskreqs[num]) == NULL) ? FALSE : TRUE;		// Xark: Converting ptr to int, test added
 
 	return TRUE;
 }
 
-int IsReadDiskIO(num) int num;
+int IsReadDiskIO(int num)
 {
 	if (hdrive == FALSE) return (diskreqs[num].iotd_Req.io_Command == CMD_READ);
 
@@ -104,7 +105,7 @@ void InvalidLastDiskIO()
 
 int CheckLastDiskIO()
 {
-	if (hdrive == FALSE) return CheckIO((struct IORequest *)lastreq);
+	if (hdrive == FALSE) return (CheckIO((struct IORequest *)lastreq) == NULL) ? FALSE : TRUE;
 
 	return TRUE;
 }
@@ -116,8 +117,7 @@ int IsReadLastDiskIO()
 	return FALSE;
 }
 
-load_track_range(f_block,b_count,buffer,dr)
-short f_block, b_count, dr; APTR buffer;
+void load_track_range(short f_block, short b_count, APTR buffer, short dr)
 {	short error;
 
 	if (hdrive == FALSE)
@@ -138,7 +138,7 @@ short f_block, b_count, dr; APTR buffer;
 	}
 }
 
-motor_off()
+void motor_off(void)
 {
 	if (hdrive == FALSE)
 	{

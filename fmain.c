@@ -453,7 +453,7 @@ PLANEPTR *pl;
 LONG i;
 SHORT j,k,n;
 
-extern struct ColorMap *GetColorMap();
+// Xark: extern struct ColorMap *GetColorMap();
 struct GfxBase *GfxBase;
 struct Library *LayersBase;
 
@@ -491,7 +491,7 @@ char numbuf[11] = { 0,0,0,0,0,0,0,0,0,0,' '};
 
 /* definitions for the option menus */
 
-enum cmodes {ITEMS=0, MAGIC, TALK, BUY, GAME, SAVEX, KEYS, GIVE, USE, FILE};
+enum cmodes {ITEMS=0, MAGIC, TALK, BUY, GAME, SAVEX, KEYS, GIVE, USE, FILEMENU};	// Xark: FILE -> FILEMENU globally
 
 char label1[] = "ItemsMagicTalk Buy  Game ";
 char label2[] = "List Take Look Use  Give ";
@@ -644,13 +644,13 @@ extern short minimap[114];
 #define	SECTOR_OFF	(128*256)		/* 256 sectors - 32K */
 #define SAMPLE_SZ	(5632)			/* 5K for samples */
 
-long	LoadSeg(), seg;
+long	/* Xark: LoadSeg(), */seg;
 struct	DiskFontHeader *font;
 struct  TextFont *tfont, *afont;
 struct  TextAttr topaz_ta = { "topaz.font", 8, 0, FPF_ROMFONT };
 
 unsigned char 
-	*into_chip(),
+//	*into_chip(),	// Xark: removeed since added prototype
 	*image_mem, *sector_mem, *map_mem, *shadow_mem, 
 	*shape_mem,
 	*bmask_mem, *queue_mem,
@@ -714,8 +714,8 @@ struct in_work handler_data;
 #define AL_TERR		0x4000
 
 struct BitMap *wb_bmap;
-struct Layer_Info *li, /* *NewLayerInfo() */ ;
-struct Process *thistask /* , *FindTask() */ ;
+struct Layer_Info *li /* , *NewLayerInfo() */ ;	// Xark: moved comma, removed prototype
+struct Process *thistask /* , *FindTask() */ ;	// Xark: removed prototype
 BPTR origDir;
 int trapper();
 
@@ -725,7 +725,7 @@ BOOL			audio_open;
 
 struct BitMap work_bm;
 
-open_all()
+int open_all(void)
 {	register long i;
 	long file;
 
@@ -757,7 +757,7 @@ open_all()
 			return 1;
 	SETFN(AL_BMAP);		/* allocated the bitmap structures */
 
-	if (i = AllocDiskIO()) return i;
+	if ((i = AllocDiskIO())) return i;
 
 #if 0
 	if ((diskport = CreatePort(0,0))==0) return 30;
@@ -886,9 +886,9 @@ open_all()
 	vp_text.RasInfo = &ri_text;
 	MakeVPort( &v, &vp_text );
 
-	if (audioport = CreatePort(NULL,0))
+	if ((audioport = CreatePort(NULL,0)))
 	{
-		if (ioaudio = (struct IOAudio *)CreateExtIO(audioport,sizeof *ioaudio))
+		if ((ioaudio = (struct IOAudio *)CreateExtIO(audioport,sizeof *ioaudio)))
 		{	UBYTE	data = 0x0f;
 
 			ioaudio->ioa_Data = &data;
@@ -928,12 +928,13 @@ open_all()
 	if ((terra_mem = AllocMem(1024,MEMF_CHIP)) == NULL) return 34;
 	SETFN(AL_TERR);
 
-	if (file = Open("v6",1005))
-	{	Read(file,wavmem,S_WAVBUF);
-		Seek(file,S_WAVBUF,0);
-		Read(file,volmem,S_VOLBUF);
-		Close(file);
-	}
+	// TODO: Xark Fixme Open
+	// if (file = Open("v6",1005))
+	// {	Read(file,wavmem,S_WAVBUF);
+	// 	Seek(file,S_WAVBUF,0);
+	// 	Read(file,volmem,S_VOLBUF);
+	// 	Close(file);
+	// }
 
 	bm_scroll.Planes[0] = bm_text->Planes[0];
 
@@ -947,7 +948,7 @@ open_all()
 	return 0;
 }
 
-close_all()
+int close_all(void)
 {	register long i;
 	if (TSTFN(AL_TERR)) FreeMem(terra_mem,1024);
 	if (TSTFN(AL_SAMPLE)) FreeMem(sample_mem,SAMPLE_SZ);
@@ -1020,7 +1021,7 @@ extern long myfile, header, blocklength;
 
 /* reads an IFF sample - shorten file format later */
 
-read_sample()
+void read_sample(void)
 {	long ifflen; register unsigned char *num, *smem; register long i;
 	register long sp_load, sp_count;
 
@@ -1076,9 +1077,9 @@ struct door_open {
 	{210, 840, 208,209, 2, NOKEY }  /* BLUE */
 };
 
-UBYTE *mapxy();
+// Xark: UBYTE *mapxy();
 
-doorfind(x,y,keytype) register USHORT x,y; register ULONG keytype;
+int doorfind(USHORT x, USHORT y, ULONG keytype)
 {	UBYTE sec_id; short reg_id, j, k; register ULONG l;
 	if (px_to_im(x,y)==15) goto found;
 	x += 4; if (px_to_im(x,y)==15) goto found;
@@ -1136,7 +1137,8 @@ int main(int argc,char **argv)
 	if (argc == 0)
 	{	extern struct WBStartup *WBenchMsg;
 
-		origDir = CurrentDir(WBenchMsg->sm_ArgList->wa_Lock);
+		//TODO: Xark fixme CurrentDir()
+		// origDir = CurrentDir(WBenchMsg->sm_ArgList->wa_Lock);
 	}
 
 	light_timer = 0;
@@ -1220,8 +1222,10 @@ no_intro:
 	screen_size(156);
 	SetRGB4(&vp_page,0,0,0,3);
 	load_track_range(896,24,shadow_mem,0);
-	WaitLastDiskIO(); /* WaitIO((struct IORequest *)lastreq); */
-	InvalidLastDiskIO(); /* lastreq->iotd_Req.io_Command = CMD_INVALID; */
+	// TODO: Xark fixme WaitLastDiskIO()
+	// WaitLastDiskIO(); /* WaitIO((struct IORequest *)lastreq); */
+	// TODO: Xark fixme WaitLastDiskIO()
+	// InvalidLastDiskIO(); /* lastreq->iotd_Req.io_Command = CMD_INVALID; */
 
 	SetRGB4(&vp_page,0,0,0,6);
 	unpackbrush("hiscreen",bm_text,0,0);
@@ -1817,7 +1821,10 @@ no_intro:
 					}
 				}
 				else if (k==7 && an->vitality == 0)
-				{	an->state == STILL;
+				{
+					// TODO: Fixme original; bug?
+					// an->state == STILL;	
+					an->state = STILL;	
 					dex = 1;
 				}
 			}
@@ -2622,7 +2629,7 @@ quit_all:
 
 /* asm */
 
-xfer(xtest,ytest,flag) register USHORT xtest, ytest, flag;
+void xfer(USHORT xtest, USHORT ytest, USHORT flag)
 {	map_x += (xtest-hero_x);
 	map_y += (ytest-hero_y);
 	hero_x = anim_list[0].abs_x = xtest;
@@ -2644,14 +2651,14 @@ xfer(xtest,ytest,flag) register USHORT xtest, ytest, flag;
 	while (proxcheck(hero_x,hero_y,0)) hero_y++;
 }
 
-find_place(flag) short flag;
+void find_place(short flag)
 {	register UBYTE *tbl; char *ms; register long i;
 
 	findagain:
 	j = hero_sector = hero_sector & 255;
 
-	((hero_x>>8) - xreg) & 64;
-	((hero_y>>8) - yreg) & 32;
+// TODO: Xark no-effect fixme?	((hero_x>>8) - xreg) & 64;
+// TODO: Xark no-effect fixme?	((hero_y>>8) - yreg) & 32;
 	if (region_num > 7)
 	{	tbl = inside_tbl; ms = inside_msg; hero_sector += 256; }
 	else { tbl = place_tbl; ms = place_msg; }
@@ -2719,7 +2726,7 @@ find_place(flag) short flag;
 			load_carrier(extn->v3);
 }
 
-load_actors()
+void load_actors(void)
 {	encounter_number = extn->v1 + rnd(extn->v2);
 	if ( actor_file != encounter_chart[encounter_type].file_id)
 	{	actor_file = encounter_chart[encounter_type].file_id;
@@ -2733,7 +2740,7 @@ load_actors()
 
 #define MAX_TRY 15
 
-set_encounter(i,spread) USHORT i, spread;
+BOOL set_encounter(USHORT i, USHORT spread)
 {	register struct shape *an; USHORT xtest, ytest;
 	register long race, w, j;
 
@@ -2766,7 +2773,7 @@ set_encounter(i,spread) USHORT i, spread;
 	return TRUE;
 }
 
-checkdead(i,dtype) register long i, dtype;
+void checkdead(long i, long dtype)
 {	register struct shape *an;
 	an = &(anim_list[i]);
 	if (an->vitality < 1 && an->state != DYING && an->state != DEAD)
@@ -2781,7 +2788,7 @@ checkdead(i,dtype) register long i, dtype;
 	if (i == 0) prq(4);
 }
 
-load_carrier(n) short n;
+void load_carrier(short n)
 {	register struct shape *an;
 	register long i;
 	an = &(anim_list[3]);
@@ -2811,8 +2818,8 @@ struct bro {
 	{ 20,35,15,15,philstuff },	/* phillip's attributes */
 	{ 15,20,35,10,kevstuff } };	/* kevin's attributes */
 
-revive(new) short new;
-{	/* new tells if this is a new character */
+void revive(short is_new)	// Xark: renamed new -> is_new
+{	/* is_new tells if this is a new character */
 	register struct bro *br;
 	register struct shape *an;
 
@@ -2832,7 +2839,7 @@ revive(new) short new;
 
 	handler_data.laydown = handler_data.pickup = 0;
 	battleflag = goodfairy = mdex = 0;
-	if (new)
+	if (is_new)
 	{	stopscore();
 		if (brother > 0 && brother < 3)
 		{	ob_listg[brother].xc = hero_x;
@@ -2911,7 +2918,7 @@ revive(new) short new;
 	fiery_death = xtype = 0;
 }
 
-screen_size(x) register long x;
+void screen_size(long x)
 {	register long y;
 
 	y = (x*5)/8;
@@ -2933,7 +2940,7 @@ screen_size(x) register long x;
 	pagechange();
 }
 
-setmood(now) char now;
+void setmood(char now)
 {	register long off;
 	if (anim_list[0].vitality == 0) off = (6*4);
 	else if (hero_x > 0x2400 && hero_x < 0x3100 &&
@@ -2956,7 +2963,7 @@ setmood(now) char now;
 	else stopscore();
 }
 
-gen_mini()
+void gen_mini(void)
 {	register unsigned long xr,yr; register long xs, ys;
 
 	/* lregion is what region are supposed to be in */
@@ -2990,7 +2997,7 @@ gen_mini()
 	genmini(img_x,img_y);
 }
 
-pagechange()
+void pagechange(void)
 {	register struct fpage *temp;
 
 	temp = fp_drawing; fp_drawing = fp_viewing; fp_viewing = temp;
@@ -3009,12 +3016,12 @@ struct MsgPort *inputDevPort;
 struct IOStdReq *inputRequestBlock;
 struct Interrupt handlerStuff;
 
-extern struct MsgPort *CreatePort();
-extern struct IOStdReq *CreateStdIO();
+// Xark: removed prototype: extern struct MsgPort *CreatePort();
+// Xark: removed prototype: extern struct IOStdReq *CreateStdIO();
 
-extern HandlerInterface();
+extern int HandlerInterface();
 
-add_device()
+BOOL add_device(void)
 {	SHORT error;
 
 	handler_data.laydown = handler_data.pickup = 0;
@@ -3036,7 +3043,7 @@ add_device()
 	return TRUE;
 }
 
-wrap_device()
+void wrap_device(void)
 {	inputRequestBlock->io_Command = IND_REMHANDLER;
 	inputRequestBlock->io_Data = (APTR)&handlerStuff;
 	DoIO((struct IORequest *)inputRequestBlock);
@@ -3045,7 +3052,7 @@ wrap_device()
 	DeletePort(inputDevPort);
 }
 
-print_options()
+void print_options(void)
 {	short i,j,x,y;
 	j = 0;
 	for (i = 0; i<menus[cmode].num; i++)
@@ -3067,12 +3074,12 @@ print_options()
 	}
 }
 
-propt(j,pena) short j,pena;
+void propt(short j, short pena)
 {	register long x,y,k,penb;
 
 	k = real_options[j];
 	if (cmode==USE) penb=14;
-	else if (cmode == FILE) penb = 13;
+	else if (cmode == FILEMENU) penb = 13;
 	else if (k<5) penb = 4;
 	else if (cmode==KEYS) penb = keycolors[k-5];
 	else if (cmode==SAVEX) penb = k;
@@ -3099,7 +3106,7 @@ extern char jtrans[];
 
 LONG	dbg;
 
-do_option(hit) short hit;
+void do_option(short hit)
 {	short dist;
 	USHORT y;
 	register ULONG i, j, x, k;
@@ -3443,7 +3450,7 @@ do_option(hit) short hit;
 	case GAME: 
 		if (hit==6) setmood(TRUE);
 		if (hit==8) gomenu(SAVEX);
-		if (hit==9) { svflag = FALSE; gomenu(FILE); }
+		if (hit==9) { svflag = FALSE; gomenu(FILEMENU); }
 		break;
 	case USE:
 		if (hit == 7)
@@ -3464,9 +3471,9 @@ do_option(hit) short hit;
 		break;
 	case SAVEX:
 		if (hit == 6) quitflag = TRUE;
-		if (hit == 5) { svflag = TRUE; gomenu(FILE); }
+		if (hit == 5) { svflag = TRUE; gomenu(FILEMENU); }
 		break;
-	case FILE:
+	case FILEMENU:
 		savegame(hit);
 		gomenu(GAME);
 		break;
@@ -3507,7 +3514,7 @@ do_option(hit) short hit;
 	set_options();
 }
 
-get_turtle()
+void get_turtle()
 {	for (i=0; i<25; i++)
 	{	set_loc();
 		if (px_to_im(encounter_x,encounter_y) == 5) break;
@@ -3517,14 +3524,14 @@ get_turtle()
 	load_carrier(5);
 }
 
-gomenu(mode) short mode;
+void gomenu(short mode)
 {	if (menus[GAME].enabled[5] & 1) return;
 	cmode = mode;
 	handler_data.lastmenu = 0;
 	print_options();
 }
 
-set_options()
+void set_options(void)
 {	register long i,j;
 	for (i=0; i<7; i++)
 	{	menus[MAGIC].enabled[i+5] = stuff_flag(i+9);
@@ -3542,10 +3549,10 @@ set_options()
 	menus[GIVE].enabled[8] = stuff_flag(29); /* bone */
 }
 
-load_all()
+void load_all(void)
 {	while (MAP_FLUX) load_new_region(); }
 
-load_new_region()
+void load_new_region(void)
 {	register struct need *nd; register long i;
 	register unsigned char *imem;
 	unsigned char *imem0;
@@ -3613,12 +3620,12 @@ load_new_region()
 	new_region = NO_REGION;
 }
 
-effect(num,speed) short num; long speed;
+void effect(short num, long speed)
 {	if (menus[GAME].enabled[7] & 1)
 	{	playsample(sample[num],sample_size[num]/2,speed); }
 }
 
-mod1save()
+void mod1save(void)
 {	/* save stuff */
 	saveload(julstuff,35);
 	saveload(philstuff,35);

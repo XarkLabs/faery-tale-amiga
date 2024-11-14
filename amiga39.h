@@ -1,34 +1,58 @@
-#if !defined(AMIGA39_H)
+// Xark - Pretend like we are amiga39.pre "pre-includes" used by Aztec Manx C on Amiga
 
-#define TRUE 1
-#define FALSE 0
-#define NULL 0
+#if !defined(AMIGA39_H)
+#define AMIGA39_H
 
 #include <stdint.h>
 
-typedef int8_t BYTE;
-typedef uint8_t UBYTE;
-typedef uint8_t BOOL;
+#define timeval amigaOS_timeval // Xark: Avoid conflicting with native OS
 
-typedef int16_t SHORT;
-typedef uint16_t USHORT;
+#include "exec/types.h"
+#include "exec/memory.h"
+#include "devices/audio.h"
+#include "graphics/view.h"
+#include "graphics/scale.h"
+#include "hardware/blit.h"
+#include "hardware/custom.h"
+#include "dos/exall.h"
+#include "graphics/gfxmacros.h"
+#include "graphics/copper.h"
+#include "graphics/display.h"
+#include "graphics/text.h"
+#include "graphics/gfxbase.h"
+#include "graphics/sprite.h"
+#include "exec/devices.h"
+#include "libraries/diskfont.h"
+#include "libraries/dosextens.h"
+#include "devices/input.h"
+#include "devices/inputevent.h"
+#include "devices/trackdisk.h"
 
-typedef int16_t WORD;
-typedef uint16_t UWORD;
+#include "clib/alib_protos.h"
+#include "clib/cia_protos.h"
+#include "clib/colorwheel_protos.h"
+#include "clib/commodities_protos.h"
+#include "clib/console_protos.h"
+#include "clib/disk_protos.h"
+#include "clib/diskfont_protos.h"
+#include "clib/dos_protos.h"
+#include "clib/dtclass_protos.h"
+#include "clib/exec_protos.h"
+#include "clib/graphics_protos.h"
+#include "clib/icon_protos.h"
+#include "clib/iffparse_protos.h"
+#include "clib/input_protos.h"
+#include "clib/intuition_protos.h"
+#include "clib/keymap_protos.h"
+#include "clib/layers_protos.h"
+#include "clib/lowlevel_protos.h"
+#include "clib/misc_protos.h"
+#include "clib/utility_protos.h"
+#include "clib/wb_protos.h"
 
-typedef uint16_t *PLANEPTR;
+#undef timeval
 
-typedef int32_t LONG;
-typedef uint32_t ULONG;
-
-typedef void *BPTR;
-
-enum
-{
-    JAM1,       // FrontPen is used to draw the text; background color is unchanged.
-    JAM2,       // FrontPen is used to draw the text; background color is changed to the color in BackPen.
-    COMPLEMENT, // The characters are drawn in the complement of the colors that were in the background.
-    INVERSID    // Inverses the draw modes describe above. For instance INVERVID used with JAM1 means the character is untouched while the background is filled with the color of the FrontPen.
-};ß
+#define TRUE 1
+#define FALSE 0
 
 #endif

@@ -1,43 +1,43 @@
-#include "exec/types.h"
-#include "exec/memory.h"
-#include "graphics/gfxbase.h"
-#include "graphics/rastport.h"
-#include "graphics/clip.h"
-#include "graphics/layers.h"
-#include "graphics/view.h"
-#include "libraries/dos.h"
-#include "libraries/dosextens.h"
-#include "devices/trackdisk.h"
+// Xark: in ftale.h: #include "exec/types.h"
+// Xark: in ftale.h: #include "exec/memory.h"
+// Xark: in ftale.h: #include "graphics/gfxbase.h"
+// Xark: in ftale.h: #include "graphics/rastport.h"
+// Xark: in ftale.h: #include "graphics/clip.h"
+// Xark: in ftale.h: #include "graphics/layers.h"
+// Xark: in ftale.h: #include "graphics/view.h"
+// Xark: in ftale.h: #include "libraries/dos.h"
+// Xark: in ftale.h: #include "libraries/dosextens.h"
+// Xark: in ftale.h: #include "devices/trackdisk.h"
 
 #include "ftale.h"
 
 #define NO_PROTECT
 
 extern unsigned short xreg, yreg;	/* where the region is */
-#asm
+// #asm
 
-; shape structure - anim_list
+// ; shape structure - anim_list
 
-abs_x		equ		0		; short
-abs_y		equ		2
-rel_x		equ		4
-rel_y		equ		6
-type		equ		8
-race		equ		9
-index		equ		10
-visible		equ		11
-weapon		equ		12
-environ		equ		13
-goal		equ		14
-tactic		equ		15
-state		equ		16
-facing		equ		17
-vitality	equ		18
-vel_x		equ		20
-vel_y		equ		21
-l_shape		equ		22
+// abs_x		equ		0		; short
+// abs_y		equ		2
+// rel_x		equ		4
+// rel_y		equ		6
+// type		equ		8
+// race		equ		9
+// index		equ		10
+// visible		equ		11
+// weapon		equ		12
+// environ		equ		13
+// goal		equ		14
+// tactic		equ		15
+// state		equ		16
+// facing		equ		17
+// vitality	equ		18
+// vel_x		equ		20
+// vel_y		equ		21
+// l_shape		equ		22
 
-#endasm
+// #endasm
 
 extern struct shape anim_list[20];
 extern short anix, anix2;
@@ -60,174 +60,174 @@ char com2[9] = { 0,1,2,7,9,3,6,5,4 };
 {	short xdif, ydif, deviation, j;
 	register long xabs, yabs, xdir, ydir;
 	; */
-#asm
-com2	dc.b	0,1,2,7,9,3,6,5,4,0
+// #asm
+// com2	dc.b	0,1,2,7,9,3,6,5,4,0
 
-		public	_set_course
-_set_course
-		movem.l	d0-d7/a0-a1,-(sp)
-		move.l	40+4(sp),d2			; object #
-		move.l	40+8(sp),d0			; target x
-		move.l	40+12(sp),d1		; target_y
-		move.l	40+16(sp),d3		; mode
+// 		public	_set_course
+// _set_course
+// 		movem.l	d0-d7/a0-a1,-(sp)
+// 		move.l	40+4(sp),d2			; object #
+// 		move.l	40+8(sp),d0			; target x
+// 		move.l	40+12(sp),d1		; target_y
+// 		move.l	40+16(sp),d3		; mode
 
-		lea		_anim_list,a1		; start of anim_list
-		mulu.w	#l_shape,d2			; object # times length of struct
-		add.l	d2,a1				; a1 = start of anim_list[object]
+// 		lea		_anim_list,a1		; start of anim_list
+// 		mulu.w	#l_shape,d2			; object # times length of struct
+// 		add.l	d2,a1				; a1 = start of anim_list[object]
 
-;	if (mode == 6) { xdif = target_x; ydif = target_y; }
+// ;	if (mode == 6) { xdif = target_x; ydif = target_y; }
 
-		cmp.b	#6,d3				; if mode != 6
-		beq.s	1$					; calculate offset normally
+// 		cmp.b	#6,d3				; if mode != 6
+// 		beq.s	1$					; calculate offset normally
 
-;	else
-;	{	xdif = anim_list[object].abs_x - target_x;
-;		ydif = anim_list[object].abs_y - target_y;
-;	}
+// ;	else
+// ;	{	xdif = anim_list[object].abs_x - target_x;
+// ;		ydif = anim_list[object].abs_y - target_y;
+// ;	}
 
-		neg.w	d0					; d0 = -target_x
-		neg.w	d1					; d1 = -target_y
-		add.w	abs_x(a1),d0		; d0 = x difference
-		add.w	abs_y(a1),d1		; d1 = y difference
-1$
+// 		neg.w	d0					; d0 = -target_x
+// 		neg.w	d1					; d1 = -target_y
+// 		add.w	abs_x(a1),d0		; d0 = x difference
+// 		add.w	abs_y(a1),d1		; d1 = y difference
+// 1$
 
-;	xabs = yabs = xdir = ydir = 0;
+// ;	xabs = yabs = xdir = ydir = 0;
 
-		clr.l	d6					; xdir = 0;
-		clr.l	d7					; ydir = 0;
+// 		clr.l	d6					; xdir = 0;
+// 		clr.l	d7					; ydir = 0;
 
-;	if (xdif > 0) { xabs = xdif; xdir = 1; }
+// ;	if (xdif > 0) { xabs = xdif; xdir = 1; }
 
-		tst.w	d0					; if (xdif > 0)
-		beq		3$					; if xdif = 0, do nothing
-		bmi		2$					; if xdif < 0
-		moveq	#1,d6				; xdir = 1; xabs = xdif
-		bra		3$
+// 		tst.w	d0					; if (xdif > 0)
+// 		beq		3$					; if xdif = 0, do nothing
+// 		bmi		2$					; if xdif < 0
+// 		moveq	#1,d6				; xdir = 1; xabs = xdif
+// 		bra		3$
 
-;	if (xdif < 0) { xabs = -xdif; xdir = -1; }
+// ;	if (xdif < 0) { xabs = -xdif; xdir = -1; }
 
-2$		neg.w	d0					; xabs = -xdif
-		moveq	#-1,d6				; xdir = -1;
-3$
+// 2$		neg.w	d0					; xabs = -xdif
+// 		moveq	#-1,d6				; xdir = -1;
+// 3$
 
-;	if (ydif > 0) { yabs = ydif; ydir = 1; }
+// ;	if (ydif > 0) { yabs = ydif; ydir = 1; }
 
-		tst.w	d1					; if (ydif > 0)
-		beq		5$					; if ydif = 0, do nothing
-		bmi		4$					; if ydif < 0
-		moveq	#1,d7				; ydir = 1; yabs = ydif
-		bra		5$
+// 		tst.w	d1					; if (ydif > 0)
+// 		beq		5$					; if ydif = 0, do nothing
+// 		bmi		4$					; if ydif < 0
+// 		moveq	#1,d7				; ydir = 1; yabs = ydif
+// 		bra		5$
 
-;	if (ydif < 0) { yabs = -ydif; ydir = -1; }
+// ;	if (ydif < 0) { yabs = -ydif; ydir = -1; }
 
-4$		neg.w	d1					; yabs = -ydif
-		moveq	#-1,d7				; ydir = -1;
-5$
+// 4$		neg.w	d1					; yabs = -ydif
+// 		moveq	#-1,d7				; ydir = -1;
+// 5$
 
-;	if (mode != 4)
+// ;	if (mode != 4)
 
-		cmp.b	#4,d3				; if mode 4
-		beq		6$					; then don't do
+// 		cmp.b	#4,d3				; if mode 4
+// 		beq		6$					; then don't do
 
-;	{	if ((xabs>>1) > yabs) ydir = 0;	/* if SMART_SEEK */
+// ;	{	if ((xabs>>1) > yabs) ydir = 0;	/* if SMART_SEEK */
 
-		move.w	d0,d4				; copy xabs
-		lsr.w	#1,d4				; d4 = xabs >> 1
-		cmp.w	d4,d1				; if (xabs>>1) > yabs
-		bge.s	55$
-		clr.l	d7
-55$
+// 		move.w	d0,d4				; copy xabs
+// 		lsr.w	#1,d4				; d4 = xabs >> 1
+// 		cmp.w	d4,d1				; if (xabs>>1) > yabs
+// 		bge.s	55$
+// 		clr.l	d7
+// 55$
 
-;		if ((yabs>>1) > xabs) xdir = 0;
+// ;		if ((yabs>>1) > xabs) xdir = 0;
 
-		move.w	d1,d4				; copy yabs
-		lsr.w	#1,d4				; d4 = yabs >> 1
-		cmp.w	d4,d0				; if (yabs>>1) > xabs
-		bge.s	6$
-		clr.l	d6					; xdir = 0
-6$
+// 		move.w	d1,d4				; copy yabs
+// 		lsr.w	#1,d4				; d4 = yabs >> 1
+// 		cmp.w	d4,d0				; if (yabs>>1) > xabs
+// 		bge.s	6$
+// 		clr.l	d6					; xdir = 0
+// 6$
 
-;	}
+// ;	}
 
-;	deviation = 0;
+// ;	deviation = 0;
 
-		clr.l	d4					; d4 = deviation = 0
+// 		clr.l	d4					; d4 = deviation = 0
 
-;	if (mode==1 && (xabs+yabs) < 40) deviation = 1;
+// ;	if (mode==1 && (xabs+yabs) < 40) deviation = 1;
 
-		move.w	d0,d5				; d5 = xabs
-		add.w	d1,d5				; d5 = xabs + yabs
+// 		move.w	d0,d5				; d5 = xabs
+// 		add.w	d1,d5				; d5 = xabs + yabs
 
-		cmp.b	#1,d3				; if (mode == 1)
-		bne.s	7$
-		cmp.w	#40,d5				; and (dist < 40)
-		bge.s	7$
-		moveq	#1,d4				; deviation = 1;
-7$
+// 		cmp.b	#1,d3				; if (mode == 1)
+// 		bne.s	7$
+// 		cmp.w	#40,d5				; and (dist < 40)
+// 		bge.s	7$
+// 		moveq	#1,d4				; deviation = 1;
+// 7$
 
-;	else if (mode==2 && (xabs+yabs) < 30) deviation = 2;
+// ;	else if (mode==2 && (xabs+yabs) < 30) deviation = 2;
 
-		cmp.b	#2,d3				; if (mode == 2)
-		bne.s	8$
-		cmp.w	#30,d5				; and (dist < 30)
-		bge.s	8$
-		moveq	#1,d4				; deviation = 1;
-8$
-;	else if (mode==3) { xdir = -xdir; ydir = -ydir; }
+// 		cmp.b	#2,d3				; if (mode == 2)
+// 		bne.s	8$
+// 		cmp.w	#30,d5				; and (dist < 30)
+// 		bge.s	8$
+// 		moveq	#1,d4				; deviation = 1;
+// 8$
+// ;	else if (mode==3) { xdir = -xdir; ydir = -ydir; }
 
-		cmp.b	#3,d3
-		bne.s	81$
-		neg.b	d6					; xdir = -xdir;
-		neg.b	d7					; ydir = -ydir
+// 		cmp.b	#3,d3
+// 		bne.s	81$
+// 		neg.b	d6					; xdir = -xdir;
+// 		neg.b	d7					; ydir = -ydir
 
-;	j = com2[4 - ydir - ydir - ydir - xdir];
-81$
-		moveq	#4,d5				; d4 = 4
-		sub.b	d7,d5
-		sub.b	d7,d5
-		sub.b	d7,d5
-		sub.b	d6,d5				; d4 - 4 - ydir - ydir - ydir - xdir
-		lea		com2(pc),a0
-		move.b	(a0,d5.w),d5		; d5 = j = com2[d5]
-****
-;	if (j == 9) anim_list[object].state = STILL;
+// ;	j = com2[4 - ydir - ydir - ydir - xdir];
+// 81$
+// 		moveq	#4,d5				; d4 = 4
+// 		sub.b	d7,d5
+// 		sub.b	d7,d5
+// 		sub.b	d7,d5
+// 		sub.b	d6,d5				; d4 - 4 - ydir - ydir - ydir - xdir
+// 		lea		com2(pc),a0
+// 		move.b	(a0,d5.w),d5		; d5 = j = com2[d5]
+// ****
+// ;	if (j == 9) anim_list[object].state = STILL;
 
-		cmp.b	#9,d5
-		bne.s	9$
-		move.b	#13,state(a1)		; #STILL -> anim_list[object].state
-		bra		99$
-9$
+// 		cmp.b	#9,d5
+// 		bne.s	9$
+// 		move.b	#13,state(a1)		; #STILL -> anim_list[object].state
+// 		bra		99$
+// 9$
 
-;	else 
-;	{	if (rand()&1) j += deviation; else j -= deviation;
+// ;	else 
+// ;	{	if (rand()&1) j += deviation; else j -= deviation;
 
-		jsr		_rand				; go left or right
-		btst	#1,d0				; test a bit
-		beq		10$
-		add.b	d4,d5				; j += deviation
-		bra		11$
-10$		sub.b	d4,d5				; j -= deviation
+// 		jsr		_rand				; go left or right
+// 		btst	#1,d0				; test a bit
+// 		beq		10$
+// 		add.b	d4,d5				; j += deviation
+// 		bra		11$
+// 10$		sub.b	d4,d5				; j -= deviation
 
-;		anim_list[object].facing = j & 7;
+// ;		anim_list[object].facing = j & 7;
 
-11$		and.b	#7,d5				; and j with 7
-		move.b	d5,facing(a1)		; move to facing
+// 11$		and.b	#7,d5				; and j with 7
+// 		move.b	d5,facing(a1)		; move to facing
 
-;		if (mode != 5) anim_list[object].state = WALKING;
+// ;		if (mode != 5) anim_list[object].state = WALKING;
 
-		cmp.b	#5,d3				; if mode != 5
-		beq		99$					; move #WALKING to state
-		move.b	#12,state(a1)
-99$		movem.l	(sp)+,d0-d7/a0-a1
-		rts
-#endasm
+// 		cmp.b	#5,d3				; if mode != 5
+// 		beq		99$					; move #WALKING to state
+// 		move.b	#12,state(a1)
+// 99$		movem.l	(sp)+,d0-d7/a0-a1
+// 		rts
+// #endasm
 
 /* a hit, a palpable hit! */
 #define FLEE		5	/* run directly away */
 
 extern char *stuff;
 
-dohit(i,j,fc,wt) short wt; register long j,i,fc;
+void dohit(long i, long j, long fc, short wt)
 {	if (anim_list[0].weapon < 4 &&
 		(anim_list[j].race == 9 ||
 			(anim_list[j].race == 0x89 && stuff[7] == 0) ))
@@ -250,7 +250,7 @@ extern short nearest;
 extern short xtype;
 char	turtle_eggs;
 
-aftermath()
+void aftermath(void)
 {	register long dead, flee, i, j;
 	dead = flee = 0;
 	for (i=3; i<anix; i++)
@@ -274,7 +274,7 @@ aftermath()
 	if (turtle_eggs) get_turtle();
 }
 
-proxcheck(x,y,i) short x,y,i;
+int proxcheck(int x, int y, int i)
 {	register long x1, y1;
 	register long j;
 	if (anim_list[i].type != ENEMY || anim_list[i].race != 2) /* wraith */
@@ -294,7 +294,7 @@ proxcheck(x,y,i) short x,y,i;
 	return 0;
 }
 
-nearest_fig(constraint,dist) char constraint; short dist;
+int nearest_fig(char constraint, short dist)
 {	register long d,i;
 	nearest = 0;
 	for (i=1; i<anix2; i++)
@@ -308,7 +308,7 @@ nearest_fig(constraint,dist) char constraint; short dist;
 
 /* asm */
 
-calc_dist(a,b) register long a,b;
+int calc_dist(long a, long b)
 {	register long x,y; short dist;
 	x = anim_list[a].abs_x - anim_list[b].abs_x; if (x<0) x = -x;
 	y = anim_list[a].abs_y - anim_list[b].abs_y; if (y<0) y = -y;
@@ -319,7 +319,7 @@ calc_dist(a,b) register long a,b;
 
 /* asm */
 
-move_figure(fig,dir,dist) short fig,dir,dist;
+int move_figure(short fig, short dir, short dist)
 {	register unsigned short xtest,ytest;
 	xtest = newx(anim_list[fig].abs_x,dir,dist);
 	ytest = newy(anim_list[fig].abs_y,dir,dist);
@@ -348,7 +348,7 @@ struct compvars {
 extern UBYTE *nhinor, *nhivar;
 extern struct BitMap *bm_text, *bm_source;
 
-drawcompass(dir) short dir;
+void drawcompass(short dir)
 {	register long xr, yr, xs, ys;
 	xr = comptable[dir].xrect;
 	yr = comptable[dir].yrect;
@@ -374,7 +374,7 @@ extern short secret_timer, light_timer, freeze_timer;
 struct ViewPort vp_page;
 extern UWORD region_num, new_region;
 
-fade_page(r,g,b,limit,colors) short r,g,b,limit; USHORT *colors;
+void fade_page(short r, short g, short b, short limit, USHORT *colors)
 {	register long r1,b1,g1,g2;
 	short i;
 
@@ -422,7 +422,7 @@ extern struct RastPort *rp;
 
 /* asm */
 
-colorplay() /* teleport effect */
+void colorplay() /* teleport effect */
 {	register long i,j;
 	for (j=0; j<32; j++)
 	{	for (i=1; i<32; i++) fader[i]=bitrand(0xfff);
@@ -439,7 +439,7 @@ SHORT sg1, sg2;
 
 short db1, db2;
 
-ppick()
+void ppick()
 {	register long p;
 	if (prec == pplay) Delay(1);
 	else
@@ -469,30 +469,30 @@ ppick()
 	}
 }
 
-#asm
-		public	_prec,_pplay,_print_que,_prq
-_prq
-		movem.l	d0/d1/a1,-(sp)
-		move.w	_prec,d0
-		move.w	_pplay,d1
-		addq	#1,d0
-		and.w	#31,d0
-		cmp.w	d0,d1
-		beq.s	prqx
-		move.w	_prec,d1
-		move.w	d0,_prec
-		lea		_print_que,a1
-		move.b	3+4+12(sp),(a1,d1)
-prqx	movem.l	(sp)+,d0/d1/a1
-		rts
-#endasm
+// #asm
+// 		public	_prec,_pplay,_print_que,_prq
+// _prq
+// 		movem.l	d0/d1/a1,-(sp)
+// 		move.w	_prec,d0
+// 		move.w	_pplay,d1
+// 		addq	#1,d0
+// 		and.w	#31,d0
+// 		cmp.w	d0,d1
+// 		beq.s	prqx
+// 		move.w	_prec,d1
+// 		move.w	d0,_prec
+// 		lea		_print_que,a1
+// 		move.b	3+4+12(sp),(a1,d1)
+// prqx	movem.l	(sp)+,d0/d1/a1
+// 		rts
+// #endasm
 
 #define TXMIN	16
 #define TXMAX	400
 #define	TYMIN	5
 #define	TYMAX	44
 
-print(str) register char *str;
+void print(char *str)
 {	register long l;
 	l = 0; while (str[l]) l++;
 	ScrollRaster(rp,0,10,TXMIN,TYMIN,TXMAX,TYMAX);
@@ -500,7 +500,7 @@ print(str) register char *str;
 	text(str,l);
 }
 
-print_cont(str) register char *str;
+void print_cont(char *str)
 {	register long l = 0;
 	while (str[l]) l++;
 	text(str,l);
@@ -511,7 +511,7 @@ char *mbuf, mesbuf[200];
 extern char *datanames[];
 extern short brother;
 
-extract(start) register char *start;
+void extract(char *start)
 {	register char *ss, *lbreak;
 	char *lstart, c; short i;
 
@@ -547,49 +547,49 @@ extract(start) register char *start;
 	}
 }
 			
-#asm
-;msg(start,num) register char *start; register long num;
-;{	while (num) if (*start++ == 0) num--;
-;	extract(start);
-;}
+// #asm
+// ;msg(start,num) register char *start; register long num;
+// ;{	while (num) if (*start++ == 0) num--;
+// ;	extract(start);
+// ;}
 
-		public	_event,_speak,_msg,_event_msg,_speeches
-_event
-		lea		_event_msg,a0
-		move.l	4(sp),d0
-		bra		msg1
-_speak
-		lea		_speeches,a0
-		move.l	4(sp),d0
-		bra		msg1
-_msg
-		move.l	4(sp),a0
-		move.l	8(sp),d0
+// 		public	_event,_speak,_msg,_event_msg,_speeches
+// _event
+// 		lea		_event_msg,a0
+// 		move.l	4(sp),d0
+// 		bra		msg1
+// _speak
+// 		lea		_speeches,a0
+// 		move.l	4(sp),d0
+// 		bra		msg1
+// _msg
+// 		move.l	4(sp),a0
+// 		move.l	8(sp),d0
 
-msg1	beq		msgx
-1$		tst.b	(a0)+
-		bne.s	1$
-		subq.w	#1,d0
-		bne.s	1$
-msgx	move.l	a0,4(sp)
-		bra		_extract
+// msg1	beq		msgx
+// 1$		tst.b	(a0)+
+// 		bne.s	1$
+// 		subq.w	#1,d0
+// 		bne.s	1$
+// msgx	move.l	a0,4(sp)
+// 		bra		_extract
 
-#endasm
+// #endasm
 
-announce_container(s) char *s;
+void announce_container(char *s)
 {	print(datanames[brother-1]);
 	print_cont(" found ");
 	print_cont(s);
 	print_cont(" containing ");
 }
 
-announce_treasure(s) char *s;
+void announce_treasure(char *s)
 {	print(datanames[brother-1]);
 	print_cont(" found ");
 	print_cont(s);
 }
 
-name()
+void name(void)
 {	print_cont(datanames[brother-1]); }
 
 extern struct RastPort rp_map, rp_text;
@@ -598,7 +598,7 @@ extern struct BitMap *bm_draw;
 extern struct fpage *fp_drawing, *fp_viewing;
 extern char	viewstatus;
 
-map_message()
+void map_message(void)
 {	fade_down();
 	rp = &rp_map;
 	rp_map.BitMap =  fp_drawing->ri_page->BitMap;
@@ -612,7 +612,7 @@ map_message()
 	viewstatus = 2;
 }
 
-message_off()
+void message_off(void)
 {	fade_down();
 	rp = &rp_text;
 	vp_text.Modes = HIRES | SPRITES;
@@ -620,15 +620,15 @@ message_off()
 	viewstatus = 3;
 }
 
-fade_down()
+void fade_down(void)
 {	register long i;
 	for (i=100; i>=0; i-=5) { fade_page(i,i,i,FALSE,pagecolors); Delay(1); } }
 
-fade_normal()
+void fade_normal(void)
 {	register long i;
 	for (i=0; i<=100; i+=5) { fade_page(i,i,i,FALSE,pagecolors); Delay(1); } }
 
-stillscreen()
+void stillscreen(void)
 {	fp_drawing->ri_page->RxOffset = fp_drawing->ri_page->RyOffset = 0;
 	pagechange();
 }
@@ -670,7 +670,7 @@ extern unsigned short safe_r;
 
 extern short actor_file, set_file;
 
-shape_read()
+void shape_read(void)
 {	nextshape = shape_mem;
 	read_shapes(3); prep(OBJECTS);
 	read_shapes(brother-1); prep(PHIL);
@@ -682,7 +682,7 @@ shape_read()
 	motor_off();
 }
 
-read_shapes(num) register long num;
+void read_shapes(long num)
 {	long size; register long slot;
 
 	slot = cfiles[num].seq_num;
@@ -727,7 +727,7 @@ motor_off()
 }
 #endif
 
-seekn()
+void seekn(void)
 {	cpytest();
 	/* diskreqs[9] = *diskreq1 */ ;
 
@@ -740,7 +740,7 @@ seekn()
 	motor_off(); */
 }
 
-prep(slot) short slot;
+void prep(short slot)
 {
 	WaitDiskIO(8); /* WaitIO((struct IORequest *)&diskreqs[8]); */
 	InvalidDiskIO(8); /* diskreqs[8].iotd_Req.io_Command = CMD_INVALID; */
@@ -749,7 +749,7 @@ prep(slot) short slot;
 		seq_list[slot].width,seq_list[slot].height,seq_list[slot].count);
 }
 
-load_next()
+void load_next(void)
 {	if (!IsReadLastDiskIO() || CheckLastDiskIO())
 	/* if (lastreq->iotd_Req.io_Command != CMD_READ || CheckIO((struct IORequest *)lastreq)) */
 		load_new_region();
@@ -757,12 +757,12 @@ load_next()
 
 extern unsigned char *(track[32]), *scoremem;
 
-read_score()
+void read_score(void)
 {	long file;
 	long packlen, sc_load, sc_count;
 	register long i;
 	sc_load = sc_count = 0;
-	if (file = Open("songs",1005))
+	if ((file = Open("songs",1005)))
 	{	for (i=0; i<(4*7); i++)
 		{	Read(file,&packlen,4);
 			if ((packlen*2 + sc_load) > 5900) break;
@@ -778,7 +778,7 @@ read_score()
 char skipp;
 extern struct BitMap pagea, pageb;
 
-copypage(br1,br2,x,y) char *br1, *br2; short x,y;
+void copypage(char *br1, char *br2, short x, short y)
 {	if (skipp) return;
 	Delay(350);
 	BltBitMap(&pageb,0,0,&pagea,0,0,320,200,0xC0,0x1f,0);
@@ -793,7 +793,7 @@ char flip1[] = { 8,6,5,4,3,2,3,5,13,0,0, 13,5,3,2,3,4,5,6,8,0,0 };
 char flip2[] = { 7,5,4,3,2,1,1,1, 1,0,0,  1,1,1,1,2,3,4,5,7,0,0 };
 char flip3[] = {12,9,6,3,0,0,0,0, 0,0,0,  0,0,0,0,0,0,3,6,9,0,0 };
 
-flipscan()
+void flipscan(void)
 {	short i, scol, h; register long bcol, dcol, rate, wide;
 	struct BitMap *temp;
 	for (i=0; i<22; i++)
@@ -832,12 +832,12 @@ flipscan()
 	}
 }
 
-skipint()
+int skipint(void)
 {	return skipp = (getkey()==' ');}
 
 /* UBYTE *AllocMem(); */
 
-UBYTE *into_chip(oldpointer,size) register UBYTE *oldpointer; long size;
+UBYTE *into_chip(UBYTE *oldpointer, long size)
 {	register UBYTE *newpointer; register long i;
 
 	if (TypeOfMem(oldpointer) & MEMF_CHIP) return oldpointer;
@@ -905,16 +905,16 @@ BYTE witchpoints[] = {	/* 64 points - 256 entries */
 -39,92,-4,9,	-30,95,-3,9,	-20,98,-2,9,	-10,99,-1,9,
 };
 
-struct TmpRas mytmp, *InitTmpRas();
+struct TmpRas mytmp /* Xark: , *InitTmpRas() */;
 struct AreaInfo myAreaInfo;
 WORD	areabuffer[20];
-PLANEPTR	myras, AllocRaster();
+PLANEPTR	myras/* Xark:, AllocRaster() */;
 
 struct Layer *layer, templayer, *oldlayer /*, *CreateUpfrontLayer() */ ;
 extern struct Layer_Info *li;
 SHORT	s1,s2;
 
-witch_fx(fp) register struct fpage *fp;
+void witch_fx(struct fpage *fp)
 {	UBYTE	w1; register BYTE *w;
 	register struct RastPort *r;
 	SHORT	x1,y1,x2,y2,x3,y3,x4,y4;
@@ -944,7 +944,7 @@ witch_fx(fp) register struct fpage *fp;
 	sg2 = 0; if (s2 >= 0) sg2 = 1;
 
 	SetDrMd(r,COMPLEMENT);
-	if (myras = AllocRaster(100,100))
+	if ((myras = AllocRaster(100,100)))
 	{	struct TmpRas *oldtmp; struct AreaInfo *oldarea;
 		oldtmp = r->TmpRas;
 		oldarea = r->AreaInfo;
@@ -1181,14 +1181,14 @@ short	glbobs = 11;
 
 short j1;
 
-do_objects()
+void do_objects(void)
 {	j1 = 2;
 	set_objects(ob_listg,glbobs,0x80);
 	set_objects(ob_table[region_num],mapobs[region_num],0);
 	if (j1>3) anix = j1;
 }
 
-leave_item(i,object) short i,object;
+void leave_item(short i, short object)
 {	ob_listg[0].xc = anim_list[i].abs_x;
 	ob_listg[0].yc = anim_list[i].abs_y + 10;
 	ob_listg[0].ob_id = object;
@@ -1196,8 +1196,7 @@ leave_item(i,object) short i,object;
 }
 
 /* flag - 1=show, 2=take */
-
-change_object(id,flag) register long id, flag;
+void change_object(long id, long flag)
 {	register struct shape *an;
 	register struct object *ob;
 	an = anim_list + id;
@@ -1215,7 +1214,7 @@ extern struct {
 extern UBYTE *nextshape;
 extern char witchflag;
 
-set_objects(list,length,f) struct object *list; short length; long f;
+void set_objects(struct object *list, short length, long f)
 {	short xstart, ystart, i, k;
 	BYTE	cf, id;
 
@@ -1306,7 +1305,7 @@ short xx, yy;
 char *answers[] = {
 	"LIGHT","HEED","DEED","SIGHT","FLIGHT","CREED","BLIGHT","NIGHT" };
 
-copy_protect_junk()
+BOOL copy_protect_junk(void)
 {	register char key; register long i, j;
 	register char *a, *b;
 	long h;
@@ -1335,57 +1334,57 @@ copy_protect_junk()
 	return TRUE;
 }
 
-#asm
+// #asm
 
-Move		EQU	$FFFFFF10
-Text		EQU	$FFFFFFC4
-SetAPen		EQU	$FFFFFEAA
-SetBPen		EQU	$FFFFFEA4
+// Move		EQU	$FFFFFF10
+// Text		EQU	$FFFFFFC4
+// SetAPen		EQU	$FFFFFEAA
+// SetBPen		EQU	$FFFFFEA4
 
-			public	_GfxBase
+// 			public	_GfxBase
 
-_cursor
-			movem.l	a0-a6/d0-d7,-(sp)
+// _cursor
+// 			movem.l	a0-a6/d0-d7,-(sp)
 
-			clr.l	d0					; set B pen color = 0
-			jsr		SetBPen(a6)
+// 			clr.l	d0					; set B pen color = 0
+// 			jsr		SetBPen(a6)
 
-			clr.l	d0					; d0 already clear
-			clr.l	d1
-			move.w	_xx,d0
-			move.w	_yy,d1
-			jsr		Move(a6)
+// 			clr.l	d0					; d0 already clear
+// 			clr.l	d1
+// 			move.w	_xx,d0
+// 			move.w	_yy,d1
+// 			jsr		Move(a6)
 
-			lea		_answr,a0			; string = answr
-			move.l	60+4(sp),d0			; length of string = arg 1
-			jsr		Text(a6)
+// 			lea		_answr,a0			; string = answr
+// 			move.l	60+4(sp),d0			; length of string = arg 1
+// 			jsr		Text(a6)
 
-			move.l	_rp,a1
-			move.l	_GfxBase,a6
-			move.l	60+8(sp),d0			; set B pen color = arg 2
-			jsr		SetBPen(a6)
+// 			move.l	_rp,a1
+// 			move.l	_GfxBase,a6
+// 			move.l	60+8(sp),d0			; set B pen color = arg 2
+// 			jsr		SetBPen(a6)
 
-			move.w	#$2020,-(sp)		; push spaces
+// 			move.w	#$2020,-(sp)		; push spaces
 
-			move.l	sp,a0				; address to print = stack
-			moveq	#1,d0
-			move.l	_rp,a1
-			jsr		Text(a6)			; length = 1
+// 			move.l	sp,a0				; address to print = stack
+// 			moveq	#1,d0
+// 			move.l	_rp,a1
+// 			jsr		Text(a6)			; length = 1
 
-			move.l	_rp,a1
-			move.l	_GfxBase,a6
-			clr.l	d0					; set B pen color = 0
-			jsr		SetBPen(a6)
+// 			move.l	_rp,a1
+// 			move.l	_GfxBase,a6
+// 			clr.l	d0					; set B pen color = 0
+// 			jsr		SetBPen(a6)
 
-			move.l	sp,a0				; address to print = stack
-			moveq	#1,d0
-			jsr		Text(a6)			; length = 1
+// 			move.l	sp,a0				; address to print = stack
+// 			moveq	#1,d0
+// 			jsr		Text(a6)			; length = 1
 
-			addq.l	#2,sp				; pop string from stack
+// 			addq.l	#2,sp				; pop string from stack
 
-			movem.l	(sp)+,a0-a6/d0-d7
-			rts
-#endasm
+// 			movem.l	(sp)+,a0-a6/d0-d7
+// 			rts
+// #endasm
 
 BYTE	svflag;
 long	svfile, sverr;
@@ -1398,15 +1397,17 @@ extern struct  TextFont *tfont, *afont;
 /* struct FileLock *Lock(), *flock; */
 BPTR flock;
 
-locktest(name,access) char *name; long access;
+int locktest(char *name, long access)
 {	flock = Lock(name,access);
 	if (flock) UnLock(flock);
 	return (int)flock;
 }
 
-#define ADDR(ptr) (void *)((int)ptr << 2)
+// Xark: NOTE: I speculate (int) in ADDR() macro a minor bug on 16-bit int Amiga (but got lucky and compiler used 32-bits)
+// Xark: #define ADDR(ptr) (void *)((int)ptr << 2)
+#define ADDR(ptr) (void *)((intptr_t)ptr << 2)
 
-cpytest()
+int cpytest(void)
 {	BOOL IsHardDrive(void);
 
 	if (IsHardDrive() == FALSE)
@@ -1430,16 +1431,17 @@ cpytest()
 		load_track_range(880,1,buffer,0);
 		if (buffer[123] != 230) close_all();
 	}
+	return TRUE;	// Xark: added
 }
 
-#asm
+// #asm
 
-		public	_cold
-_cold	jmp		-4
+// 		public	_cold
+// _cold	jmp		-4
 
-#endasm
+// #endasm
 
-waitnewdisk()
+BOOL waitnewdisk(void)
 {	short i;
 	for (i=0; i<300; i++)
 	{	if (handler_data.newdisk)
@@ -1471,7 +1473,7 @@ extern struct encounter {
 			file_id;
 } encounter_chart[5];
 
-savegame(hit) short hit;
+void savegame(short hit)
 {	long	i;
 	char	*name;
 	BOOL	hdrive = FALSE;
@@ -1550,14 +1552,14 @@ nosave:
 	SetFont(rp,afont);
 }
 
-saveload(buffer,length) char *buffer; long length;
+void saveload(char *buffer, long length)
 {	short err;
 	if (svflag) err = Write(svfile,buffer,length);
 	else err = Read(svfile,buffer,length);
 	if (err < 0) sverr = IoErr();
 }
 
-move_extent(e,x,y) short e,x,y;
+void move_extent(short e, short x, short y)
 {	register struct extent *ex;
 	ex = extent_list + e;
 	ex->x1 = x - 250;
@@ -1581,7 +1583,7 @@ extern short princess;
 
 extern struct TextFont *afont;
 
-rescue()
+void rescue(void)
 {	register long i;
 	map_message(); SetFont(rp,afont);
 	i = princess*3;
@@ -1602,7 +1604,7 @@ rescue()
 	for (i=16; i<22; i++) stuff[i] += 3;
 }
 
-win_colors()
+void win_colors(void)
 {	register long i, j;
 	placard_text(6); name(); placard_text(7); placard(); Delay(80);
 	bm_draw = fp_drawing->ri_page->BitMap;
@@ -1635,33 +1637,44 @@ win_colors()
 	LoadRGB4(&vp_page,(void *)blackcolors,32);
 }
 
-#asm
-		public	_stuff_flag,_stuff
-_stuff_flag
-		moveq	#8,d0
-		move.l	_stuff,a0
-		add.l	4(sp),a0
-		tst.b	(a0)
-		beq.s	1$
-		moveq	#10,d0
-1$		rts
-#endasm
+// #asm
+// 		public	_stuff_flag,_stuff
+// _stuff_flag
+// 		moveq	#8,d0
+// 		move.l	_stuff,a0
+// 		add.l	4(sp),a0
+// 		tst.b	(a0)
+// 		beq.s	1$
+// 		moveq	#10,d0
+// 1$		rts
+// #endasm
 
 extern USHORT daynight, lightlevel;
 extern short light_timer;
 
-day_fade()
+// TODO: Xark: double check nested else stuff
+void day_fade(void)
 {	register long ll;
-	if (light_timer) ll = 200; else ll = 0;
+	if (light_timer)
+	{ ll = 200;
+	}
+	else
+ 	{	ll = 0;
+	}
 	if ((daynight & 3) == 0 || viewstatus > 97)
+	{
 		if (region_num < 8) /* no night inside buildings */
-			 fade_page(lightlevel-80+ll,lightlevel-61,lightlevel-62,TRUE,pagecolors);
-		else fade_page(100,100,100,TRUE,pagecolors);
+		{	fade_page(lightlevel-80+ll,lightlevel-61,lightlevel-62,TRUE,pagecolors);
+		}
+		else
+		{	fade_page(100,100,100,TRUE,pagecolors);
+		}
+	}
 }
 
 extern short leader;
 
-do_tactic(i,tactic) register long i,tactic;
+void do_tactic(long i, long tactic)
 {	register long r, f; register struct shape *an;
 	r = !(rand()&7);
 	an = &(anim_list[i]);
@@ -1701,7 +1714,7 @@ do_tactic(i,tactic) register long i,tactic;
 
 extern short hunger;
 
-eat(amt)
+void eat(int amt)
 {	hunger -= amt;
 	if (hunger < 0) { hunger = 0; event(13); }
 	else print("Yum!");
@@ -1711,7 +1724,7 @@ short minimap[120];
 
 extern short encounter_x, encounter_y;
 
-set_loc()
+void set_loc(void)
 {	register long d,j;
 	j = rand8();			/* direction */
 	d = 150 + rand64();		/* distance */

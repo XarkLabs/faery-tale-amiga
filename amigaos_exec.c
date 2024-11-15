@@ -42,3 +42,54 @@ void CloseLibrary(struct Library * library)
     (void)library;
     RUNLOGF("<= exec.CloseLibrary(%p)", library);
 }
+
+// TODO: DoIO -- perform an I/O command and wait for completion
+BYTE DoIO(struct IORequest * ioRequest)
+{
+    BYTE res = 0;
+    (void)ioRequest;
+    RUNLOGF("%d <= exec.DoIO(%p)", res, ioRequest);
+    return res;
+}
+
+// TODO: FindTask -- find a task with the given name or find oneself
+struct Task * FindTask(UBYTE * name)
+{
+    struct Task * res = NULL;
+    (void)name;
+    RUNLOGF("%p <= exec.FindTask(%p)", res, name);
+    return res;
+}
+
+// TODO: FreeMem -- deallocate with knowledge
+void FreeMem(APTR memoryBlock, uint32_t byteSize)
+{
+    (void)memoryBlock;
+    (void)byteSize;
+    RUNLOGF("<= exec.FreeMem(%p, %d) STUB", memoryBlock, byteSize);
+}
+
+// TODO: OpenDevice -- gain access to a device
+BYTE OpenDevice(char * devName, uint32_t unit, struct IORequest * ioRequest, uint32_t flags)
+{
+    BYTE res = 0;
+    (void)devName;
+    (void)unit;
+    (void)ioRequest;
+    (void)flags;
+    RUNLOGF(
+        "%d <= exec.OpenDevice(\"%s\", %d, %p, 0x%0x) STUB", res, devName, unit, ioRequest, flags);
+    return res;
+}
+
+// TODO: OpenLibrary -- gain access to a library
+struct Library * OpenLibrary(char * libName, uint32_t version)
+{
+    struct Library * res = NULL;
+    (void)libName;
+    (void)version;
+    RUNLOGF("%p <= exec.OpenLibrary(\"%s\", %d) STUB", res, libName, version);
+    return res;
+}
+
+// EOF

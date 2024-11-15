@@ -52,8 +52,24 @@ struct IOStdReq * CreateStdIO(struct MsgPort * port)
 }
 
 // TODO: DeleteExtIO - return memory allocated for extended IO request
-void DeleteExtIO( struct IORequest *ioReq )
+void DeleteExtIO(struct IORequest * ioReq)
 {
     (void)ioReq;
     RUNLOGF("<= alib.DeleteExtIO(%p) STUB", ioReq);
 }
+
+// TODO: DeletePort - free a message port created by CreatePort()
+void DeletePort(struct MsgPort * ioReq)
+{
+    (void)ioReq;
+    RUNLOGF("<= alib.DeletePort(%p) STUB", ioReq);
+}
+
+// TODO: DeleteStdIO - return memory allocated for IOStdReq
+void DeleteStdIO(struct IOStdReq * ioReq)
+{
+    (void)ioReq;
+    RUNLOGF("<= alib.DeleteStdIO(%p) STUB", ioReq);
+}
+
+// EOF

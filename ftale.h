@@ -195,9 +195,6 @@ struct setfig
 // Xark: Functions below are from assembly files
 // TODO: Clean these up
 
-int  MakeBitMap(struct BitMap * b, int depth, int width, int height);
-void UnMakeBitMap(struct BitMap * b);
-
 void    map_draw(void);
 void    scrollmap(int dir);
 int     px_to_im(USHORT x, USHORT y);
@@ -265,3 +262,12 @@ int rand256(void);
 int wrap(int v);
 
 int prox(int x, int y);
+
+// fsubs
+int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1);
+
+// makebitmap
+BOOL MakeBitMap(struct BitMap * b, int32_t depth, int32_t width, int32_t height);
+void UnMakeBitMap(struct BitMap * b);
+
+// EOF

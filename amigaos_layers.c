@@ -37,3 +37,30 @@ struct Layer * CreateUpfrontLayer(struct Layer_Info * li,
             bm2);
     return res;
 }
+
+// TODO: DeleteLayer -- delete layer from layer list.
+LONG DeleteLayer(int32_t dummy, struct Layer * layer)
+{
+    (void)dummy;
+    (void)layer;
+    RUNLOGF("1 <= layers.DeleteLayer(%d, %p) STUB", dummy, layer);
+    return TRUE;
+}
+
+// TODO: DisposeLayerInfo -- Return all memory for LayerInfo to memory pool
+void DisposeLayerInfo(struct Layer_Info * li)
+{
+    (void)li;
+    RUNLOGF("<= layers.DisposeLayerInfo(%p) STUB", li);
+}
+
+
+// TODO: NewLayerInfo -- Allocate and Initialize full Layer_Info structure.
+struct Layer_Info * NewLayerInfo(void)
+{
+    struct Layer_Info * res = NULL;
+    RUNLOGF("%p <= layers.NewLayerInfo()) STUB", res);
+    return res;
+}
+
+// EOF

@@ -1099,7 +1099,8 @@ int close_all(void)
 }
 
 int16_t oldir       = 9;
-int16_t keydir      = 0, keyfight;
+int16_t keydir      = 0;
+int16_t keyfight    = FALSE;
 char    diroffs[16] = {16, 16, 24, 24, 0, 0, 8, 8, 56, 56, 68, 68, 32, 32, 44, 44};
 
 /* music variables */
@@ -4076,8 +4077,6 @@ struct Interrupt  handlerStuff;
 // Xark: removed prototype: extern struct MsgPort *CreatePort();
 // Xark: removed prototype: extern struct IOStdReq *CreateStdIO();
 
-extern int HandlerInterface();
-
 BOOL add_device(void)
 {
     SHORT error;
@@ -4997,3 +4996,5 @@ void mod1save(void)
     /* save missile list - mdex already saved */
     saveload((void *)missile_list, 6 * sizeof(struct missile));
 }
+
+// EOF

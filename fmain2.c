@@ -1028,16 +1028,18 @@ int skipint(void)
 
 UBYTE * into_chip(UBYTE * oldpointer, int32_t size)
 {
-    register UBYTE * newpointer;
-    register int32_t i;
-
-    if (TypeOfMem(oldpointer) & MEMF_CHIP)
-        return oldpointer;
-
-    newpointer = AllocMem(size, MEMF_CHIP);
-    for (i = 0; i < size; i++)
-        newpointer[i] = *oldpointer++;
-    return newpointer;
+    //     register UBYTE * newpointer;
+    //     register int32_t i;
+    //
+    //     if (TypeOfMem(oldpointer) & MEMF_CHIP)
+    //         return oldpointer;
+    //
+    //     newpointer = AllocMem(size, MEMF_CHIP);
+    //     for (i = 0; i < size; i++)
+    //         newpointer[i] = *oldpointer++;
+    //     return newpointer;
+    (void)size;
+    return oldpointer;
 }
 
 char jtrans[] = {0, 3, 8, 10, 11, 15, 1, 30, 2, 45, 3, 75, 13, 20};
@@ -2142,3 +2144,5 @@ void set_loc(void)
     encounter_x = newx(hero_x, j, d);
     encounter_y = newy(hero_y, j, d);
 }
+
+// EOF

@@ -19,24 +19,21 @@ struct View     v, *oldview;
 struct ViewPort vp_page, vp_text, vp_title, *vp;
 
 /* add name of setfig for generic messages?? */
-struct
-{
-    BYTE cfile_entry, image_base, can_talk;
-} setfig_table[] = {
-    13, 0, 1, /* "wizard" = 0 */
-    13, 4, 1, /* "priest" = 1 */
-    14, 0, 0, /* "guard" = 2 */
-    14, 1, 0, /* "guard" = 3 (back) */
-    14, 2, 0, /* "princess" = 4 */
-    14, 4, 1, /* "king" = 5 */
-    14, 6, 0, /* "noble" = 6 */
-    14, 7, 0, /* "sorceress" = 7 */
-    15, 0, 0, /* "bartender" = 8 */
-    16, 0, 0, /* "witch" = 9 */
-    16, 6, 0, /* "spectre" = 10 */
-    16, 7, 0, /* "ghost" = 11 */
-    17, 0, 1, /* "ranger" = 12 */
-    17, 4, 1  /* "begger" = 13 */
+struct setfig setfig_table[NUM_SETFIG_ENTRIES] = {
+    {13, 0, 1}, /* "wizard" = 0 */
+    {13, 4, 1}, /* "priest" = 1 */
+    {14, 0, 0}, /* "guard" = 2 */
+    {14, 1, 0}, /* "guard" = 3 (back) */
+    {14, 2, 0}, /* "princess" = 4 */
+    {14, 4, 1}, /* "king" = 5 */
+    {14, 6, 0}, /* "noble" = 6 */
+    {14, 7, 0}, /* "sorceress" = 7 */
+    {15, 0, 0}, /* "bartender" = 8 */
+    {16, 0, 0}, /* "witch" = 9 */
+    {16, 6, 0}, /* "spectre" = 10 */
+    {16, 7, 0}, /* "ghost" = 11 */
+    {17, 0, 1}, /* "ranger" = 12 */
+    {17, 4, 1}  /* "begger" = 13 */
 };
 
 struct seq_info seq_list[7];
@@ -579,32 +576,33 @@ struct menu
     char * label_list;
     char   num, color;
     char   enabled[12];
-} menus[10] = {{label2, 10, 6, 3, 2, 2, 2, 2, 10, 10, 10, 10, 10, 0, 0},       /* items */
-               {label6, 12, 5, 2, 3, 2, 2, 2, 8, 8, 8, 8, 8, 8, 8},            /* magic */
-               {label3, 8, 9, 2, 2, 3, 2, 2, 10, 10, 10, 0, 0, 0, 0},          /* talk */
-               {label5, 12, 10, 2, 2, 2, 3, 2, 10, 10, 10, 10, 10, 10, 10},    /* buy */
-               {label4, 10, 2, 2, 2, 2, 2, 3, 6, 7, 7, 10, 10, 0, 0},          /* game */
-               {label8, 7, 0, 2, 2, 2, 2, 2, 10, 10, 0, 0, 0, 0},              /* save/exit */
-               {label9, 11, 8, 2, 2, 2, 2, 2, 10, 10, 10, 10, 10, 10},         /* keys */
-               {labelA, 9, 10, 2, 2, 2, 2, 2, 10, 0, 0, 0, 0, 0},              /* give */
-               {label7, 10, 8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 0, 10, 10}, /* use */
-               {labelB, 10, 5, 10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0}};   /* files */
+} menus[10] = {{label2, 10, 6, {3, 2, 2, 2, 2, 10, 10, 10, 10, 10, 0, 0}},       /* items */
+               {label6, 12, 5, {2, 3, 2, 2, 2, 8, 8, 8, 8, 8, 8, 8}},            /* magic */
+               {label3, 8, 9, {2, 2, 3, 2, 2, 10, 10, 10, 0, 0, 0, 0}},          /* talk */
+               {label5, 12, 10, {2, 2, 2, 3, 2, 10, 10, 10, 10, 10, 10, 10}},    /* buy */
+               {label4, 10, 2, {2, 2, 2, 2, 3, 6, 7, 7, 10, 10, 0, 0}},          /* game */
+               {label8, 7, 0, {2, 2, 2, 2, 2, 10, 10, 0, 0, 0, 0}},              /* save/exit */
+               {label9, 11, 8, {2, 2, 2, 2, 2, 10, 10, 10, 10, 10, 10}},         /* keys */
+               {labelA, 9, 10, {2, 2, 2, 2, 2, 10, 0, 0, 0, 0, 0}},              /* give */
+               {label7, 10, 8, {10, 10, 10, 10, 10, 10, 10, 10, 10, 0, 10, 10}}, /* use */
+               {labelB, 10, 5, {10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0}}};   /* files */
 
 #define LMENUS 38
 
 struct letters
 {
     char letter, menu, choice;
-} letter_list[] = {'I', ITEMS, 5, 'T', ITEMS, 6, '?', ITEMS, 7,  'U', ITEMS, 8,  'G', ITEMS, 9,
-                   'Y', TALK,  5, 'S', TALK,  6, 'A', TALK,  7,  ' ', GAME,  5,  'M', GAME,  6,
-                   'F', GAME,  7, 'Q', GAME,  8, 'L', GAME,  9,  'O', BUY,   5,  'R', BUY,   6,
-                   '8', BUY,   7, 'C', BUY,   8, 'W', BUY,   9,  'B', BUY,   10, 'E', BUY,   11,
-                   'V', SAVEX, 5, 'X', SAVEX, 6, 10,  MAGIC, 5,  11,  MAGIC, 6,  12,  MAGIC, 7,
-                   13,  MAGIC, 8, 14,  MAGIC, 9, 15,  MAGIC, 10, 16,  MAGIC, 11, '1', USE,   0,
-                   '2', USE,   1, '3', USE,   2, '4', USE,   3,  '5', USE,   4,  '6', USE,   5,
-                   '7', USE,   6, 'K', USE,   7};
+} letter_list[] = {
+    {'I', ITEMS, 5}, {'T', ITEMS, 6}, {'?', ITEMS, 7}, {'U', ITEMS, 8}, {'G', ITEMS, 9},
+    {'Y', TALK, 5},  {'S', TALK, 6},  {'A', TALK, 7},  {' ', GAME, 5},  {'M', GAME, 6},
+    {'F', GAME, 7},  {'Q', GAME, 8},  {'L', GAME, 9},  {'O', BUY, 5},   {'R', BUY, 6},
+    {'8', BUY, 7},   {'C', BUY, 8},   {'W', BUY, 9},   {'B', BUY, 10},  {'E', BUY, 11},
+    {'V', SAVEX, 5}, {'X', SAVEX, 6}, {10, MAGIC, 5},  {11, MAGIC, 6},  {12, MAGIC, 7},
+    {13, MAGIC, 8},  {14, MAGIC, 9},  {15, MAGIC, 10}, {16, MAGIC, 11}, {'1', USE, 0},
+    {'2', USE, 1},   {'3', USE, 2},   {'4', USE, 3},   {'5', USE, 4},   {'6', USE, 5},
+    {'7', USE, 6},   {'K', USE, 7}};
 
-char hit; /* which menu we hit */
+int16_t hit; /* which menu we hit */        // Xark: char->int16_t due to "char-subscripts" warnings
 
 /***** this section defines some variables that are used in maintaining
        the playing map */
@@ -673,18 +671,18 @@ uint16_t xreg, yreg; /* where the region is */
 #define MAP_FLUX    (new_region < NO_REGION)
 
 UWORD       new_region, lregion, region_num = 3;
-struct need current_loads  = {0, 0, 0, 0, 1, 2, 0, 0, 0};
+struct need current_loads  = {{0, 0, 0, 0}, 1, 2, 0, 0, 0};
 struct need file_index[10] = {
-    {320, 480, 520, 560, 0, 1, 32, 160, 22}, /* F1 - snowy region */
-    {320, 360, 400, 440, 2, 3, 32, 160, 21}, /* F2 - witch wood */
-    {320, 360, 520, 560, 2, 1, 32, 168, 22}, /* F3 - swampy region */
-    {320, 360, 400, 440, 2, 3, 32, 168, 21}, /* F4 - plains and rocks */
-    {320, 480, 520, 600, 0, 4, 32, 176, 0},  /* F5 - desert area */
-    {320, 280, 240, 200, 5, 6, 32, 176, 23}, /* F6 - bay / city / farms */
-    {320, 640, 520, 600, 7, 4, 32, 184, 0},  /* F7 - volcanic */
-    {320, 280, 240, 200, 5, 6, 32, 184, 24}, /* F8 - forest and wilderness */
-    {680, 720, 800, 840, 8, 9, 96, 192, 0},  /* F9  - inside of buildings */
-    {680, 760, 800, 840, 10, 9, 96, 192, 0}  /* F10 - dungeons and caves */
+    {{320, 480, 520, 560}, 0, 1, 32, 160, 22}, /* F1 - snowy region */
+    {{320, 360, 400, 440}, 2, 3, 32, 160, 21}, /* F2 - witch wood */
+    {{320, 360, 520, 560}, 2, 1, 32, 168, 22}, /* F3 - swampy region */
+    {{320, 360, 400, 440}, 2, 3, 32, 168, 21}, /* F4 - plains and rocks */
+    {{320, 480, 520, 600}, 0, 4, 32, 176, 0},  /* F5 - desert area */
+    {{320, 280, 240, 200}, 5, 6, 32, 176, 23}, /* F6 - bay / city / farms */
+    {{320, 640, 520, 600}, 7, 4, 32, 184, 0},  /* F7 - volcanic */
+    {{320, 280, 240, 200}, 5, 6, 32, 184, 24}, /* F8 - forest and wilderness */
+    {{680, 720, 800, 840}, 8, 9, 96, 192, 0},  /* F9  - inside of buildings */
+    {{680, 760, 800, 840}, 10, 9, 96, 192, 0}  /* F10 - dungeons and caves */
 };
 
 /* playing map is 6 * 19 = 114 */
@@ -693,9 +691,6 @@ extern int16_t minimap[114];
 
 #define MAXCOORD (16 * 16 * 128)
 #define MAXMASK  MAXCOORD - 1
-
-#define SETFN(n) openflags |= n
-#define TSTFN(n) openflags & n
 
 #define QPLAN_SZ   4096           /* 1 plane of 64 chars */
 #define IPLAN_SZ   16384          /* 1 plane of 256 chars */
@@ -761,24 +756,6 @@ int32_t seed1 = 19837325, seed2 = 23098324;
 struct in_work handler_data;
 
 /* this function opens everything that needs to be opened */
-
-/* allocation definitions */
-
-#define AL_BMAP   0x0001
-#define AL_GBASE  0x0002
-#define AL_HANDLE 0x0004
-#define AL_MUSIC  0x0008
-#define AL_IMAGE  0x0010
-#define AL_SECTOR 0x0020
-#define AL_MASK   0x0040
-#define AL_SHAPE  0x0080
-#define AL_SHADOW 0x0100
-#define AL_FONT   0x0200
-#define AL_SAMPLE 0x0400
-#define AL_PORT   0x0800
-#define AL_IOREQ  0x1000
-#define AL_TDISK  0x2000
-#define AL_TERR   0x4000
 
 struct BitMap *     wb_bmap;
 struct Layer_Info * li /* , *NewLayerInfo() */;          // Xark: moved comma, removed prototype
@@ -1014,13 +991,13 @@ int open_all(void)
         return 34;
     SETFN(AL_TERR);
 
-    // TODO: Xark Fixme Open
-    // if (file = Open("v6",1005))
-    // {	Read(file,wavmem,S_WAVBUF);
-    // 	Seek(file,S_WAVBUF,0);
-    // 	Read(file,volmem,S_VOLBUF);
-    // 	Close(file);
-    // }
+    if ((file = Open("v6", 1005)))
+    {
+        Read(file, wavmem, S_WAVBUF);
+        Seek(file, S_WAVBUF, 0);
+        Read(file, volmem, S_VOLBUF);
+        Close(file);
+    }
 
     bm_scroll.Planes[0] = bm_text->Planes[0];
 
@@ -1114,8 +1091,9 @@ int close_all(void)
     FreeSprite(0);
     openflags = 0;
 
-    if (origDir)
-        CurrentDir(origDir);
+    // TODO: Xark needed?
+    // if (origDir)
+    //     CurrentDir(origDir);
 
     exit(0);
 }
@@ -1140,9 +1118,7 @@ void read_sample(void)
     int32_t           ifflen;
     register uint8_t *num, *smem;
     register int32_t  i;
-    register int32_t  sp_load, sp_count;
 
-    sp_load = sp_count = 0;
     load_track_range(920, 11, sample_mem, 8);
 
     WaitDiskIO(8);    /* WaitIO((struct IORequest *)&diskreqs[8]); */
@@ -1288,13 +1264,15 @@ int main(int argc, char ** argv)
     uint16_t         xtest, ytest;
     struct shape *   an;
 
-    if (argc == 0)
-    {
-        extern struct WBStartup * WBenchMsg;
-
-        // TODO: Xark fixme CurrentDir()
-        //  origDir = CurrentDir(WBenchMsg->sm_ArgList->wa_Lock);
-    }
+    (void)argc;
+    (void)argv;
+    // TODO: Xark needed?
+    //     if (argc == 0)
+    //     {
+    //         extern struct WBStartup * WBenchMsg;
+    //
+    //         //  origDir = CurrentDir(WBenchMsg->sm_ArgList->wa_Lock);
+    //     }
 
     light_timer = 0;
     i           = open_all();
@@ -1446,7 +1424,7 @@ no_intro:
     cheat1 = quitflag = FALSE;
     while (!quitflag)
     {
-        int16_t  cycle, atype, inum, notpause;
+        int16_t  cycle = 0, atype, inum = 0, notpause;
         BYTE *   pia = (BYTE *)0xbfe001;
         uint8_t *backalloc, crack;
 
@@ -1757,7 +1735,8 @@ no_intro:
         if (riding == 11)
             anim_list[0].environ = -2;
 
-    noswan:
+        // Xark: unused label:
+        //  noswan:
         for (i = 0; i < anix; i++)
         {
             int16_t          d, e, s, dex, nvx, nvy, nvx1, nvy1;
@@ -2114,7 +2093,8 @@ no_intro:
             {
                 inum = diroffs[d + 8];
                 s = an->state = trans_list[s].newstate[rand4()];
-                if (i > 2 && s == 6 || s == 7)
+                // Xark was:    if (i > 2 && s == 6 || s == 7)
+                if (i > 2 && (s == 6 || s == 7))
                     s = 8;
                 dex       = s + inum;
                 frustflag = 0;
@@ -2188,7 +2168,8 @@ no_intro:
                     leave_item(i, 27); /* leave the lasso */
             }
 
-        sinker:
+            // Xark: unused label:
+            //      sinker:
             /* j is the Terrain type */
             if (i == 0 && raftprox)
                 k = 0; /* can't drown on raft */
@@ -2580,7 +2561,7 @@ no_intro:
             else if (dif_y == -1)
             {
                 scrollmap(2);
-            }                    /* scroll down */
+            } /* scroll down */
             else if (dif_y == 0) /* no motion, delay here */
             {
                 char battle2;
@@ -3715,6 +3696,7 @@ BOOL set_encounter(USHORT i, USHORT spread)
         ytest = 25762;
     }
     else
+    {
         for (j = 0; j < MAX_TRY; j++)
         {
             xtest = encounter_x + bitrand(spread) - (spread / 2);
@@ -3724,8 +3706,9 @@ BOOL set_encounter(USHORT i, USHORT spread)
             if (xtype == 52 && px_to_im(xtest, ytest) == 7)
                 break;
         }
-    if (j == MAX_TRY)
-        return FALSE;
+        if (j == MAX_TRY)        // Xark: NOTE: assuming should only be in else block
+            return FALSE;
+    }
     an->abs_x = xtest;
     an->abs_y = ytest;
     an->type  = ENEMY;
@@ -4054,7 +4037,7 @@ void gen_mini(void)
 
     if ((CheckDiskIO(2) && CheckDiskIO(0))
         /* if ((CheckIO((struct IORequest *)&diskreqs[2]) && CheckIO((struct IORequest
-           *)&diskreqs[0])) */
+         *)&diskreqs[0])) */
         || MAP_STABLE)
     {
         yr = lregion >> 1;
@@ -4212,7 +4195,7 @@ LONG dbg;
 
 void do_option(int16_t hit)
 {
-    int16_t                  dist;
+    // Xark: unused:    int16_t                  dist;
     USHORT                   y;
     register ULONG           i, j, x, k;
     register struct shape *  an;
@@ -4249,7 +4232,7 @@ void do_option(int16_t hit)
                     y = inv_list[j].yoff;
                     n = inv_list[j].image_number * 80 + inv_list[j].img_off;
                     h = inv_list[j].img_height;
-                    for (i = 0; i < num; i++)
+                    for (i = 0; i < (ULONG)num; i++)        // Xark: (ULONG) cast added
                     {
                         BltBitMap(&pagea, 0, n, bm, x, y, 16, h, 0xC0, 0xff, NULL);
                         y += inv_list[j].ydelta;
@@ -4431,8 +4414,8 @@ void do_option(int16_t hit)
                         {
                             print_cont("a ");
                             print_cont(inv_list[i - 1].name);
-                            stuff[i - 1]++; /* weapon */
-                            if (i > anim_list[0].weapon)
+                            stuff[i - 1]++;                            /* weapon */
+                            if (i > (ULONG)anim_list[0].weapon)        // Xark: (ULONG) cast added
                                 anim_list[0].weapon = i;
                             if (i == 4) /* a random factor?? */
                             {
@@ -4480,7 +4463,7 @@ void do_option(int16_t hit)
             {
                 int32_t flag = 0;
                 an           = anim_list;
-                for (i = 0; i < anix2; i++)
+                for (i = 0; i < (ULONG)anix2; i++)        // Xark: (ULONG) cast added
                 {
                     if (an->type == OBJECTS && an->race == 0 && (calc_dist(i, 0) < 40))
                         change_object(i, flag = 1);
@@ -4545,7 +4528,7 @@ void do_option(int16_t hit)
                     {
                         if ((hero_x & 255) / 85 == 1 && (hero_y & 255) / 64 == 1)
                         {
-                            int16_t x1, y1;
+                            // Xark: unused:    int16_t x1, y1;
                             x = hero_x >> 8;
                             y = hero_y >> 8;
                             for (i = 0; i < 11; i++)
@@ -4583,7 +4566,7 @@ void do_option(int16_t hit)
                     break;
                 case 11:
                     an = anim_list + 1;
-                    for (i = 1; i < anix; i++)
+                    for (i = 1; i < (ULONG)anix; i++)        // Xark: (ULONG) cast added
                     {
                         if (an->vitality && an->type == ENEMY && an->race < 7)
                         {
@@ -4732,7 +4715,7 @@ void do_option(int16_t hit)
                 hit = (hit - 5) * 2;
                 i   = jtrans[hit++];
                 j   = jtrans[hit];
-                if (wealth > j)
+                if ((ULONG)wealth > j)        // Xark: (ULONG) cast added
                 {
                     wealth -= j;
                     prq(7);

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <SDL.h>
+
 // planeptr = AllocRaster( width, height )
 PLANEPTR AllocRaster(uint32_t width, uint32_t height)
 {
@@ -16,7 +18,7 @@ PLANEPTR AllocRaster(uint32_t width, uint32_t height)
 int32_t AreaDraw(struct RastPort * rp, int32_t x, int32_t y)
 {
     // TODO: AreaDraw
-    RUNLOGF("%x <= graphics.AreaDraw(0x%p, %d, %d) STUB", 0, rp, x, y);
+    RUNLOGF("0x%x <= graphics.AreaDraw(%p, %d, %d) STUB", 0, rp, x, y);
     return 0;
 }
 
@@ -24,7 +26,7 @@ int32_t AreaDraw(struct RastPort * rp, int32_t x, int32_t y)
 int32_t AreaMove(struct RastPort * rp, int32_t x, int32_t y)
 {
     // TODO: AreaMove
-    RUNLOGF("%x <= graphics.AreaMove(0x%p, %d, %d) STUB", 0, rp, x, y);
+    RUNLOGF("0x%x <= graphics.AreaMove(%p, %d, %d) STUB", 0, rp, x, y);
     return 0;
 }
 
@@ -32,11 +34,12 @@ int32_t AreaMove(struct RastPort * rp, int32_t x, int32_t y)
 int32_t AreaEnd(struct RastPort * rp)
 {
     // TODO: AreaEnd
-    RUNLOGF("%x <= graphics.AreaEnd(0x%p) STUB", 0, rp);
+    RUNLOGF("0x%x <= graphics.AreaEnd(%p) STUB", 0, rp);
     return 0;
 }
 
-// planecnt = BltBitMap(SrcBitMap, SrcX, SrcY, DstBitMap, DstX, DstY, SizeX, SizeY, Minterm, Mask, TempA)
+// planecnt = BltBitMap(SrcBitMap, SrcX, SrcY, DstBitMap, DstX, DstY, SizeX, SizeY, Minterm, Mask,
+// TempA)
 LONG BltBitMap(struct BitMap * srcBitMap,
                int32_t         xSrc,
                int32_t         ySrc,
@@ -65,4 +68,10 @@ LONG BltBitMap(struct BitMap * srcBitMap,
             mask,
             tempA);
     return res;
+}
+
+// ChangeSprite( vp, s, newdata)
+void ChangeSprite(struct ViewPort * vp, struct SimpleSprite * sprite, PLANEPTR newData)
+{
+    RUNLOGF("<= graphics.ChangeSprite(%p, %p, %p) STUB", vp, sprite, newData);
 }

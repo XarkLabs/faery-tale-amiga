@@ -89,9 +89,6 @@ char                     compress;
 
 /* char *AllocMem(); */
 
-void unpack_line(char * dest);        // Xark
-
-
 #ifdef blarg
 unpackpic(filename, bitmap) char * filename;
 struct BitMap * bitmap;

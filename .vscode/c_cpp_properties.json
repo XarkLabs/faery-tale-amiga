@@ -1,10 +1,11 @@
 {
     "configurations": [
         {
-            "name": "Mac",
+            "name": "macOS",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/AmigaOS_NDK_3.1/Includes_Libs/include_h"
+                "${workspaceFolder}/AmigaOS_NDK_3.1/Includes_Libs/include_h",
+                "/opt/homebrew/include/SDL2"
             ],
             "defines": [],
             "macFrameworkPath": [

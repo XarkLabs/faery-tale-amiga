@@ -143,6 +143,50 @@ struct in_work
     int16_t               ticker;
 };
 
+// "wizard" = 0
+// "priest" = 1
+// "guard" = 2
+// "guard" = 3 (back)
+// "princess" = 4
+// "king" = 5
+// "noble" = 6
+// "sorceress" = 7
+// "bartender" = 8
+// "witch" = 9
+// "spectre" = 10
+// "ghost" = 11
+// "ranger" = 12
+// "begger" = 13
+#define NUM_SETFIG_ENTRIES 14
+
+// Xark: moved here
+struct setfig
+{
+    BYTE cfile_entry, image_base, can_talk;
+};
+
+// Xark: moved here
+#define SETFN(n) openflags |= n
+#define TSTFN(n) openflags & n
+
+/* allocation definitions */
+#define AL_BMAP   0x0001
+#define AL_GBASE  0x0002
+#define AL_HANDLE 0x0004
+#define AL_MUSIC  0x0008
+#define AL_IMAGE  0x0010
+#define AL_SECTOR 0x0020
+#define AL_MASK   0x0040
+#define AL_SHAPE  0x0080
+#define AL_SHADOW 0x0100
+#define AL_FONT   0x0200
+#define AL_SAMPLE 0x0400
+#define AL_PORT   0x0800
+#define AL_IOREQ  0x1000
+#define AL_TDISK  0x2000
+#define AL_TERR   0x4000
+
+
 // Xark includes after structs
 #include "fmain.h"
 #include "fmain2.h"
@@ -183,8 +227,8 @@ void WaitDiskIO(int num);
 void InvalidDiskIO(int num);
 int  CheckDiskIO(int num);
 int  IsReadDiskIO(int num);
-int  CheckLastDiskIO();
-int  IsReadLastDiskIO();
+int  CheckLastDiskIO(void);
+int  IsReadLastDiskIO(void);
 
 void do_error(int e);
 void init_music(SHORT * new_wave, UBYTE * wav_mem, UBYTE * vol_mem);

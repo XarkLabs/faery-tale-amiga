@@ -261,7 +261,7 @@ char           turtle_eggs;
 
 void aftermath(void)
 {
-    register int32_t dead, flee, i, j;
+    register int32_t dead, flee, i;        // Xark: unused:, j;
     dead = flee = 0;
     for (i = 3; i < anix; i++)
     {
@@ -346,7 +346,7 @@ int nearest_fig(char constraint, int16_t dist)
 int calc_dist(int32_t a, int32_t b)
 {
     register int32_t x, y;
-    int16_t          dist;
+    // Xark: unused:    int16_t          dist;
     x = anim_list[a].abs_x - anim_list[b].abs_x;
     if (x < 0)
         x = -x;
@@ -1227,7 +1227,9 @@ UBYTE rand_treasure[] = {SACKS,
                          WHITE_KEY,
                          CHEST};
 
-#define TENBLANKS {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}
+#define TENBLANKS                                                                                  \
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},            \
+        {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}
 
 /* divide object list up by region number */
 /* 0=nonexist, 1=ground, 2=inventory, 3=setfig, 4=dead setfig, 5=hidden object */
@@ -1460,10 +1462,7 @@ void change_object(int32_t id, int32_t flag)
         ob->ob_stat = flag;
 }
 
-extern struct
-{
-    BYTE cfile_entry, image_base, can_talk;
-} setfig_table[];
+extern struct setfig setfig_table[];
 
 extern UBYTE * nextshape;
 extern char    witchflag;
@@ -1590,6 +1589,7 @@ BOOL copy_protect_junk(void)
     register char *  a, *b;
     int32_t          h;
 
+    (void)b;        // Xark: might be used
     SetDrMd(rp, JAM2);
     for (h = 0; h < 3; h++)
     {
@@ -1714,6 +1714,8 @@ int cpytest(void)
     {
         struct DeviceList * fdev;
         struct FileLock *   fl;
+
+        (void)fdev;        // Xark: might be used
 
         flock = Lock("df0:", ACCESS_READ);
         if (flock)
@@ -1885,7 +1887,7 @@ nosave:
     SetFont(rp, afont);
 }
 
-void saveload(char * buffer, int32_t length)
+void saveload(uint8_t * buffer, int32_t length)
 {
     int16_t err;
     if (svflag)

@@ -96,8 +96,8 @@ void SumLibrary( struct Library *library );
 /*------ devices ------------------------------------------------------*/
 void AddDevice( struct Device *device );
 void RemDevice( struct Device *device );
-BYTE OpenDevice( UBYTE *devName, uint32_t unit,
-	struct IORequest *ioRequest, uint32_t flags );
+BYTE OpenDevice( char *devName, uint32_t unit,
+	struct IORequest *ioRequest, uint32_t flags );	// Xark: UBYTE->char for devName
 void CloseDevice( struct IORequest *ioRequest );
 BYTE DoIO( struct IORequest *ioRequest );
 void SendIO( struct IORequest *ioRequest );
@@ -118,7 +118,7 @@ ULONG Procure( struct SignalSemaphore *sigSem,
 	struct SemaphoreMessage *bidMsg );
 void Vacate( struct SignalSemaphore *sigSem,
 	struct SemaphoreMessage *bidMsg );
-struct Library *OpenLibrary( UBYTE *libName, uint32_t version );
+struct Library *OpenLibrary( char *libName, uint32_t version );	// Xark: UBYTE->char for libName
 /*--- functions in V33 or higher (Release 1.2) ---*/
 /*------ signal semaphores (note funny registers)----------------------*/
 void InitSemaphore( struct SignalSemaphore *sigSem );

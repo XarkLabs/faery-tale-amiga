@@ -1,7 +1,6 @@
 {
     "files.associations": {
-        "*.h": "c",
-        "*.p": "c",
+        "*.h": "c"
     },
     "makefile.configureOnOpen": true,
     "[m68k]": {

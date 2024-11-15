@@ -54,7 +54,7 @@ typedef uint16_t	RPTR;	    /* signed relative pointer */
 
 #ifdef __cplusplus
 typedef char	       *STRPTR;     /* string pointer (NULL terminated) */
-#elif defined(__clang__)          /* Xark: avoid conversion issues */
+#elif defined(__clang__)          /* Xark: char to avoid conversion issues */
 typedef char	       *STRPTR;     /* string pointer (NULL terminated) */
 #else
 typedef uint8_t  *STRPTR;     /* string pointer (NULL terminated) */

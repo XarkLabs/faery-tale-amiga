@@ -43,7 +43,7 @@ int       locktest(char * name, int32_t access);
 int       cpytest(void);
 BOOL      waitnewdisk(void);
 void      savegame(int16_t hit);
-void      saveload(char * buffer, int32_t length);
+void      saveload(uint8_t * buffer, int32_t length);
 void      move_extent(int16_t e, int16_t x, int16_t y);
 void      rescue(void);
 void      win_colors(void);

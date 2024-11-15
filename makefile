@@ -18,8 +18,7 @@ SHELL := bash
 .DELETE_ON_ERROR:
 MAKEFLAGS += --no-builtin-rules
 
-#-Wall  -Wno-char-subscripts -Wno-pointer-sign -Wno-missing-braces
-CFLAGS  = -g -Os -Wno-pointer-sign -I AmigaOS_NDK_3.1/Includes_Libs/include_h $(shell sdl2-config --cflags)
+CFLAGS  = -g -Os -Wall -Wextra -I AmigaOS_NDK_3.1/Includes_Libs/include_h $(shell sdl2-config --cflags)
 LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image
 
 INCS = amiga39.h ftale.h fmain.h fmain2.h iffsubs.h
@@ -30,10 +29,13 @@ all: fta
 
 fta: $(OBJS)
 	-ld $(LDFLAGS) -o $@ $(OBJS) 2>ld.log
-	@echo "Symbols left to define:"
-	@grep "referenced" ld.log | sort | uniq | cut -d "," -f 1
+	@grep "referenced" ld.log | sort | uniq | cut -d "," -f 1 | tr -d "\042" | sed 's/ _/ /' >link_undef.log
+	@echo === Number Remaining to Define:
+	@cat link_undef.log | wc -l
+	@echo === Undefined Symbols:
+	@cat link_undef.log
 
-$(OBJS): $(INCLUDE) Makefile
+$(OBJS): $(INCLUDE) $(MAKEFILE_LIST)
 
 clean:
 	rm -f $(OBJS) fta

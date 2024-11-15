@@ -307,4 +307,85 @@ void ScrollRaster(struct RastPort * rp,
             yMax);
 }
 
+// TODO: SetAPen -- Set the primary pen for a RastPort.
+void SetAPen(struct RastPort * rp, uint32_t pen)
+{
+    (void)rp;
+    (void)pen;
+    RUNLOGF("<= graphics.SetAPen(%p, %d) STUB", rp, pen);
+}
+
+// TODO: SetBPen -- Set the secondary pen for a RastPort.
+void SetBPen(struct RastPort * rp, uint32_t pen)
+{
+    (void)rp;
+    (void)pen;
+    RUNLOGF("<= graphics.SetBPen(%p, %d) STUB", rp, pen);
+}
+
+// TODO: SetDrMd -- Set drawing mode for a RastPort
+void SetDrMd(struct RastPort * rp, uint32_t drawMode)
+{
+    (void)rp;
+    (void)drawMode;
+    RUNLOGF("<= graphics.SetDrMd(%p, %d) STUB", rp, drawMode);
+}
+
+// TODO: SetRast - Set an entire drawing area to a specified color.
+void SetRast(struct RastPort * rp, uint32_t pen)
+{
+    (void)rp;
+    (void)pen;
+    RUNLOGF("<= graphics.SetRast(%p, %d) STUB", rp, pen);
+}
+
+// TODO: SetFont -- Set the text font and attributes in a RastPort.
+LONG SetFont(struct RastPort * rp, struct TextFont * textFont)
+{
+    ULONG res = 0;
+    (void)rp;
+    (void)textFont;
+    RUNLOGF("%d <= graphics.SetFont(%p, %p) STUB", res, rp, textFont);
+    return res;
+}
+
+// TODO: SetRGB4 -- Set one color register for this viewport.
+void SetRGB4(struct ViewPort * vp, int32_t index, uint32_t red, uint32_t green, uint32_t blue)
+{
+    (void)index;
+    (void)red;
+    (void)green;
+    (void)blue;
+    RUNLOGF("<= graphics.SetRGB4(%p, %d, %d, %d, %d) STUB", vp, index, red, green, blue);
+}
+
+// Text -- Write text characters (no formatting).
+LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
+{
+    ULONG res = 0;
+    (void)rp;
+    (void)string;
+    (void)count;
+    RUNLOGF("%d <= graphics.Text(%p, \"%*s\", %d) STUB",
+            res,
+            rp,
+            count < 100 ? count : 100,
+            string,
+            count);
+    return res;
+}
+
+// TODO: WaitBOVP -- Wait till vertical beam reached bottom of this viewport.
+void WaitBOVP(struct ViewPort * vp)
+{
+    (void)vp;
+    RUNLOGF("<= graphics.WaitBOVP(%p) STUB", vp);
+}
+
+// TODO: WaitBlit -- Wait for the blitter to be finished before proceeding
+void WaitBlit(void)
+{
+    RUNLOG("<= graphics.WaitBlit() STUB");
+}
+
 // EOF

@@ -9,13 +9,16 @@
 // TODO: Close -- Close an open file
 LONG Close(BPTR bfile)
 {
-    RUNLOGF("1 <= dos.Close(0x%x) STUB", bfile);
-    return TRUE;
+    LONG res = TRUE;
+    (void)bfile;
+    RUNLOGF("%d <= dos.Close(0x%x) STUB", res, bfile);
+    return res;
 }
 
 // Delay -- Delay a process for a specified time (1/50th sec)
 void Delay(int32_t timeout)
 {
+    (void)timeout;
     RUNLOGF("<= dos.Delay(%d)", timeout);
     SDL_Delay(timeout * 20);        // convert to milliseconds
 }
@@ -63,7 +66,43 @@ LONG Read(BPTR file, APTR buffer, int32_t length)
     (void)file;
     (void)buffer;
     (void)length;
-    RUNLOGF("0x%x <= dos.Read(0x%x, %p, %d) STUB", res, file, buffer, length);
+    RUNLOGF("%d <= dos.Read(0x%x, %p, %d) STUB", res, file, buffer, length);
+    return res;
+}
+
+// TODO: Seek -- Set the current position for reading and writing
+LONG Seek(BPTR file, int32_t position, int32_t offset)
+{
+    LONG res = 0;
+    (void)file;
+    (void)position;
+    (void)offset;
+    RUNLOGF("%d <= dos.Read(0x%x, %d, %d) STUB", res, file, position, offset);
+    return res;
+}
+
+// TODO: UnLoadSeg -- Unload a seglist previously loaded by LoadSeg()
+void UnLoadSeg(BPTR seglist)
+{
+    (void)seglist;
+    RUNLOGF("<= dos.UnLoadSeg(0x%x) STUB", seglist);
+}
+
+// TODO: UnLock -- Unlock a directory or file
+void UnLock(BPTR lock)
+{
+    (void)lock;
+    RUNLOGF("<= dos.UnLock(0x%x) STUB", lock);
+}
+
+// TODO: Write -- Write bytes of data to a file
+LONG Write(BPTR file, APTR buffer, int32_t length)
+{
+    LONG res = 0;
+    (void)file;
+    (void)buffer;
+    (void)length;
+    RUNLOGF("%d <= dos.Write(0x%x, %p, %d) STUB", res, file, buffer, length);
     return res;
 }
 

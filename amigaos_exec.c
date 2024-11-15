@@ -9,7 +9,11 @@
 // AllocMem -- allocate memory given certain requirements
 APTR AllocMem(uint32_t bytesize, uint32_t attributes)
 {
-    void * ptr = calloc(1, bytesize);
+    void * ptr = malloc(bytesize);
+    if (ptr)
+    {
+        memset(ptr, 0, bytesize);
+    }
     RUNLOGF("%p <= exec.AllocMem(%d, 0x%x)", ptr, bytesize, attributes);
     return ptr;
 }
@@ -89,6 +93,22 @@ struct Library * OpenLibrary(char * libName, uint32_t version)
     (void)libName;
     (void)version;
     RUNLOGF("%p <= exec.OpenLibrary(\"%s\", %d) STUB", res, libName, version);
+    return res;
+}
+
+// TODO: SendIO -- initiate an I/O command
+void SendIO(struct IORequest * ioRequest)
+{
+    (void)ioRequest;
+    RUNLOGF("<= exec.SendIO(%p)", ioRequest);
+}
+
+// TODO: WaitIO -- wait for completion of an I/O request
+BYTE WaitIO(struct IORequest * ioRequest)
+{
+    BYTE res = 0;
+    (void)ioRequest;
+    RUNLOGF("%d <= exec.WaitIO(%p)", res, ioRequest);
     return res;
 }
 

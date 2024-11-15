@@ -1,10 +1,18 @@
 {
     "files.associations": {
-        "*.h": "c"
+        "*.sv": "systemverilog",
+        "*.asm": "ca65",
+        "*.casm": "vasmmot",
+        "*.cpasm": "vasmmot",
+        "*.h": "c",
+        "sstream": "c"
     },
     "makefile.configureOnOpen": true,
     "[m68k]": {
         "editor.rulers": []
     },
-    "editor.comments.ignoreEmptyLines": false
+    "editor.comments.ignoreEmptyLines": false,
+    "cSpell.words": [
+        "blitter"
+    ]
 }

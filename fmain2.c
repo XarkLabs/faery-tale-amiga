@@ -1734,7 +1734,7 @@ int cpytest(void)
     }
     else
     {
-        ULONG buffer[512 / 4];
+        static ULONG buffer[512 / 4];
 
         load_track_range(880, 1, buffer, 0);
         if (buffer[123] != 230)

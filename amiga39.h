@@ -3,6 +3,10 @@
 #if !defined(AMIGA39_H)
 #define AMIGA39_H
 
+#include <assert.h>
+#include <errno.h>
+#include <string.h>
+
 #define FTA_NEXGEN 1
 #define FTA_LOG    1
 
@@ -13,6 +17,32 @@
 #define RUNLOG()  (void)
 #define RUNLOGF() (void)
 #endif
+
+// only for debug assertions (debug only)
+#define ASSERT(e)                                                                                  \
+    do                                                                                             \
+    {                                                                                              \
+        if (!(e))                                                                                  \
+        {                                                                                          \
+            fprintf(                                                                               \
+                stdout, "ASSERT FAILED: %s:%d: %s(): ASSERT(%s);\n", __FILE__, __LINE__, __FUNCTION__, #e);    \
+            __builtin_debugtrap();                                                                 \
+        }                                                                                          \
+    } while (0)
+
+
+// cheesy error checking (always performed)
+#define CHECK(chk)                                                                                 \
+    do                                                                                             \
+    {                                                                                              \
+        if (!(chk))                                                                                \
+        {                                                                                          \
+            fprintf(                                                                               \
+                stdout, "CHECK FAILED: %s:%d: %s(): CHECK(%s);\n", __FILE__, __LINE__, __FUNCTION__, #chk); \
+            fflush(stdout);                                                                        \
+            __builtin_debugtrap();                                                                 \
+        }                                                                                          \
+    } while (0)
 
 #define timeval amigaOS_timeval        // Xark: Avoid conflicting with native OS
 

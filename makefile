@@ -17,7 +17,7 @@ MAKEFLAGS += --no-builtin-rules
 CC=clang
 LD=clang
 
-CFLAGS  = -g -Os -Wall -Wextra -I AmigaOS_NDK_3.1/Includes_Libs/include_h $(shell sdl2-config --cflags)
+CFLAGS  = -g -O0 -Wall -Wextra -Werror -I AmigaOS_NDK_3.1/Includes_Libs/include_h $(shell sdl2-config --cflags)
 LDFLAGS =  $(shell sdl2-config --libs) -lSDL2_image
 
 INCS = $(wildcard *.h)
@@ -31,7 +31,11 @@ fta: $(OBJS)
 
 $(OBJS): $(INCLUDE) $(MAKEFILE_LIST)
 
+debug: all
+	killall -9 fta
+	lldb -b -o run ./fta
+
 clean:
 	rm -f $(OBJS) fta
 
-.PHONY: all clean
+.PHONY: all debug clean

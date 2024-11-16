@@ -362,8 +362,36 @@ UBYTE hivar[] = {
 // TODO: getkey - get key from keyboard buffer
 int32_t getkey(void)
 {
-    int32_t key = 0;
-    RUNLOGF("%d <= getkey() STUB", key);
+    int32_t   key = 0;
+    SDL_Event e;
+    if (SDL_PollEvent(&e))
+    {
+        switch (e.type)
+        {
+            case SDL_TEXTINPUT:
+                /* Add new text onto the end of our text */
+                if (strlen(e.text.text) == 1)
+                {
+                    key = e.text.text[1];
+                }
+                break;
+            // case SDL_TEXTEDITING:
+            //     /*
+            //     Update the composition text.
+            //     Update the cursor position.
+            //     Update the selection length (if any).
+            //     */
+            //     // composition   = e.edit.text;
+            //     // cursor        = e.edit.start;
+            //     // selection_len = e.edit.length;
+            //     break;
+        }
+    }
+
+    if (key != 0)
+    {
+        RUNLOGF("%d <= getkey() [%c]", key,key);
+    }
     return key;
 }
 
@@ -384,7 +412,7 @@ int32_t getkey(void)
 int32_t ft_rand(void)
 {
     int32_t res = rand() & 0x7fffffff;
-    RUNLOGF("%d <= ft_rand()", res);
+// spammy    RUNLOGF("%d <= ft_rand()", res);
     return res;
 }
 
@@ -397,7 +425,7 @@ int32_t ft_rand(void)
 int32_t bitrand(int32_t m)
 {
     int32_t res = ft_rand() & m;
-    RUNLOGF("%d <= bitrand(0x%x)", res, m);
+    // spammy    RUNLOGF("%d <= bitrand(0x%x)", res, m);
     return res;
 }
 

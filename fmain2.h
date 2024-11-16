@@ -25,7 +25,7 @@ void      shape_read(void);
 void      read_shapes(int32_t num);
 void      load_track_range(int16_t f_block, int16_t b_count, APTR buffer, int16_t dr);
 void      motor_off(void);
-void      seekn(void);
+// void      seekn(void);
 void      prep(int16_t slot);
 void      load_next(void);
 void      read_score(void);

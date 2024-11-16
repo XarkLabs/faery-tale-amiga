@@ -12,6 +12,12 @@ PLANEPTR AllocRaster(uint32_t width, uint32_t height)
     void * res = NULL;
     (void)width;
     (void)height;
+    int32_t bytes = (((width + 15) >> 4) << 1) * height;
+    res           = malloc(bytes);
+    if (res)
+    {
+        memset(res, 0, bytes);
+    }
     RUNLOGF("%p <= graphics.AllocRaster(%d, %d)", res, width, height);
     return res;
 }
@@ -174,7 +180,13 @@ void InitBitMap(struct BitMap * bitMap, int32_t depth, int32_t width, int32_t he
     (void)depth;
     (void)width;
     (void)height;
-    RUNLOGF("<= graphics.InitBitMap(%p, %d, %d, %d) STUB", bitMap, depth, width, height);
+    RUNLOGF("<= graphics.InitBitMap(%p, %d, %d, %d)", bitMap, depth, width, height);
+    memset(bitMap, 0, sizeof(struct BitMap));
+
+    bitMap->BytesPerRow = (((width + 15) >> 4) << 1);
+    bitMap->Rows        = height;
+    bitMap->Flags       = 0;
+    bitMap->Depth       = depth;
 }
 
 // TODO: InitRastPort -- Initialize raster port structure
@@ -223,7 +235,7 @@ void LoadRGB4(struct ViewPort * vp, UWORD * colors, int32_t count)
 void LoadView(struct View * view)
 {
     (void)view;
-    RUNLOGF("<= graphics.LoadView(%p) STUB", view);
+//    RUNLOGF("<= graphics.LoadView(%p) STUB", view);
 }
 
 // TODO: MakeVPort -- generate display copper list for a viewport.
@@ -232,7 +244,7 @@ ULONG MakeVPort(struct View * view, struct ViewPort * vp)
     ULONG res = 0;
     (void)view;
     (void)vp;
-    RUNLOGF("%d <= graphics.MakeVPort(%p, %p) STUB", res, view, vp);
+//    RUNLOGF("%d <= graphics.MakeVPort(%p, %p) STUB", res, view, vp);
     return res;
 }
 
@@ -250,7 +262,7 @@ ULONG MrgCop(struct View * view)
 {
     ULONG res = 0;
     (void)view;
-    RUNLOGF("%d <= graphics.MrgCop(%p) STUB", res, view);
+//    RUNLOGF("%d <= graphics.MrgCop(%p) STUB", res, view);
     return res;
 }
 
@@ -379,7 +391,7 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
 void WaitBOVP(struct ViewPort * vp)
 {
     (void)vp;
-    RUNLOGF("<= graphics.WaitBOVP(%p) STUB", vp);
+//    RUNLOGF("<= graphics.WaitBOVP(%p) STUB", vp);
 }
 
 // TODO: WaitBlit -- Wait for the blitter to be finished before proceeding

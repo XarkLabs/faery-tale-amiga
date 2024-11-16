@@ -86,15 +86,15 @@ BYTE OpenDevice(char * devName, uint32_t unit, struct IORequest * ioRequest, uin
     return res;
 }
 
-// TODO: OpenLibrary -- gain access to a library
-struct Library * OpenLibrary(char * libName, uint32_t version)
-{
-    struct Library * res = NULL;
-    (void)libName;
-    (void)version;
-    RUNLOGF("%p <= exec.OpenLibrary(\"%s\", %d) STUB", res, libName, version);
-    return res;
-}
+// // TODO: OpenLibrary -- gain access to a library
+// struct Library * OpenLibrary(char * libName, uint32_t version)
+// {
+//     struct Library * res = (struct Library *)0xbadc0de;
+//     (void)libName;
+//     (void)version;
+//     RUNLOGF("%p <= exec.OpenLibrary(\"%s\", %d) FAKE", res, libName, version);
+//     return res;
+// }
 
 // TODO: SendIO -- initiate an I/O command
 void SendIO(struct IORequest * ioRequest)

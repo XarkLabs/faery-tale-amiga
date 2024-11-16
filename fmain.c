@@ -2,6 +2,8 @@
 
 #include "ftale.h"
 
+#include <SDL.h>
+
 /****** this section defines the variables used to communicate with the
         graphics routines */
 
@@ -783,18 +785,18 @@ struct BitMap work_bm;
 int open_all(void)
 {
     register int32_t i;
-    int32_t          file;
+    FILE *           filep;
 
     RUNLOG("<= open_all()");
 
     openflags = 0;
 
-    if ((GfxBase = (struct GfxBase *)OpenLibrary("graphics.library", 0)) == NULL)
-        return 2;
-    if ((LayersBase = OpenLibrary("layers.library", 0)) == NULL)
-        return 2;
+    // if ((GfxBase = (struct GfxBase *)OpenLibrary("graphics.library", 0)) == NULL)
+    //     return 2;
+    // if ((LayersBase = OpenLibrary("layers.library", 0)) == NULL)
+    //     return 2;
     SETFN(AL_GBASE); /* opened the graphics library */
-    oldview = GfxBase->ActiView;
+    // Xark: oldview = GfxBase->ActiView;
 
     if (!MakeBitMap(&work_bm, 2, 640, 200))
         return 2;
@@ -832,7 +834,10 @@ int open_all(void)
 	}
 #endif
 
-    if ((seg = LoadSeg("fonts/Amber/9")) == 0)
+#if 1        // TODO: font stuff
+    RUNLOG("... skipping font open");
+#else
+    if ((seg = LoadSeg("game/fonts/Amber/9")) == 0)
         return 15;        // Xark: NULL -> 0 (since BPTR)
                           // Xark:	font = (struct DiskFontHeader *) ((seg<<2)+8);
     font = BPTR_OFFSET_ADDR(seg, 8, struct DiskFontHeader);
@@ -843,17 +848,18 @@ int open_all(void)
     SetFont(&rp_text2, tfont);
     SetFont(&rp_map, tfont);
     afont = &(font->dfh_TF);
+#endif
 
     /* add the input handler */
-    handler_data.xsprite = handler_data.ysprite = 320;
-    handler_data.gbase                          = GfxBase;
-    handler_data.pbase                          = 0;
-    if (add_device() == FALSE)
-        return 4;
+    // handler_data.xsprite = handler_data.ysprite = 320;
+    // handler_data.gbase                          = GfxBase;
+    // handler_data.pbase                          = 0;
+    // if (add_device() == FALSE)
+    //     return 4;
 
-    thistask                      = (struct Process *)FindTask(0);
-    thistask->pr_WindowPtr        = (APTR)-1;
-    thistask->pr_Task.tc_TrapCode = (APTR)NULL;        // Xark: trapper;
+    // thistask                      = (struct Process *)FindTask(0);
+    // thistask->pr_WindowPtr        = (APTR)-1;
+    // thistask->pr_Task.tc_TrapCode = (APTR)NULL;        // Xark: trapper;
     /* set trap handler */
 
     SETFN(AL_HANDLE);
@@ -1004,12 +1010,12 @@ int open_all(void)
         return 34;
     SETFN(AL_TERR);
 
-    if ((file = Open("v6", 1005)))
+    if ((filep = fopen("game/v6", "r")))
     {
-        Read(file, wavmem, S_WAVBUF);
-        Seek(file, S_WAVBUF, 0);
-        Read(file, volmem, S_VOLBUF);
-        Close(file);
+        CHECK(1 == fread(wavmem, S_WAVBUF, 1, filep));        // TODO: error checking
+        CHECK(0 == fseek(filep, S_WAVBUF, SEEK_CUR));
+        CHECK(1 == fread(volmem, S_VOLBUF, 1, filep));
+        fclose(filep);
     }
 
     bm_scroll.Planes[0] = bm_text->Planes[0];
@@ -1126,33 +1132,29 @@ uint32_t sample_size[6];
 
 char pass, passmode;
 
-extern int32_t myfile, header, blocklength;
-
 /* reads an IFF sample - shorten file format later */
 
 void read_sample(void)
 {
     int32_t           ifflen;
-    register uint8_t *num, *smem;
+    register uint8_t *smem;
     register int32_t  i;
 
     RUNLOG("<= read_sample()");
 
     load_track_range(920, 11, sample_mem, 8);
 
-    WaitDiskIO(8);    /* WaitIO((struct IORequest *)&diskreqs[8]); */
-    InvalidDiskIO(8); /* diskreqs[8].iotd_Req.io_Command = CMD_INVALID; */
+    // WaitDiskIO(8);    /* WaitIO((struct IORequest *)&diskreqs[8]); */
+    // InvalidDiskIO(8); /* diskreqs[8].iotd_Req.io_Command = CMD_INVALID; */
 
     smem = sample_mem;
     for (i = 0; i < 6; i++)
     {
-        num            = (uint8_t *)(&ifflen);
-        *num++         = *smem++;
-        *num++         = *smem++;
-        *num++         = *smem++;
-        *num++         = *smem++;
+        ifflen = swap_endian(*(uint32_t *)smem);
+        smem += 4;
         sample[i]      = smem;
         sample_size[i] = ifflen;
+        RUNLOGF("... audio sample[%d] len %d", i, ifflen);
         smem += ifflen;
     }
 }
@@ -1277,6 +1279,9 @@ found:
 
 extern UBYTE titletext[];
 
+struct SDL_Renderer * sdl_renderer;
+struct SDL_Window *   sdl_window;
+
 int main(int argc, char ** argv)
 {
     register int32_t i;
@@ -1290,6 +1295,26 @@ int main(int argc, char ** argv)
     (void)argv;
 
     RUNLOGF("FTA main(%d, %p)", argc, argv);
+
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    {
+        fprintf(stderr, "SDL_Init() failed: %s\n", SDL_GetError());
+        return EXIT_FAILURE;
+    }
+
+    sdl_window = SDL_CreateWindow("Faery Tale Adventure",
+                                  SDL_WINDOWPOS_CENTERED,
+                                  SDL_WINDOWPOS_CENTERED,
+                                  320,
+                                  200,
+                                  SDL_WINDOW_SHOWN);
+
+    sdl_renderer = SDL_CreateRenderer(sdl_window, -1, SDL_RENDERER_SOFTWARE);
+    SDL_RenderSetScale(sdl_renderer, 1, 1);
+    SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, 255);
+    SDL_RenderClear(sdl_renderer);
+
+    SDL_StartTextInput();
 
     // TODO: Xark needed?
     //     if (argc == 0)
@@ -1362,7 +1387,7 @@ int main(int argc, char ** argv)
     if (skipint())
         goto no_intro;
 
-    unpackbrush("page0", &pageb, 0, 0);
+    unpackbrush("game/page0", &pageb, 0, 0);
     BltBitMap(&pageb, 0, 0, bm_page1, 0, 0, 320, 200, 0xC0, 0x1f, 0);
     BltBitMap(&pageb, 0, 0, bm_page2, 0, 0, 320, 200, 0xC0, 0x1f, 0);
 
@@ -1373,9 +1398,9 @@ int main(int argc, char ** argv)
 
     if (skipint())
         goto end_intro;
-    copypage("p1a", "p1b", 21, 29);
-    copypage("p2a", "p2b", 20, 29);
-    copypage("p3a", "p3b", 20, 33);
+    copypage("game/p1a", "game/p1b", 21, 29);
+    copypage("game/p2a", "game/p2b", 20, 29);
+    copypage("game/p3a", "game/p3b", 20, 33);
     if (!skipp)
         Delay(190);
 end_intro:
@@ -1384,7 +1409,7 @@ end_intro:
         screen_size(i);
 
 no_intro:
-    seekn();
+    // seekn(); // copy protection
     /* go to normal (playing) screen mode */
 
     fp_page2.ri_page = &ri_page2;
@@ -1403,7 +1428,7 @@ no_intro:
     // InvalidLastDiskIO(); /* lastreq->iotd_Req.io_Command = CMD_INVALID; */
 
     SetRGB4(&vp_page, 0, 0, 0, 6);
-    unpackbrush("hiscreen", bm_text, 0, 0);
+    unpackbrush("game/hiscreen", bm_text, 0, 0);
 
     SetRGB4(&vp_page, 1, 15, 15, 15);
 
@@ -1446,6 +1471,7 @@ no_intro:
 
     /* main program loop */
     RUNLOG("FTA main loop");
+    __builtin_debugtrap();
 
     cheat1 = quitflag = FALSE;
     while (!quitflag)
@@ -4100,11 +4126,12 @@ void gen_mini(void)
     genmini(img_x, img_y);
 }
 
+uint32_t frame_counter;
 void pagechange(void)
 {
     register struct fpage * temp;
 
-    RUNLOG("<= pagechange()");
+    RUNLOGF("<= pagechange() [page %d, frame %9d]", fp_drawing != &fp_page1, frame_counter++);
 
     temp            = fp_drawing;
     fp_drawing      = fp_viewing;
@@ -4129,32 +4156,35 @@ struct Interrupt  handlerStuff;
 
 BOOL add_device(void)
 {
-    SHORT error;
 
-    RUNLOG("?= add_device()");
+    RUNLOG("... skipping inputhandler");
 
-    handler_data.laydown = handler_data.pickup = 0;
-    if ((inputDevPort = CreatePort(0, 0)) == NULL)
-        return FALSE;
-    inputRequestBlock = CreateStdIO(inputDevPort);
-    if (inputRequestBlock == 0)
-    {
-        DeletePort(inputDevPort);
-        return FALSE;
-    }
+    //     SHORT error;
+    //
+    //     handler_data.laydown = handler_data.pickup = 0;
+    //     if ((inputDevPort = CreatePort(0, 0)) == NULL)
+    //         return FALSE;
+    //     inputRequestBlock = CreateStdIO(inputDevPort);
+    //     if (inputRequestBlock == 0)
+    //     {
+    //         DeletePort(inputDevPort);
+    //         return FALSE;
+    //     }
+    //
+    //     handlerStuff.is_Data        = (APTR)&handler_data;
+    //     handlerStuff.is_Code        = (void (*)())HandlerInterface;
+    //     handlerStuff.is_Node.ln_Pri = 51;
+    //
+    //     error = OpenDevice("input.device", 0, (struct IORequest *)inputRequestBlock, 0);
+    //     if (error)
+    //         return FALSE;
+    //
+    //     inputRequestBlock->io_Command = IND_ADDHANDLER;
+    //     inputRequestBlock->io_Data    = (APTR)&handlerStuff;
+    //
+    //     DoIO((struct IORequest *)inputRequestBlock);
 
-    handlerStuff.is_Data        = (APTR)&handler_data;
-    handlerStuff.is_Code        = (void (*)())HandlerInterface;
-    handlerStuff.is_Node.ln_Pri = 51;
-
-    error = OpenDevice("input.device", 0, (struct IORequest *)inputRequestBlock, 0);
-    if (error)
-        return FALSE;
-
-    inputRequestBlock->io_Command = IND_ADDHANDLER;
-    inputRequestBlock->io_Data    = (APTR)&handlerStuff;
-
-    DoIO((struct IORequest *)inputRequestBlock);
+    RUNLOG("1 <= add_device()");
     return TRUE;
 }
 

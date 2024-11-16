@@ -919,19 +919,19 @@ motor_off()
 }
 #endif
 
-void seekn(void)
-{
-    cpytest();
-    /* diskreqs[9] = *diskreq1 */;
-
-    /*    diskreqs[9].iotd_Req.io_Length = 512;
-        diskreqs[9].iotd_Req.io_Data = (APTR)shape_mem;
-        diskreqs[9].iotd_Req.io_Offset = 0;
-        diskreqs[9].iotd_Req.io_Command = CMD_READ;
-        DoIO(&(diskreqs[9]));
-        prot2();
-        motor_off(); */
-}
+// void seekn(void)
+// {
+//     cpytest();
+//     /* diskreqs[9] = *diskreq1 */;
+// 
+//     /*    diskreqs[9].iotd_Req.io_Length = 512;
+//         diskreqs[9].iotd_Req.io_Data = (APTR)shape_mem;
+//         diskreqs[9].iotd_Req.io_Offset = 0;
+//         diskreqs[9].iotd_Req.io_Command = CMD_READ;
+//         DoIO(&(diskreqs[9]));
+//         prot2();
+//         motor_off(); */
+// }
 
 void prep(int16_t slot)
 {
@@ -956,23 +956,23 @@ extern uint8_t *(track[32]), *scoremem;
 
 void read_score(void)
 {
-    int32_t          file;
+    FILE *           filep;
     int32_t          packlen, sc_load, sc_count;
     register int32_t i;
     sc_load = sc_count = 0;
-    if ((file = Open("songs", 1005)))
+    if ((filep = fopen("game/songs", "r")))
     {
         for (i = 0; i < (4 * 7); i++)
         {
-            Read(file, &packlen, 4);
+            fread(&packlen, 4, 1, filep);        // TODO: error checking
             if ((packlen * 2 + sc_load) > 5900)
                 break;
             track[sc_count] = scoremem + sc_load;
             sc_count++;
-            Read(file, scoremem + sc_load, packlen * 2);
+            fread(scoremem + sc_load, packlen * 2, 1, filep);
             sc_load += (packlen * 2);
         }
-        Close(file);
+        fclose(filep);
     }
 }
 
@@ -1730,59 +1730,62 @@ void cursor(int32_t len, int32_t color)
 }
 
 BYTE    svflag;
-int32_t svfile, sverr;
-char    savename[] = "df1:A.faery";
+FILE *  svfilep;
+int32_t sverr;
+// Xark: char    savename[] = "df1:A.faery";
+char savename[64];
 
 extern char endload[2];
 
 extern struct in_work   handler_data;
 extern struct TextFont *tfont, *afont;
-/* struct FileLock *Lock(), *flock; */
-BPTR flock;
 
-int locktest(char * name, int32_t access)
-{
-    flock = Lock(name, access);
-    if (flock)
-        UnLock(flock);
-    return (int)flock;
-}
+// struct FileLock *Lock(), *flock;
+// BPTR flock;
+// 
+// int locktest(char * name, int32_t access)
+// {
+//     flock = Lock(name, access);
+//     if (flock)
+//         UnLock(flock);
+//     return (int)flock;
+// }
 
-// cpytest - copy protection check (checks disk/image "tick" value)
-int cpytest(void)
-{
-    //     BOOL IsHardDrive(void);
-    //
-    //     if (IsHardDrive() == FALSE)
-    //     {
-    //         struct DeviceList * fdev;
-    //         struct FileLock *   fl;
-    //
-    //         (void)fdev;        // Xark: might be used
-    //
-    //         flock = Lock("df0:", ACCESS_READ);
-    //         if (flock)
-    //         {
-    //             fl   = BPTR_ADDR(flock, struct FileLock);
-    //             fdev = BPTR_ADDR(fl->fl_Volume, struct DeviceList);
-    // #ifndef NO_PROTECT
-    //             if (fdev->dl_VolumeDate.ds_Tick != 230)
-    //                 cold();
-    // #endif
-    //             UnLock(flock);
-    //         }
-    //         return (int)flock;
-    //     }
-    //     else
-    //     {
-    //         static ULONG buffer[512 / 4];
-    //
-    //         load_track_range(880, 1, buffer, 0);
-    //         if (buffer[123] != 230)
-    //             close_all();
-    //     }
-    return TRUE;        // Xark: added
-}
+// // cpytest - copy protection check (checks disk/image "tick" value)
+// int cpytest(void)
+// {
+//         BOOL IsHardDrive(void);
+//     
+//         if (IsHardDrive() == FALSE)
+//         {
+//             struct DeviceList * fdev;
+//             struct FileLock *   fl;
+//     
+//             (void)fdev;        // Xark: might be used
+//     
+//             flock = Lock("df0:", ACCESS_READ);
+//             if (flock)
+//             {
+//                 fl   = BPTR_ADDR(flock, struct FileLock);
+//                 fdev = BPTR_ADDR(fl->fl_Volume, struct DeviceList);
+//     #ifndef NO_PROTECT
+//                 if (fdev->dl_VolumeDate.ds_Tick != 230)
+//                     cold();
+//     #endif
+//                 UnLock(flock);
+//             }
+//             return (int)flock;
+//         }
+//         else
+//         {
+//             static ULONG buffer[512 / 4];
+//     
+//             load_track_range(880, 1, buffer, 0);
+//             if (buffer[123] != 230)
+//                 close_all();
+//         }
+//     return TRUE;        // Xark: added
+// }
 
 // #asm
 
@@ -1831,8 +1834,8 @@ extern struct encounter
 void savegame(int16_t hit)
 {
     int32_t i;
-    char *  name;
-    BOOL    hdrive = FALSE;
+    // char *  name;
+    // BOOL    hdrive = FALSE;
 
     RUNLOGF("<= savegame(%d)", hit);
 
@@ -1840,38 +1843,43 @@ void savegame(int16_t hit)
 
     SetFont(rp, tfont);
 
-stest:
-    name = savename;
+    // stest:
+    //     name = savename;
+    //
+    //     if (hdrive == FALSE && locktest("image", ACCESS_READ))
+    //     {
+    //         name += 4;
+    //         hdrive = TRUE;
+    //     }
+    //     else if (locktest("df1:", ACCESS_WRITE))
+    //     {
+    //         savename[2] = '1';
+    //     }
+    //     else if (locktest("df0:", ACCESS_WRITE) && !locktest("df0:winpic", ACCESS_READ))
+    //     {
+    //         savename[2] = '0';
+    //     }
+    //     else
+    //     {
+    //         print("Insert a writable disk in ANY drive.");
+    //         if (waitnewdisk() == 0)
+    //         {
+    //             print("Aborted.");
+    //             goto nosave;
+    //         }
+    //         goto stest;
+    //     }
+    //    savename[4] = 'A' + hit;
+    snprintf(savename, sizeof(savename) - 1, ".faery_tale_%c.save", hit + 'A');
 
-    if (hdrive == FALSE && locktest("image", ACCESS_READ))
-    {
-        name += 4;
-        hdrive = TRUE;
-    }
-    else if (locktest("df1:", ACCESS_WRITE))
-    {
-        savename[2] = '1';
-    }
-    else if (locktest("df0:", ACCESS_WRITE) && !locktest("df0:winpic", ACCESS_READ))
-    {
-        savename[2] = '0';
-    }
-    else
-    {
-        print("Insert a writable disk in ANY drive.");
-        if (waitnewdisk() == 0)
-        {
-            print("Aborted.");
-            goto nosave;
-        }
-        goto stest;
-    }
-    savename[4] = 'A' + hit;
+    RUNLOGF(" ... savegame name = %s", savename);
+
     if (svflag)
-        svfile = Open(name, 1006);
+        svfilep = fopen(savename, "w");
     else
-        svfile = Open(name, 1005);
-    if (svfile)
+        svfilep = fopen(savename, "r");
+
+    if (svfilep)
     { /* save misc variables */
         saveload((void *)&map_x, 80);
 
@@ -1894,10 +1902,15 @@ stest:
         for (i = 0; i < 10; i++)
             saveload((void *)ob_table[i], mapobs[i] * (sizeof(struct object)));
 
-        Close(svfile);
+        fclose(svfilep);
     }
     else
+    {
+        RUNLOGF(" ... savegame error: %s", strerror(errno));
         sverr = IoErr();
+        ASSERT(0);
+    }
+
     if (sverr)
     {
         if (svflag)
@@ -1905,21 +1918,22 @@ stest:
         else
             print("ERROR: Couldn't load game.");
     }
-    if (hdrive == FALSE)
-        while (TRUE)
-        {
-            flock = Lock("df0:winpic", ACCESS_READ);
-            if (flock)
-            {
-                UnLock(flock);
-                break;
-            }
-            print("Please insert GAME disk.");
-            waitnewdisk();
-        }
+    // if (hdrive == FALSE)
+    //     while (TRUE)
+    //     {
+    //         flock = Lock("df0:winpic", ACCESS_READ);
+    //         if (flock)
+    //         {
+    //             UnLock(flock);
+    //             break;
+    //         }
+    //         print("Please insert GAME disk.");
+    //         waitnewdisk();
+    //     }
     if (svflag == 0)
     {
-        wt = encounter_number = 0;
+        wt               = 0;
+        encounter_number = 0;
         /* actor_file = encounter_chart[encounter_type].file_id; */
         shape_read();
         set_options();
@@ -1931,22 +1945,30 @@ stest:
         print("");
         encounter_type = actors_loading = 0;
     }
-nosave:
+    // nosave:
     SetFont(rp, afont);
 }
 
 void saveload(uint8_t * buffer, int32_t length)
 {
-    int16_t err;
+    int16_t err = 0;
+    sverr       = 0;
 
     RUNLOGF("<= saveload(%p, %d)", buffer, length);
 
     if (svflag)
-        err = Write(svfile, buffer, length);
+    {
+        err = (-1 + fwrite(buffer, length, 1, svfilep));
+    }
     else
-        err = Read(svfile, buffer, length);
-    if (err < 0)
+    {
+        err = (-1 + fread(buffer, length, 1, svfilep));
+    }
+
+    if (err != 0)
+    {
         sverr = IoErr();
+    }
 }
 
 void move_extent(int16_t e, int16_t x, int16_t y)
@@ -2024,7 +2046,7 @@ void win_colors(void)
     placard();
     Delay(80);
     bm_draw = fp_drawing->ri_page->BitMap;
-    unpackbrush("winpic", bm_draw, 0, 0);
+    unpackbrush("game/winpic", bm_draw, 0, 0);
     LoadRGB4(&vp_page, (void *)blackcolors, 32);
     LoadRGB4(&vp_text, (void *)blackcolors, 32);
     vp_text.Modes = HIRES | SPRITES | VP_HIDE;
@@ -2074,7 +2096,7 @@ void win_colors(void)
 
 int32_t stuff_flag(int32_t f)
 {
-    return (stuff[f] == 0) ? 8 : 10;    // Xark: WTF are 8 and 10?
+    return (stuff[f] == 0) ? 8 : 10;        // Xark: WTF are 8 and 10?
 }
 
 extern USHORT  daynight, lightlevel;

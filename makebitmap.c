@@ -90,6 +90,8 @@ BOOL MakeBitMap(struct BitMap * b, int32_t depth, int32_t width, int32_t height)
     BOOL    success = TRUE;
     int16_t i;
 
+    RUNLOGF("?= MakeBitMap(0x%p, %d, %d, %d)", b, depth, width, height);
+
     if (!b)
         return FALSE;
 
@@ -159,6 +161,8 @@ BOOL MakeBitMap(struct BitMap * b, int32_t depth, int32_t width, int32_t height)
 void UnMakeBitMap(struct BitMap * b)
 {
     int16_t i;
+    
+    RUNLOGF("<= UnMakeBitMap(0x%p)", b);
 
     for (i = 0; i < b->Depth; i++) /* for each plane */
     {

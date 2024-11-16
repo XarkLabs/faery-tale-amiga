@@ -1,43 +1,32 @@
-// Xark: in ftale.h: #include "exec/types.h"
-// Xark: in ftale.h: #include "exec/memory.h"
-// Xark: in ftale.h: #include "graphics/gfxbase.h"
-// Xark: in ftale.h: #include "graphics/rastport.h"
-// Xark: in ftale.h: #include "graphics/clip.h"
-// Xark: in ftale.h: #include "graphics/layers.h"
-// Xark: in ftale.h: #include "graphics/view.h"
-// Xark: in ftale.h: #include "libraries/dos.h"
-// Xark: in ftale.h: #include "libraries/dosextens.h"
-// Xark: in ftale.h: #include "devices/trackdisk.h"
-
 #include "ftale.h"
 
 #define NO_PROTECT
 
 extern uint16_t xreg, yreg; /* where the region is */
-// #asm
+//  #asm
 
-// ; shape structure - anim_list
+//  ; shape structure - anim_list
 
-// abs_x		equ		0		; int16_t
-// abs_y		equ		2
-// rel_x		equ		4
-// rel_y		equ		6
-// type		equ		8
-// race		equ		9
-// index		equ		10
-// visible		equ		11
-// weapon		equ		12
-// environ		equ		13
-// goal		equ		14
-// tactic		equ		15
-// state		equ		16
-// facing		equ		17
-// vitality	equ		18
-// vel_x		equ		20
-// vel_y		equ		21
-// l_shape		equ		22
+//  abs_x           equ     0        ; int16_t
+//  abs_y           equ     2
+//  rel_x           equ     4
+//  rel_y           equ     6
+//  type            equ     8
+//  race            equ     9
+//  index           equ     10
+//  visible         equ     11
+//  weapon          equ     12
+//  environ         equ     13
+//  goal            equ     14
+//  tactic          equ     15
+//  state           equ     16
+//  facing          equ     17
+//  vitality        equ     18
+//  vel_x           equ     20
+//  vel_y           equ     21
+//  l_shape         equ     22
 
-// #endasm
+//  #endasm
 
 extern struct shape anim_list[20];
 extern int16_t      anix, anix2;
@@ -55,172 +44,180 @@ extern USHORT hero_x, hero_y, map_x, map_y;
 
 char com2[9] = {0, 1, 2, 7, 9, 3, 6, 5, 4};
 
-/*set_course(object,target_x,target_y,mode)
-    uint16_t object, target_x, target_y, mode;
-{	int16_t xdif, ydif, deviation, j;
-    register int32_t xabs, yabs, xdir, ydir;
-    ; */
-// #asm
-// com2	dc.b	0,1,2,7,9,3,6,5,4,0
+// set_course(object,target_x,target_y,mode)
+//     uint16_t object, target_x, target_y, mode;
+// {    int16_t xdif, ydif, deviation, j;
+//     register int32_t xabs, yabs, xdir, ydir;
+//  #asm
+//  com2            dc.b    0,1,2,7,9,3,6,5,4,0
+//
+//                  public    _set_course
+//  _set_course
+//                  movem.l d0-d7/a0-a1,-(sp)
+//                  move.l  40+4(sp),d2         ; object #
+//                  move.l  40+8(sp),d0         ; target x
+//                  move.l  40+12(sp),d1        ; target_y
+//                  move.l  40+16(sp),d3        ; mode
+//
+//                  lea     _anim_list,a1       ; start of anim_list
+//                  mulu.w  #l_shape,d2         ; object # times length of struct
+//                  add.l   d2,a1               ; a1 = start of anim_list[object]
+//
+//  ;    if (mode == 6) { xdif = target_x; ydif = target_y; }
+//
+//                  cmp.b   #6,d3               ; if mode != 6
+//                  beq.s   1$                  ; calculate offset normally
+//
+//  ;    else
+//  ;    {    xdif = anim_list[object].abs_x - target_x;
+//  ;        ydif = anim_list[object].abs_y - target_y;
+//  ;    }
+//
+//                  neg.w   d0                  ; d0 = -target_x
+//                  neg.w   d1                  ; d1 = -target_y
+//                  add.w   abs_x(a1),d0        ; d0 = x difference
+//                  add.w   abs_y(a1),d1        ; d1 = y difference
+//  1$
+//
+//  ;    xabs = yabs = xdir = ydir = 0;
+//
+//                  clr.l   d6                  ; xdir = 0;
+//                  clr.l   d7                  ; ydir = 0;
+//
+//  ;    if (xdif > 0) { xabs = xdif; xdir = 1; }
+//
+//                  tst.w   d0                  ; if (xdif > 0)
+//                  beq     3$                  ; if xdif = 0, do nothing
+//                  bmi     2$                  ; if xdif < 0
+//                  moveq   #1,d6               ; xdir = 1; xabs = xdif
+//                  bra     3$
+//
+//  ;    if (xdif < 0) { xabs = -xdif; xdir = -1; }
+//
+//  2$              neg.w   d0                  ; xabs = -xdif
+//                  moveq   #-1,d6              ; xdir = -1;
+//  3$
+//
+//  ;    if (ydif > 0) { yabs = ydif; ydir = 1; }
+//
+//                  tst.w   d1                  ; if (ydif > 0)
+//                  beq     5$                  ; if ydif = 0, do nothing
+//                  bmi     4$                  ; if ydif < 0
+//                  moveq   #1,d7               ; ydir = 1; yabs = ydif
+//                  bra     5$
+//
+//  ;    if (ydif < 0) { yabs = -ydif; ydir = -1; }
+//
+//  4$              neg.w   d1                  ; yabs = -ydif
+//                  moveq   #-1,d7              ; ydir = -1;
+//  5$
+//
+//  ;    if (mode != 4)
+//
+//                  cmp.b   #4,d3               ; if mode 4
+//                  beq     6$                  ; then don't do
+//
+//  ;    {    if ((xabs>>1) > yabs) ydir = 0;    /* if SMART_SEEK */
+//
+//                  move.w  d0,d4               ; copy xabs
+//                  lsr.w   #1,d4               ; d4 = xabs >> 1
+//                  cmp.w   d4,d1               ; if (xabs>>1) > yabs
+//                  bge.s   55$
+//                  clr.l   d7
+//  55$
+//
+//  ;        if ((yabs>>1) > xabs) xdir = 0;
+//
+//                  move.w  d1,d4               ; copy yabs
+//                  lsr.w   #1,d4               ; d4 = yabs >> 1
+//                  cmp.w   d4,d0               ; if (yabs>>1) > xabs
+//                  bge.s   6$
+//                  clr.l   d6                  ; xdir = 0
+//  6$
+//
+//  ;    }
+//
+//  ;    deviation = 0;
+//
+//                  clr.l   d4                  ; d4 = deviation = 0
+//
+//  ;    if (mode==1 && (xabs+yabs) < 40) deviation = 1;
+//
+//                  move.w  d0,d5               ; d5 = xabs
+//                  add.w   d1,d5               ; d5 = xabs + yabs
+//
+//                  cmp.b   #1,d3               ; if (mode == 1)
+//                  bne.s   7$
+//                  cmp.w   #40,d5              ; and (dist < 40)
+//                  bge.s   7$
+//                  moveq   #1,d4               ; deviation = 1;
+//  7$
+//
+//  ;    else if (mode==2 && (xabs+yabs) < 30) deviation = 2;
+//
+//                  cmp.b   #2,d3               ; if (mode == 2)
+//                  bne.s   8$
+//                  cmp.w   #30,d5              ; and (dist < 30)
+//                  bge.s   8$
+//                  moveq   #1,d4               ; deviation = 1;
+//  8$
+//  ;    else if (mode==3) { xdir = -xdir; ydir = -ydir; }
+//
+//                  cmp.b   #3,d3
+//                  bne.s   81$
+//                  neg.b   d6                  ; xdir = -xdir;
+//                  neg.b   d7                  ; ydir = -ydir
+//
+//  ;    j = com2[4 - ydir - ydir - ydir - xdir];
+//  81$
+//                  moveq   #4,d5               ; d4 = 4
+//                  sub.b   d7,d5
+//                  sub.b   d7,d5
+//                  sub.b   d7,d5
+//                  sub.b   d6,d5               ; d4 - 4 - ydir - ydir - ydir - xdir
+//                  lea     com2(pc),a0
+//                  move.b  (a0,d5.w),d5        ; d5 = j = com2[d5]
+//  ****
+//  ;    if (j == 9) anim_list[object].state = STILL;
+//
+//                  cmp.b   #9,d5
+//                  bne.s   9$
+//                  move.b  #13,state(a1)       ; #STILL -> anim_list[object].state
+//                  bra     99$
+//  9$
+//
+//  ;    else
+//  ;    {    if (ft_rand()&1) j += deviation; else j -= deviation;
+//
+//                  jsr     _rand               ; go left or right
+//                  btst    #1,d0               ; test a bit
+//                  beq     10$
+//                  add.b   d4,d5               ; j += deviation
+//                  bra     11$
+//  10$             sub.b   d4,d5               ; j -= deviation
+//
+//  ;        anim_list[object].facing = j & 7;
+//
+//  11$             and.b   #7,d5               ; and j with 7
+//                  move.b  d5,facing(a1)       ; move to facing
+//
+//  ;        if (mode != 5) anim_list[object].state = WALKING;
+//
+//                  cmp.b   #5,d3               ; if mode != 5
+//                  beq     99$                 ; move #WALKING to state
+//                  move.b  #12,state(a1)
+//  99$             movem.l (sp)+,d0-d7/a0-a1
+//                  rts
+//  #endasm
 
-// 		public	_set_course
-// _set_course
-// 		movem.l	d0-d7/a0-a1,-(sp)
-// 		move.l	40+4(sp),d2			; object #
-// 		move.l	40+8(sp),d0			; target x
-// 		move.l	40+12(sp),d1		; target_y
-// 		move.l	40+16(sp),d3		; mode
-
-// 		lea		_anim_list,a1		; start of anim_list
-// 		mulu.w	#l_shape,d2			; object # times length of struct
-// 		add.l	d2,a1				; a1 = start of anim_list[object]
-
-// ;	if (mode == 6) { xdif = target_x; ydif = target_y; }
-
-// 		cmp.b	#6,d3				; if mode != 6
-// 		beq.s	1$					; calculate offset normally
-
-// ;	else
-// ;	{	xdif = anim_list[object].abs_x - target_x;
-// ;		ydif = anim_list[object].abs_y - target_y;
-// ;	}
-
-// 		neg.w	d0					; d0 = -target_x
-// 		neg.w	d1					; d1 = -target_y
-// 		add.w	abs_x(a1),d0		; d0 = x difference
-// 		add.w	abs_y(a1),d1		; d1 = y difference
-// 1$
-
-// ;	xabs = yabs = xdir = ydir = 0;
-
-// 		clr.l	d6					; xdir = 0;
-// 		clr.l	d7					; ydir = 0;
-
-// ;	if (xdif > 0) { xabs = xdif; xdir = 1; }
-
-// 		tst.w	d0					; if (xdif > 0)
-// 		beq		3$					; if xdif = 0, do nothing
-// 		bmi		2$					; if xdif < 0
-// 		moveq	#1,d6				; xdir = 1; xabs = xdif
-// 		bra		3$
-
-// ;	if (xdif < 0) { xabs = -xdif; xdir = -1; }
-
-// 2$		neg.w	d0					; xabs = -xdif
-// 		moveq	#-1,d6				; xdir = -1;
-// 3$
-
-// ;	if (ydif > 0) { yabs = ydif; ydir = 1; }
-
-// 		tst.w	d1					; if (ydif > 0)
-// 		beq		5$					; if ydif = 0, do nothing
-// 		bmi		4$					; if ydif < 0
-// 		moveq	#1,d7				; ydir = 1; yabs = ydif
-// 		bra		5$
-
-// ;	if (ydif < 0) { yabs = -ydif; ydir = -1; }
-
-// 4$		neg.w	d1					; yabs = -ydif
-// 		moveq	#-1,d7				; ydir = -1;
-// 5$
-
-// ;	if (mode != 4)
-
-// 		cmp.b	#4,d3				; if mode 4
-// 		beq		6$					; then don't do
-
-// ;	{	if ((xabs>>1) > yabs) ydir = 0;	/* if SMART_SEEK */
-
-// 		move.w	d0,d4				; copy xabs
-// 		lsr.w	#1,d4				; d4 = xabs >> 1
-// 		cmp.w	d4,d1				; if (xabs>>1) > yabs
-// 		bge.s	55$
-// 		clr.l	d7
-// 55$
-
-// ;		if ((yabs>>1) > xabs) xdir = 0;
-
-// 		move.w	d1,d4				; copy yabs
-// 		lsr.w	#1,d4				; d4 = yabs >> 1
-// 		cmp.w	d4,d0				; if (yabs>>1) > xabs
-// 		bge.s	6$
-// 		clr.l	d6					; xdir = 0
-// 6$
-
-// ;	}
-
-// ;	deviation = 0;
-
-// 		clr.l	d4					; d4 = deviation = 0
-
-// ;	if (mode==1 && (xabs+yabs) < 40) deviation = 1;
-
-// 		move.w	d0,d5				; d5 = xabs
-// 		add.w	d1,d5				; d5 = xabs + yabs
-
-// 		cmp.b	#1,d3				; if (mode == 1)
-// 		bne.s	7$
-// 		cmp.w	#40,d5				; and (dist < 40)
-// 		bge.s	7$
-// 		moveq	#1,d4				; deviation = 1;
-// 7$
-
-// ;	else if (mode==2 && (xabs+yabs) < 30) deviation = 2;
-
-// 		cmp.b	#2,d3				; if (mode == 2)
-// 		bne.s	8$
-// 		cmp.w	#30,d5				; and (dist < 30)
-// 		bge.s	8$
-// 		moveq	#1,d4				; deviation = 1;
-// 8$
-// ;	else if (mode==3) { xdir = -xdir; ydir = -ydir; }
-
-// 		cmp.b	#3,d3
-// 		bne.s	81$
-// 		neg.b	d6					; xdir = -xdir;
-// 		neg.b	d7					; ydir = -ydir
-
-// ;	j = com2[4 - ydir - ydir - ydir - xdir];
-// 81$
-// 		moveq	#4,d5				; d4 = 4
-// 		sub.b	d7,d5
-// 		sub.b	d7,d5
-// 		sub.b	d7,d5
-// 		sub.b	d6,d5				; d4 - 4 - ydir - ydir - ydir - xdir
-// 		lea		com2(pc),a0
-// 		move.b	(a0,d5.w),d5		; d5 = j = com2[d5]
-// ****
-// ;	if (j == 9) anim_list[object].state = STILL;
-
-// 		cmp.b	#9,d5
-// 		bne.s	9$
-// 		move.b	#13,state(a1)		; #STILL -> anim_list[object].state
-// 		bra		99$
-// 9$
-
-// ;	else
-// ;	{	if (rand()&1) j += deviation; else j -= deviation;
-
-// 		jsr		_rand				; go left or right
-// 		btst	#1,d0				; test a bit
-// 		beq		10$
-// 		add.b	d4,d5				; j += deviation
-// 		bra		11$
-// 10$		sub.b	d4,d5				; j -= deviation
-
-// ;		anim_list[object].facing = j & 7;
-
-// 11$		and.b	#7,d5				; and j with 7
-// 		move.b	d5,facing(a1)		; move to facing
-
-// ;		if (mode != 5) anim_list[object].state = WALKING;
-
-// 		cmp.b	#5,d3				; if mode != 5
-// 		beq		99$					; move #WALKING to state
-// 		move.b	#12,state(a1)
-// 99$		movem.l	(sp)+,d0-d7/a0-a1
-// 		rts
-// #endasm
+void set_course(int32_t object, int32_t target_x, int32_t target_y, int32_t mode)
+{
+    (void)object;
+    (void)target_x;
+    (void)target_x;
+    (void)mode;
+    RUNLOGF("<= set_course(%d, %d, %d, %d) STUB", object, target_x, target_y, mode);
+}
 
 /* a hit, a palpable hit! */
 #define FLEE 5 /* run directly away */
@@ -505,8 +502,10 @@ void colorplay() /* teleport effect */
     }
 }
 
+// message print queue
 char    print_que[32];
-int16_t prec = 0, pplay = 0;
+int16_t prec;
+int16_t pplay;
 
 extern int16_t brave, luck, kind, wealth, hero_sector;
 SHORT          sg1, sg2;
@@ -572,22 +571,33 @@ void ppick()
 }
 
 // #asm
-// 		public	_prec,_pplay,_print_que,_prq
+//         public    _prec,_pplay,_print_que,_prq
 // _prq
-// 		movem.l	d0/d1/a1,-(sp)
-// 		move.w	_prec,d0
-// 		move.w	_pplay,d1
-// 		addq	#1,d0
-// 		and.w	#31,d0
-// 		cmp.w	d0,d1
-// 		beq.s	prqx
-// 		move.w	_prec,d1
-// 		move.w	d0,_prec
-// 		lea		_print_que,a1
-// 		move.b	3+4+12(sp),(a1,d1)
-// prqx	movem.l	(sp)+,d0/d1/a1
-// 		rts
+//         movem.l    d0/d1/a1,-(sp)
+//         move.w    _prec,d0
+//         move.w    _pplay,d1
+//         addq    #1,d0
+//         and.w    #31,d0
+//         cmp.w    d0,d1
+//         beq.s    prqx
+//         move.w    _prec,d1
+//         move.w    d0,_prec
+//         lea        _print_que,a1
+//         move.b    3+4+12(sp),(a1,d1)
+// prqx    movem.l    (sp)+,d0/d1/a1
+//         rts
 // #endasm
+
+// prq - add msg to print queue
+void prq(int32_t n)
+{
+    int16_t pnext = (prec + 1) & (sizeof(print_que) - 1);
+    if (pnext != pplay)        // if room in print_que
+    {
+        print_que[prec] = n;
+        prec            = pnext;
+    }
+}
 
 #define TXMIN 16
 #define TXMAX 400
@@ -681,32 +691,53 @@ void extract(char * start)
 
 // #asm
 // ;msg(start,num) register char *start; register int32_t num;
-// ;{	while (num) if (*start++ == 0) num--;
-// ;	extract(start);
+// ;{    while (num) if (*start++ == 0) num--;
+// ;    extract(start);
 // ;}
 
-// 		public	_event,_speak,_msg,_event_msg,_speeches
+//         public    _event,_speak,_msg,_event_msg,_speeches
 // _event
-// 		lea		_event_msg,a0
-// 		move.l	4(sp),d0
-// 		bra		msg1
+//         lea        _event_msg,a0
+//         move.l    4(sp),d0
+//         bra        msg1
 // _speak
-// 		lea		_speeches,a0
-// 		move.l	4(sp),d0
-// 		bra		msg1
+//         lea        _speeches,a0
+//         move.l    4(sp),d0
+//         bra        msg1
 // _msg
-// 		move.l	4(sp),a0
-// 		move.l	8(sp),d0
+//         move.l    4(sp),a0
+//         move.l    8(sp),d0
 
-// msg1	beq		msgx
-// 1$		tst.b	(a0)+
-// 		bne.s	1$
-// 		subq.w	#1,d0
-// 		bne.s	1$
-// msgx	move.l	a0,4(sp)
-// 		bra		_extract
+// msg1    beq        msgx
+// 1$        tst.b    (a0)+
+//         bne.s    1$
+//         subq.w    #1,d0
+//         bne.s    1$
+// msgx    move.l    a0,4(sp)
+//         bra        _extract
 
 // #endasm
+
+// TODO: msg - find Nth msg in msgptr and call extract
+void msg(char * msgptr, int32_t n)
+{
+    (void)msgptr;
+    (void)n;
+    RUNLOGF("<= msg(%d) STUB", n);
+    // extract(msgptr);
+}
+
+// event - find and exract Nth event_msg
+void event(int32_t n)
+{
+    msg(event_msg, n);
+}
+
+// speak - find and exract Nth speech from speeches
+void speak(int32_t n)
+{
+    msg(speeches, n);
+}
 
 void announce_container(char * s)
 {
@@ -868,23 +899,23 @@ extern struct IOExtTD *lastreq, diskreqs[10], *diskreq1;
 
 load_track_range(f_block,b_count,buffer,dr)
 int16_t f_block, b_count, dr; APTR buffer;
-{	int16_t error;
+{    int16_t error;
 
-	lastreq = &(diskreqs[dr]);
-	if (lastreq->iotd_Req.io_Command == CMD_READ) WaitIO((struct IORequest *)lastreq);
-	*lastreq = *diskreq1;
-	lastreq->iotd_Req.io_Length = b_count * 512;
-	lastreq->iotd_Req.io_Data = buffer;
-	lastreq->iotd_Req.io_Command = CMD_READ;
-	lastreq->iotd_Req.io_Offset = f_block * 512;
-	SendIO((struct IORequest *)lastreq);
+    lastreq = &(diskreqs[dr]);
+    if (lastreq->iotd_Req.io_Command == CMD_READ) WaitIO((struct IORequest *)lastreq);
+    *lastreq = *diskreq1;
+    lastreq->iotd_Req.io_Length = b_count * 512;
+    lastreq->iotd_Req.io_Data = buffer;
+    lastreq->iotd_Req.io_Command = CMD_READ;
+    lastreq->iotd_Req.io_Offset = f_block * 512;
+    SendIO((struct IORequest *)lastreq);
 }
 
 motor_off()
-{	diskreqs[9] = *diskreq1;
-	diskreqs[9].iotd_Req.io_Length = 0;
-	diskreqs[9].iotd_Req.io_Command = TD_MOTOR;
-	DoIO((struct IORequest *)&diskreqs[9]); 
+{    diskreqs[9] = *diskreq1;
+    diskreqs[9].iotd_Req.io_Length = 0;
+    diskreqs[9].iotd_Req.io_Command = TD_MOTOR;
+    DoIO((struct IORequest *)&diskreqs[9]); 
 }
 #endif
 
@@ -893,7 +924,7 @@ void seekn(void)
     cpytest();
     /* diskreqs[9] = *diskreq1 */;
 
-    /*	diskreqs[9].iotd_Req.io_Length = 512;
+    /*    diskreqs[9].iotd_Req.io_Length = 512;
         diskreqs[9].iotd_Req.io_Data = (APTR)shape_mem;
         diskreqs[9].iotd_Req.io_Offset = 0;
         diskreqs[9].iotd_Req.io_Command = CMD_READ;
@@ -1261,7 +1292,7 @@ struct object /* 250 objects, for a start */
          TENBLANKS},
     ob_list1[] =
         {/* maze forest (north) objects */
-         /*	{23297,5797,TURTLE,1}, */
+         /*    {23297,5797,TURTLE,1}, */
          {23087, 5667, TURTLE, 1},
          TENBLANKS},
     ob_list2[] =
@@ -1591,6 +1622,8 @@ BOOL copy_protect_junk(void)
     register char *  a, *b;
     int32_t          h;
 
+    RUNLOG("?= copy_protect_junk()");
+
     (void)b;        // Xark: might be used
     SetDrMd(rp, JAM2);
     for (h = 0; h < 3; h++)
@@ -1624,7 +1657,7 @@ BOOL copy_protect_junk(void)
                 answr[i++] = key;
                 cursor(i, 4);
             }
-            rand();
+            ft_rand();
         }
         b = answr;
 #ifndef NO_PROTECT
@@ -1639,55 +1672,62 @@ BOOL copy_protect_junk(void)
 
 // #asm
 
-// Move		EQU	$FFFFFF10
-// Text		EQU	$FFFFFFC4
-// SetAPen		EQU	$FFFFFEAA
-// SetBPen		EQU	$FFFFFEA4
+// Move        EQU    $FFFFFF10
+// Text        EQU    $FFFFFFC4
+// SetAPen        EQU    $FFFFFEAA
+// SetBPen        EQU    $FFFFFEA4
 
-// 			public	_GfxBase
+//             public    _GfxBase
 
 // _cursor
-// 			movem.l	a0-a6/d0-d7,-(sp)
+//             movem.l    a0-a6/d0-d7,-(sp)
 
-// 			clr.l	d0					; set B pen color = 0
-// 			jsr		SetBPen(a6)
+//             clr.l    d0                    ; set B pen color = 0
+//             jsr        SetBPen(a6)
 
-// 			clr.l	d0					; d0 already clear
-// 			clr.l	d1
-// 			move.w	_xx,d0
-// 			move.w	_yy,d1
-// 			jsr		Move(a6)
+//             clr.l    d0                    ; d0 already clear
+//             clr.l    d1
+//             move.w    _xx,d0
+//             move.w    _yy,d1
+//             jsr        Move(a6)
 
-// 			lea		_answr,a0			; string = answr
-// 			move.l	60+4(sp),d0			; length of string = arg 1
-// 			jsr		Text(a6)
+//             lea        _answr,a0            ; string = answr
+//             move.l    60+4(sp),d0            ; length of string = arg 1
+//             jsr        Text(a6)
 
-// 			move.l	_rp,a1
-// 			move.l	_GfxBase,a6
-// 			move.l	60+8(sp),d0			; set B pen color = arg 2
-// 			jsr		SetBPen(a6)
+//             move.l    _rp,a1
+//             move.l    _GfxBase,a6
+//             move.l    60+8(sp),d0            ; set B pen color = arg 2
+//             jsr        SetBPen(a6)
 
-// 			move.w	#$2020,-(sp)		; push spaces
+//             move.w    #$2020,-(sp)        ; push spaces
 
-// 			move.l	sp,a0				; address to print = stack
-// 			moveq	#1,d0
-// 			move.l	_rp,a1
-// 			jsr		Text(a6)			; length = 1
+//             move.l    sp,a0                ; address to print = stack
+//             moveq    #1,d0
+//             move.l    _rp,a1
+//             jsr        Text(a6)            ; length = 1
 
-// 			move.l	_rp,a1
-// 			move.l	_GfxBase,a6
-// 			clr.l	d0					; set B pen color = 0
-// 			jsr		SetBPen(a6)
+//             move.l    _rp,a1
+//             move.l    _GfxBase,a6
+//             clr.l    d0                    ; set B pen color = 0
+//             jsr        SetBPen(a6)
 
-// 			move.l	sp,a0				; address to print = stack
-// 			moveq	#1,d0
-// 			jsr		Text(a6)			; length = 1
+//             move.l    sp,a0                ; address to print = stack
+//             moveq    #1,d0
+//             jsr        Text(a6)            ; length = 1
 
-// 			addq.l	#2,sp				; pop string from stack
+//             addq.l    #2,sp                ; pop string from stack
 
-// 			movem.l	(sp)+,a0-a6/d0-d7
-// 			rts
+//             movem.l    (sp)+,a0-a6/d0-d7
+//             rts
 // #endasm
+
+void cursor(int32_t len, int32_t color)
+{
+    (void)len;
+    (void)color;
+    RUNLOGF("<= cursor(%d, %d) STUB", len, color);
+}
 
 BYTE    svflag;
 int32_t svfile, sverr;
@@ -1708,51 +1748,55 @@ int locktest(char * name, int32_t access)
     return (int)flock;
 }
 
+// cpytest - copy protection check (checks disk/image "tick" value)
 int cpytest(void)
 {
-    BOOL IsHardDrive(void);
-
-    if (IsHardDrive() == FALSE)
-    {
-        struct DeviceList * fdev;
-        struct FileLock *   fl;
-
-        (void)fdev;        // Xark: might be used
-
-        flock = Lock("df0:", ACCESS_READ);
-        if (flock)
-        {
-            fl   = BPTR_ADDR(flock, struct FileLock);
-            fdev = BPTR_ADDR(fl->fl_Volume, struct DeviceList);
-#ifndef NO_PROTECT
-            if (fdev->dl_VolumeDate.ds_Tick != 230)
-                cold();
-#endif
-            UnLock(flock);
-        }
-        return (int)flock;
-    }
-    else
-    {
-        static ULONG buffer[512 / 4];
-
-        load_track_range(880, 1, buffer, 0);
-        if (buffer[123] != 230)
-            close_all();
-    }
+    //     BOOL IsHardDrive(void);
+    //
+    //     if (IsHardDrive() == FALSE)
+    //     {
+    //         struct DeviceList * fdev;
+    //         struct FileLock *   fl;
+    //
+    //         (void)fdev;        // Xark: might be used
+    //
+    //         flock = Lock("df0:", ACCESS_READ);
+    //         if (flock)
+    //         {
+    //             fl   = BPTR_ADDR(flock, struct FileLock);
+    //             fdev = BPTR_ADDR(fl->fl_Volume, struct DeviceList);
+    // #ifndef NO_PROTECT
+    //             if (fdev->dl_VolumeDate.ds_Tick != 230)
+    //                 cold();
+    // #endif
+    //             UnLock(flock);
+    //         }
+    //         return (int)flock;
+    //     }
+    //     else
+    //     {
+    //         static ULONG buffer[512 / 4];
+    //
+    //         load_track_range(880, 1, buffer, 0);
+    //         if (buffer[123] != 230)
+    //             close_all();
+    //     }
     return TRUE;        // Xark: added
 }
 
 // #asm
 
-// 		public	_cold
-// _cold	jmp		-4
+//         public    _cold
+// _cold    jmp        -4
 
 // #endasm
 
 BOOL waitnewdisk(void)
 {
     int16_t i;
+
+    RUNLOG("?= waitnewdisk()");
+
     for (i = 0; i < 300; i++)
     {
         if (handler_data.newdisk)
@@ -1789,6 +1833,8 @@ void savegame(int16_t hit)
     int32_t i;
     char *  name;
     BOOL    hdrive = FALSE;
+
+    RUNLOGF("<= savegame(%d)", hit);
 
     sverr = 0;
 
@@ -1892,6 +1938,9 @@ nosave:
 void saveload(uint8_t * buffer, int32_t length)
 {
     int16_t err;
+
+    RUNLOGF("<= saveload(%p, %d)", buffer, length);
+
     if (svflag)
         err = Write(svfile, buffer, length);
     else
@@ -1903,6 +1952,9 @@ void saveload(uint8_t * buffer, int32_t length)
 void move_extent(int16_t e, int16_t x, int16_t y)
 {
     register struct extent * ex;
+
+    RUNLOGF("<= move_extent(%d, %d, %d)", e, x, y);
+
     ex     = extent_list + e;
     ex->x1 = x - 250;
     ex->y1 = y - 200;
@@ -1925,6 +1977,9 @@ extern struct TextFont * afont;
 void rescue(void)
 {
     register int32_t i;
+
+    RUNLOG("<= rescue()");
+
     map_message();
     SetFont(rp, afont);
     i = princess * 3;
@@ -1960,6 +2015,9 @@ void rescue(void)
 void win_colors(void)
 {
     register int32_t i, j;
+
+    RUNLOG("<= win_colors()");
+
     placard_text(6);
     name();
     placard_text(7);
@@ -2003,16 +2061,21 @@ void win_colors(void)
 }
 
 // #asm
-// 		public	_stuff_flag,_stuff
+//         public    _stuff_flag,_stuff
 // _stuff_flag
-// 		moveq	#8,d0
-// 		move.l	_stuff,a0
-// 		add.l	4(sp),a0
-// 		tst.b	(a0)
-// 		beq.s	1$
-// 		moveq	#10,d0
-// 1$		rts
+//         moveq    #8,d0
+//         move.l    _stuff,a0
+//         add.l    4(sp),a0
+//         tst.b    (a0)
+//         beq.s    1$
+//         moveq    #10,d0
+// 1$        rts
 // #endasm
+
+int32_t stuff_flag(int32_t f)
+{
+    return (stuff[f] == 0) ? 8 : 10;    // Xark: WTF are 8 and 10?
+}
 
 extern USHORT  daynight, lightlevel;
 extern int16_t light_timer;
@@ -2021,6 +2084,9 @@ extern int16_t light_timer;
 void day_fade(void)
 {
     register int32_t ll;
+
+    RUNLOG("<= day_fade()");
+
     if (light_timer)
     {
         ll = 200;
@@ -2048,11 +2114,14 @@ void do_tactic(int32_t i, int32_t tactic)
 {
     register int32_t        r, f;
     register struct shape * an;
-    r          = !(rand() & 7);
+
+    RUNLOGF("<= do_tactic(%d, %d)", i, tactic);
+
+    r          = !rand8();
     an         = &(anim_list[i]);
     an->tactic = tactic;
     if (an->goal == ATTACK2)
-        r = !(rand() & 3);
+        r = !rand4();
     if (tactic == PURSUE)
     {
         if (r)
@@ -2067,7 +2136,7 @@ void do_tactic(int32_t i, int32_t tactic)
             xd = -xd;
         if (yd < 0)
             yd = -yd;
-        if ((rand() & 1) && (xd < 8 || yd < 8 || (xd > (yd - 5) && xd < (yd + 7))))
+        if (rand2() && (xd < 8 || yd < 8 || (xd > (yd - 5) && xd < (yd + 7))))
         {
             set_course(i, hero_x, hero_y, 5);
             if (an->state < SHOOT1)
@@ -2079,7 +2148,7 @@ void do_tactic(int32_t i, int32_t tactic)
     else if (tactic == RANDOM)
     {
         if (r)
-            an->facing = rand() & 7;
+            an->facing = rand8();
         an->state = WALKING;
     }
     else if (tactic == BUMBLE_SEEK)
@@ -2110,7 +2179,7 @@ void do_tactic(int32_t i, int32_t tactic)
             set_course(i, anim_list[f].abs_x, anim_list[f].abs_y + 20, 2);
     }
     else if (tactic == EGG_SEEK)
-    /*	{	if (r) set_course(i,23297,5797,0); an->state = WALKING; } */
+    /*    {    if (r) set_course(i,23297,5797,0); an->state = WALKING; } */
     {
         if (r)
             set_course(i, 23087, 5667, 0);
@@ -2122,6 +2191,8 @@ extern int16_t hunger;
 
 void eat(int amt)
 {
+    RUNLOGF("<= eat(%d)", amt);
+
     hunger -= amt;
     if (hunger < 0)
     {
@@ -2139,6 +2210,9 @@ extern int16_t encounter_x, encounter_y;
 void set_loc(void)
 {
     register int32_t d, j;
+
+    RUNLOG("<= set_loc()");
+
     j           = rand8();        /* direction */
     d           = 150 + rand64(); /* distance */
     encounter_x = newx(hero_x, j, d);

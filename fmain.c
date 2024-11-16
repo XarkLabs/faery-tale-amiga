@@ -493,12 +493,28 @@ struct sshape
 
 struct sshape * shp;
 
-struct fpage fp_page1, fp_page2, *fp_drawing, *fp_viewing;
+struct fpage   fp_page1;
+struct fpage   fp_page2;
+struct fpage * fp_drawing;
+struct fpage * fp_viewing;
 
-struct RasInfo  ri_page1, ri_page2, ri_text, ri_title;
-struct BitMap * bm_page1, *bm_page2, *bm_text, *bm_lim, *bm_draw, *bm_source;
-struct BitMap   bm_scroll, pagea, pageb;
-struct RastPort rp_map, rp_text, rp_text2, *rp;
+struct RasInfo    ri_page1;
+struct RasInfo    ri_page2;
+struct RasInfo    ri_text;
+struct RasInfo    ri_title;
+struct BitMap *   bm_page1;
+struct BitMap *   bm_page2;
+struct BitMap *   bm_text;
+struct BitMap *   bm_lim;
+struct BitMap *   bm_draw;
+struct BitMap *   bm_source;
+struct BitMap     bm_scroll;
+struct BitMap     pagea;
+struct BitMap     pageb;
+struct RastPort   rp_map;
+struct RastPort   rp_text;
+struct RastPort   rp_text2;
+struct RastPort * rp;
 
 #define BM_SIZE (sizeof(struct BitMap))
 
@@ -506,12 +522,10 @@ PLANEPTR * pl;
 LONG       i;
 SHORT      j, k, n;
 
-// Xark: extern struct ColorMap *GetColorMap();
 struct GfxBase * GfxBase;
 struct Library * LayersBase;
 
-UBYTE *      nhinor, *nhivar;
-extern UBYTE hinor, hivar;
+UBYTE *nhinor, *nhivar;
 
 struct SimpleSprite pointer = {0, 16, 0, 0, 0};
 
@@ -531,8 +545,6 @@ USHORT blackcolors[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 USHORT introcolors[] = {0x000, 0xFFF, 0xE00, 0xA00, 0xD80, 0xEC0, 0x390, 0x021, 0xEEB, 0xEDA, 0xEEA,
                         0xCB8, 0xA95, 0x973, 0x840, 0x620, 0xA52, 0xC74, 0xD96, 0xFCA, 0x449, 0x444,
                         0xDC9, 0x668, 0x33F, 0x888, 0xA60, 0xAAF, 0xBBB, 0xCCF, 0xDDD, 0xEEE};
-
-char numbuf[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ' '};
 
 /* definitions for the option menus */
 
@@ -761,7 +773,6 @@ struct BitMap *     wb_bmap;
 struct Layer_Info * li /* , *NewLayerInfo() */;          // Xark: moved comma, removed prototype
 struct Process *    thistask /* , *FindTask() */;        // Xark: removed prototype
 BPTR                origDir;
-int                 trapper();
 
 struct IOAudio * ioaudio;
 struct MsgPort * audioport;
@@ -773,6 +784,8 @@ int open_all(void)
 {
     register int32_t i;
     int32_t          file;
+
+    RUNLOG("<= open_all()");
 
     openflags = 0;
 
@@ -840,7 +853,7 @@ int open_all(void)
 
     thistask                      = (struct Process *)FindTask(0);
     thistask->pr_WindowPtr        = (APTR)-1;
-    thistask->pr_Task.tc_TrapCode = (APTR)trapper;
+    thistask->pr_Task.tc_TrapCode = (APTR)NULL;        // Xark: trapper;
     /* set trap handler */
 
     SETFN(AL_HANDLE);
@@ -1006,14 +1019,17 @@ int open_all(void)
     ChangeSprite(&vp_text, &pointer, (void *)sprite_data);
     handler_data.vbase = &vp_text;
 
-    nhinor = into_chip(&hinor, (16 * 16));
-    nhivar = into_chip(&hivar, (16 * 16));
+    nhinor = into_chip(&hinor[0], (16 * 16));
+    nhivar = into_chip(&hivar[0], (16 * 16));
     return 0;
 }
 
 int close_all(void)
 {
     register int32_t i;
+
+    RUNLOG("<= close_all()");
+
     if (TSTFN(AL_TERR))
         FreeMem(terra_mem, 1024);
     if (TSTFN(AL_SAMPLE))
@@ -1034,8 +1050,8 @@ int close_all(void)
     }
 
     free_chip(sprite_data, _sprite_data, 88);
-    free_chip(nhinor, &hinor, (16 * 16));
-    free_chip(nhivar, &hivar, (16 * 16));
+    free_chip(nhinor, &hinor[0], (16 * 16));
+    free_chip(nhivar, &hivar[0], (16 * 16));
     LoadView(oldview);
     FreeVPortCopLists(&vp_page);
     FreeVPortCopLists(&vp_text);
@@ -1048,10 +1064,10 @@ int close_all(void)
     if (vp_text.ColorMap)
         FreeColorMap(vp_text.ColorMap);
     for (i = 0; i < PAGE_DEPTH; i++)
-        if (bm_page1->Planes[i])
+        if (bm_page1 && bm_page1->Planes[i])
             FreeRaster(bm_page1->Planes[i], PHANTA_WIDTH, RAST_HEIGHT);
     for (i = 0; i < PAGE_DEPTH; i++)
-        if (bm_page2->Planes[i])
+        if (bm_page2 && bm_page2->Planes[i])
             FreeRaster(bm_page2->Planes[i], PHANTA_WIDTH, RAST_HEIGHT);
 
 
@@ -1119,6 +1135,8 @@ void read_sample(void)
     int32_t           ifflen;
     register uint8_t *num, *smem;
     register int32_t  i;
+
+    RUNLOG("<= read_sample()");
 
     load_track_range(920, 11, sample_mem, 8);
 
@@ -1191,6 +1209,9 @@ int doorfind(USHORT x, USHORT y, ULONG keytype)
     UBYTE          sec_id;
     int16_t        reg_id, j, k;
     register ULONG l;
+
+    RUNLOGF("?= doorfind(%d, %d, %d)", x, y, keytype);
+
     if (px_to_im(x, y) == 15)
         goto found;
     x += 4;
@@ -1254,7 +1275,7 @@ found:
     return FALSE;
 }
 
-extern char titletext[];
+extern UBYTE titletext[];
 
 int main(int argc, char ** argv)
 {
@@ -1267,6 +1288,9 @@ int main(int argc, char ** argv)
 
     (void)argc;
     (void)argv;
+
+    RUNLOGF("FTA main(%d, %p)", argc, argv);
+
     // TODO: Xark needed?
     //     if (argc == 0)
     //     {
@@ -1421,6 +1445,7 @@ no_intro:
     print_options();
 
     /* main program loop */
+    RUNLOG("FTA main loop");
 
     cheat1 = quitflag = FALSE;
     while (!quitflag)
@@ -1706,7 +1731,7 @@ no_intro:
             {
                 if (hunger > 120 && !(rand4()))
                 {
-                    if (rand() & 1)
+                    if (rand2())
                         oldir = (oldir + 1 & 7);
                     else
                         oldir = (oldir - 1 & 7);
@@ -2638,7 +2663,7 @@ no_intro:
                 }
                 if ((daynight & 15) == 0 && encounter_number && !actors_loading)
                 {
-                    mixflag = rand();
+                    mixflag = ft_rand();
                     if (xtype > 49)
                         mixflag = 0;
                     wt = rand4();
@@ -3533,6 +3558,8 @@ quit_all:
 
 void xfer(USHORT xtest, USHORT ytest, USHORT flag)
 {
+    RUNLOGF("<= xfer(%d, %d, %d)", xtest, ytest, flag);
+
     map_x += (xtest - hero_x);
     map_y += (ytest - hero_y);
     hero_x = anim_list[0].abs_x = xtest;
@@ -3561,6 +3588,8 @@ void find_place(int16_t flag)
     register UBYTE * tbl;
     char *           ms;
     register int32_t i;
+
+    RUNLOGF("<= find_place(%d)", flag);
 
 findagain:
     j = hero_sector = hero_sector & 255;
@@ -3670,6 +3699,8 @@ findagain:
 
 void load_actors(void)
 {
+    RUNLOG("<= load_actors()");
+
     encounter_number = extn->v1 + rnd(extn->v2);
     if (actor_file != encounter_chart[encounter_type].file_id)
     {
@@ -3686,6 +3717,8 @@ void load_actors(void)
 
 BOOL set_encounter(USHORT i, USHORT spread)
 {
+    RUNLOGF("<= set_encounter(%d, %d)", i, spread);
+
     register struct shape * an;
     USHORT                  xtest, ytest;
     register int32_t        race, w, j;
@@ -3737,6 +3770,9 @@ BOOL set_encounter(USHORT i, USHORT spread)
 void checkdead(int32_t i, int32_t dtype)
 {
     register struct shape * an;
+
+    RUNLOGF("<= checkdead(%d, %d)", i, dtype);
+
     an = &(anim_list[i]);
     if (an->vitality < 1 && an->state != DYING && an->state != DEAD)
     {
@@ -3768,6 +3804,9 @@ void load_carrier(int16_t n)
 {
     register struct shape * an;
     register int32_t        i;
+
+    RUNLOGF("<= load_carrier(%d)", n);
+
     an = &(anim_list[3]);
     if (n == 10)
         an->type = DRAGON;
@@ -3809,6 +3848,8 @@ void revive(int16_t is_new)        // Xark: renamed new -> is_new
 {                                  /* is_new tells if this is a new character */
     register struct bro *   br;
     register struct shape * an;
+
+    RUNLOGF("<= revive(%d)", is_new);
 
     an        = &(anim_list[1]);
     an->type  = RAFT;
@@ -3952,6 +3993,8 @@ void screen_size(int32_t x)
 {
     register int32_t y;
 
+    RUNLOGF("<= screen_size(%d)", x);
+
     y = (x * 5) / 8;
 
     Delay(2);
@@ -3974,6 +4017,9 @@ void screen_size(int32_t x)
 void setmood(char now)
 {
     register int32_t off;
+
+    RUNLOGF("<= setmood(%d)", now);
+
     if (anim_list[0].vitality == 0)
         off = (6 * 4);
     else if (hero_x > 0x2400 && hero_x < 0x3100 && hero_y > 0x8200 && hero_y < 0x8a00)
@@ -4010,6 +4056,8 @@ void gen_mini(void)
 {
     register uint32_t xr, yr;
     register int32_t  xs, ys;
+
+    RUNLOG("<= gen_mini()");
 
     /* lregion is what region are supposed to be in */
 
@@ -4056,6 +4104,8 @@ void pagechange(void)
 {
     register struct fpage * temp;
 
+    RUNLOG("<= pagechange()");
+
     temp            = fp_drawing;
     fp_drawing      = fp_viewing;
     fp_viewing      = temp;
@@ -4080,6 +4130,8 @@ struct Interrupt  handlerStuff;
 BOOL add_device(void)
 {
     SHORT error;
+
+    RUNLOG("?= add_device()");
 
     handler_data.laydown = handler_data.pickup = 0;
     if ((inputDevPort = CreatePort(0, 0)) == NULL)
@@ -4108,6 +4160,8 @@ BOOL add_device(void)
 
 void wrap_device(void)
 {
+    RUNLOG("<= wrap_device()");
+
     inputRequestBlock->io_Command = IND_REMHANDLER;
     inputRequestBlock->io_Data    = (APTR)&handlerStuff;
     DoIO((struct IORequest *)inputRequestBlock);
@@ -4119,6 +4173,9 @@ void wrap_device(void)
 void print_options(void)
 {
     int16_t i, j, x, y;
+
+    RUNLOG("<= print_options()");
+
     j = 0;
     for (i = 0; i < menus[cmode].num; i++)
     {
@@ -4149,6 +4206,8 @@ void print_options(void)
 void propt(int16_t j, int16_t pena)
 {
     register int32_t x, y, k, penb;
+
+    RUNLOGF("<= propt(%d, %d)", j, pena);
 
     k = real_options[j];
     if (cmode == USE)
@@ -4199,6 +4258,8 @@ void do_option(int16_t hit)
     register ULONG           i, j, x, k;
     register struct shape *  an;
     register struct BitMap * bm;
+
+    RUNLOGF("<= do_option(%d)", hit);
 
     switch (cmode)
     {
@@ -4849,6 +4910,8 @@ void do_option(int16_t hit)
 
 void get_turtle()
 {
+    RUNLOG("<= get_turtle()");
+
     for (i = 0; i < 25; i++)
     {
         set_loc();
@@ -4863,6 +4926,8 @@ void get_turtle()
 
 void gomenu(int16_t mode)
 {
+    RUNLOGF("<= gomenu(%d)", mode);
+
     if (menus[GAME].enabled[5] & 1)
         return;
     cmode                 = mode;
@@ -4873,6 +4938,9 @@ void gomenu(int16_t mode)
 void set_options(void)
 {
     register int32_t i, j;
+
+    RUNLOGF("<= set_options()");
+
     for (i = 0; i < 7; i++)
     {
         menus[MAGIC].enabled[i + 5] = stuff_flag(i + 9);
@@ -4897,6 +4965,8 @@ void set_options(void)
 
 void load_all(void)
 {
+    RUNLOGF("<= load_all()");
+
     while (MAP_FLUX)
         load_new_region();
 }
@@ -4907,6 +4977,8 @@ void load_new_region(void)
     register int32_t       i;
     register uint8_t *     imem;
     uint8_t *              imem0;
+
+    RUNLOGF("<= load_new_region()");
 
     if (MAP_STABLE)
         return;
@@ -4979,6 +5051,8 @@ void load_new_region(void)
 
 void effect(int16_t num, int32_t speed)
 {
+    RUNLOGF("<= effect(%d, %d)", num, speed);
+
     if (menus[GAME].enabled[7] & 1)
     {
         playsample(sample[num], sample_size[num] / 2, speed);
@@ -4986,7 +5060,10 @@ void effect(int16_t num, int32_t speed)
 }
 
 void mod1save(void)
-{ /* save stuff */
+{
+    RUNLOG("<= mod1save()");
+
+    /* save stuff */
     saveload(julstuff, 35);
     saveload(philstuff, 35);
     saveload(kevstuff, 35);

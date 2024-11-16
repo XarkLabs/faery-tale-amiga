@@ -240,7 +240,7 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
     int32_t d0 = 0;
     (void)a0;
     (void)a1;
-    RUNLOGF("%d <= HandlerInterface(%p, %p)", d0, a0, a1);
+    RUNLOGF("%d <= HandlerInterface(%p, %p) STUB", d0, a0, a1);
     return 0;
 }
 
@@ -263,6 +263,19 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // ;			dc.b	XY,250/2,101,"David Joiner"
 // ;			dc.b	XY,168/2,160,"Copyright (C) 1986 MicroIllusions "
 // 			dc.b	ETX
+
+UBYTE titletext[] =
+    "\x80\x1c\x21"        // XY, (160-26*4)/2, 33
+    "\x22The Faery Tale Adventure\x22"
+    "\x80\x14\x4f"        // XY, (160-30*4)/2, 79
+    "Animation, Programming & Music"
+    "\x80\x4c\x5a"        // XY, (160-2*4)/2,  90
+    "by"
+    "\x80\x38\x65"        // XY, (160-12*4)/2,101
+    "David Joiner"
+    "\x80\x2a\xa0"        // XY, (160-30*4)/2,160
+    "Copyright 1986 MicroIllusions ";
+
 //
 // 			public _hinor,_hivar
 // _hinor
@@ -294,6 +307,40 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 			dc.l	$CFE0F278,$3F3C8000,$F3FF0207,$FF008000
 // 			dc.l	$03FFF8FF,$FFFF0000
 //
+
+// Xark: compass base image? NOTE: converted to byte due to big-endian
+UBYTE hinor[] = {
+    0x01, 0xFF, 0xF8, 0xFF, 0xFC, 0x03, 0x80, 0x00, 0x01, 0xFF, 0x00, 0x07, 0xFC, 0x03, 0x80, 0x00,
+    0x07, 0xE0, 0xF0, 0x78, 0x3F, 0x03, 0x80, 0x00, 0x19, 0x0F, 0xE0, 0x3F, 0xC4, 0xC3, 0x80, 0x00,
+    0xFC, 0x7F, 0xC0, 0x1F, 0xF1, 0xFF, 0x80, 0x00, 0xF1, 0x9F, 0x80, 0x0F, 0xCC, 0x7F, 0x80, 0x00,
+    0xE7, 0xE7, 0x00, 0x07, 0x3F, 0x3F, 0x80, 0x00, 0xCF, 0xF9, 0x80, 0x0C, 0xFF, 0x9F, 0x80, 0x00,
+    0x9F, 0xFE, 0x60, 0x33, 0xFF, 0xCF, 0x80, 0x00, 0x3F, 0x07, 0x98, 0xCF, 0xC3, 0xE7, 0x80, 0x00,
+    0x70, 0x01, 0xE7, 0x9F, 0x00, 0x33, 0x80, 0x00, 0x00, 0x00, 0x78, 0x3C, 0x00, 0x03, 0x80, 0x00,
+    0x00, 0x00, 0x19, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x78, 0x0C, 0x00, 0x03, 0x80, 0x00,
+    0x78, 0x01, 0xC7, 0xF3, 0x00, 0x33, 0x80, 0x00, 0x3F, 0x87, 0x38, 0x3C, 0xC3, 0xE7, 0x80, 0x00,
+    0x9F, 0xFC, 0xF0, 0x1F, 0x3F, 0xCF, 0x80, 0x00, 0xCF, 0xF3, 0xC0, 0x0F, 0xCF, 0x9F, 0x80, 0x00,
+    0xE7, 0xCF, 0x80, 0x07, 0xF3, 0x3F, 0x80, 0x00, 0xF1, 0x3F, 0x80, 0x0F, 0xFC, 0x7F, 0x80, 0x00,
+    0xFC, 0x7F, 0xC0, 0x1F, 0xF1, 0x30, 0x80, 0x00, 0x33, 0x1F, 0xE0, 0x3F, 0xC7, 0xC0, 0x80, 0x00,
+    0x0F, 0xE0, 0xF0, 0x78, 0x3F, 0x00, 0x80, 0x00, 0x03, 0xFF, 0x00, 0x07, 0xFF, 0x00, 0x80, 0x00,
+    0x03, 0xFF, 0xF8, 0xFF, 0xFF, 0xFF, 0x00, 0x00};
+
+// Xark: compass direction image? NOTE: converted to byte due to big-endian
+UBYTE hivar[] = {
+    0x01, 0xFF, 0xF8, 0xFF, 0xFC, 0x03, 0x80, 0x00, 0x79, 0xFF, 0x02, 0x07, 0xFC, 0xF3, 0x80, 0x00,
+    0x67, 0xE0, 0xF2, 0x78, 0x3F, 0x33, 0x80, 0x00, 0x19, 0x0F, 0xE7, 0x3F, 0xC4, 0xC3, 0x80, 0x00,
+    0xFC, 0x7F, 0xCF, 0x9F, 0xF1, 0xFF, 0x80, 0x00, 0xF1, 0x9F, 0x9F, 0xCF, 0xCC, 0x7F, 0x80, 0x00,
+    0xE7, 0xE7, 0x3F, 0xE7, 0x3F, 0x3F, 0x80, 0x00, 0xCF, 0xF9, 0x9F, 0xCC, 0xFF, 0x9F, 0x80, 0x00,
+    0x9F, 0xFE, 0x67, 0x33, 0xFF, 0xCF, 0x80, 0x00, 0x3F, 0x07, 0x98, 0xCF, 0xC3, 0xE7, 0x80, 0x00,
+    0x70, 0xF9, 0xE7, 0x9F, 0x3C, 0x33, 0x80, 0x00, 0x0F, 0xFE, 0x78, 0x3C, 0xFF, 0xC3, 0x80, 0x00,
+    0xFF, 0xFF, 0x99, 0x33, 0xFF, 0xF8, 0x00, 0x00, 0x07, 0xFE, 0x78, 0x0C, 0xFF, 0xC3, 0x80, 0x00,
+    0x78, 0x79, 0xC7, 0xF3, 0x3C, 0x33, 0x80, 0x00, 0x3F, 0x87, 0x38, 0x3C, 0xC3, 0xE7, 0x80, 0x00,
+    0x9F, 0xFC, 0xF3, 0x9F, 0x3F, 0xCF, 0x80, 0x00, 0xCF, 0xF3, 0xCF, 0xCF, 0xCF, 0x9F, 0x80, 0x00,
+    0xE7, 0xCF, 0x9F, 0xE7, 0xF3, 0x3F, 0x80, 0x00, 0xF1, 0x3F, 0x9F, 0xCF, 0xFC, 0x7F, 0x80, 0x00,
+    0xFC, 0x7F, 0xCF, 0x9F, 0xF1, 0x30, 0x80, 0x00, 0x33, 0x1F, 0xE7, 0x3F, 0xC7, 0xCC, 0x80, 0x00,
+    0xCF, 0xE0, 0xF2, 0x78, 0x3F, 0x3C, 0x80, 0x00, 0xF3, 0xFF, 0x02, 0x07, 0xFF, 0x00, 0x80, 0x00,
+    0x03, 0xFF, 0xF8, 0xFF, 0xFF, 0xFF, 0x00, 0x00};
+
+
 // 			cseg
 //
 // 			public	_handler_data
@@ -311,6 +358,15 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 			move.b	d1,7(a1)
 // getkeyx		movem.l	(sp)+,a1/d1
 // 			rts
+
+// TODO: getkey - get key from keyboard buffer
+int32_t getkey(void)
+{
+    int32_t key = 0;
+    RUNLOGF("%d <= getkey() STUB", key);
+    return key;
+}
+
 //
 // 			public	_rand,_seed1,_bitrand,_rnd
 // 			public	_rand2,_rand4,_rand8,_rand64,_rand256
@@ -323,30 +379,93 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 			ror.l	#6,d0
 // 			and.l	#$7fffffff,d0
 // 			rts
+
+// ft_rand - 31-bit pseudo random (renamed from original rand())
+int32_t ft_rand(void)
+{
+    int32_t res = rand() & 0x7fffffff;
+    RUNLOGF("%d <= ft_rand()", res);
+    return res;
+}
+
 //
 // _bitrand	bsr.s	_rand		; rand() & x
 // 			and.l	4(sp),d0
 // 			rts
+
+// bitrand - rand AND'd with mask
+int32_t bitrand(int32_t m)
+{
+    int32_t res = ft_rand() & m;
+    RUNLOGF("%d <= bitrand(0x%x)", res, m);
+    return res;
+}
+
 //
 // _rand2		bsr.s	_rand		; rand() & 1
 // 			and.l	#1,d0
 // 			rts
+
+// rand2 - rand AND'd with 1
+int32_t rand2(void)
+{
+    int32_t res = ft_rand() & 1;
+    RUNLOGF("%d <= rand2()", res);
+    return res;
+}
+
 //
 // _rand4		bsr.s	_rand		; rand() & 3
 // 			and.l	#3,d0
 // 			rts
 //
+
+// rand4 - rand AND'd with 3
+int32_t rand4(void)
+{
+    int32_t res = ft_rand() & 3;
+    RUNLOGF("%d <= rand4()", res);
+    return res;
+}
+
 // _rand8		bsr.s	_rand		; rand() & 7
 // 			and.l	#7,d0
 // 			rts
+
+// rand8 - rand AND'd with 7
+int32_t rand8(void)
+{
+    int32_t res = ft_rand() & 7;
+    RUNLOGF("%d <= rand8()", res);
+    return res;
+}
+
 //
 // _rand64		bsr.s	_rand		; rand() & 63
 // 			and.l	#63,d0
 // 			rts
+
+// rand64 - rand AND'd with 63
+int32_t rand64(void)
+{
+    int32_t res = ft_rand() & 63;
+    RUNLOGF("%d <= rand64()", res);
+    return res;
+}
+
 //
 // _rand256	bsr.s	_rand		; rand() & 255
 // 			and.l	#255,d0
 // 			rts
+
+// rand256 - rand AND'd with 255
+int32_t rand256(void)
+{
+    int32_t res = ft_rand() & 255;
+    RUNLOGF("%d <= rand256()", res);
+    return res;
+}
+
 //
 // _rnd		bsr.s	_rand		; rand() % x
 // 			move.l	4(sp),d1
@@ -355,6 +474,15 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 			clr.w	d0			; clear bottom half
 // 			swap	d0			; get top half
 // 			rts
+
+// rnd - return ft_rand() modulo m
+int32_t rnd(int32_t m)
+{
+    int32_t res = ft_rand() % m;
+    RUNLOGF("%d <= rnd(%d)", res, m);
+    return res;
+}
+
 //
 // 			public	_prdec
 //
@@ -395,6 +523,18 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // ion2		move.b	#$20,(a0,d1)	; space fill until end
 // 			dbf		d1,ion2
 // 			rts
+
+char numbuf[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ' '};
+
+// TODO: prdec - print val in decimat. length len to rasport "rp"
+void prdec(int32_t val, int32_t len)
+{
+    (void)val;
+    (void)len;
+    RUNLOGF("<= prdec(%d, %d) STUB", val, len);
+    // snprintf(numbuf, 10, "%010d", len, len, val);
+}
+
 //
 // 			public	_move,_rp,_text,_placard,_rp_map
 //
@@ -492,6 +632,13 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 //
 // 		movem.l	(sp)+,d0-d7/a0-a6
 // 		rts
+
+// TODO: placard - draw placard
+void placard(void)
+{
+    RUNLOG("<= placard() STUB");
+}
+
 //
 // _move
 // 			movem.l	a0-a2/d0-d1,-(sp)
@@ -502,6 +649,15 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 			jsr		Move(a6)
 // 			movem.l	(sp)+,a0-a2/d0-d1
 // 			rts
+
+// TODO: move - move rastport "rp" pen position
+void move(int32_t x, int32_t y)
+{
+    (void)x;
+    (void)y;
+    RUNLOGF("<= move(%d, %d) STUB", x, y);
+}
+
 //
 // _text
 // 			movem.l	a0-a6/d0-d7,-(sp)
@@ -512,6 +668,13 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 			jsr		Text(a6)
 // 			movem.l	(sp)+,a0-a6/d0-d7
 // 			rts
+
+// TODO: text - print text into rastport "rp"
+void text(char * tptr, int32_t len)
+{
+    Text(rp, tptr, len);
+}
+
 //
 // _ssp
 // 			move.l	4(sp),a0
@@ -553,6 +716,29 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // sspx
 // 			movem.l	(sp)+,a0-a2/d0-d1
 // 			rts
+
+// TODO: ssp - screen space print (with positioning code)
+void ssp(UBYTE * mp)
+{
+    RUNLOGF("<= ssp(%p) STUB", mp);
+    while (*mp)
+    {
+        if (*mp == XY)
+        {
+            mp++;
+            int32_t x = (*mp++) << 1;
+            int32_t y = *mp++;
+            Move(rp, x, y);
+        }
+        else
+        {
+            int32_t len = strlen((const char *)mp);
+            Text(rp, (char *)mp, len);
+            mp += len;
+        }
+    }
+}
+
 //
 //
 // 		public	_px_to_im,_xreg,_yreg,_map_mem,_sector_mem
@@ -635,6 +821,17 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		movem.l	(sp)+,d2-d4/a1	; pop 3 regs
 // 		rts
 //
+
+// TODO: px_to_im - convert pixel coordinate to image number?
+int32_t px_to_im(USHORT x, USHORT y)
+{
+    int32_t res = 0;
+    (void)x;
+    (void)y;
+    RUNLOGF("%d <= px_to_im(%d, %d) STUB", res, x, y);
+    return res;
+}
+
 //
 // ;-----------------------------------------------------------------------
 // ;		iff subroutines
@@ -744,6 +941,13 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		movem.l	(sp)+,d0-d7/a0-a6
 // 		rts
 //
+
+// TODO: map_draw - render map
+void map_draw(void)
+{
+    RUNLOG("<= map_draw() STUB");
+}
+
 //
 // ; this will be a long set of in-line code
 //
@@ -833,6 +1037,14 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		addq.l	#4,sp
 // 		movem.l	(sp)+,d0-d7/a0-a6
 // 		rts
+
+// TODO: strip_draw - draw an entire column of map for x scroll
+void strip_draw(int32_t s)
+{
+    (void)s;
+    RUNLOGF("<= strip_draw(%d) STUB", s);
+}
+
 //
 // 		public	_row_draw
 // _row_draw
@@ -902,6 +1114,14 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		addq.l	#4,sp
 // 		movem.l	(sp)+,d0-d7/a0-a6
 // 		rts
+
+// TODO: row_draw - draw an entire row of map for y scroll
+void row_draw(int32_t y)
+{
+    (void)y;
+    RUNLOGF("<= row_draw(%d) STUB", y);
+}
+
 //
 //
 // ; this will be a long set of in-line code
@@ -994,6 +1214,12 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 			movem.l  (sp)+,d1-d7/a0-a6 ; restore regs
 // 			rts
 //
+
+void bigdraw(int32_t map_x, int32_t map_y)
+{
+    RUNLOGF("<= bigdraw(%x, %x) STUB", map_x, map_y);
+}
+
 // plotsect	movem.l  d0-d7/a0-a6,-(sp) ; save regs
 //
 // 			move.l	d6,a6			; sector data address
@@ -1100,6 +1326,17 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 //
 // 		movem.l	(sp)+,d2-d6/a1/a0
 // 		rts
+
+// TODO: maskit - takes shape mask and adds character masks from background
+void maskit(int32_t x, int32_t y, int32_t mod, int32_t cnum)
+{
+    (void)x;
+    (void)y;
+    (void)mod;
+    (void)cnum;
+    RUNLOGF("<= maskit(%d, %d, %d, %d) STUB", x, y, mod, cnum);
+}
+
 //
 // 		public	_mapxy
 // _mapxy
@@ -1150,6 +1387,17 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 //
 // 		movem.l	(sp)+,d2-d4/a1
 // 		rts
+
+// TODO: mapxy - return pointer into map data
+UBYTE * mapxy(int32_t x, int32_t y)
+{
+    UBYTE * res = NULL;
+    (void)x;
+    (void)y;
+    RUNLOGF("%p <= mapxy(%d, %d) STUB", res, x, y);
+    return res;
+}
+
 //
 // 		public	_genmini,_hero_x,_hero_y,_hero_sector,_region_num
 // _genmini
@@ -1241,6 +1489,13 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 //
 // 		movem.l	(sp)+,d0-d7/a0-a2
 // 		rts
+
+// TODO: genmini - generate mini map
+void genmini(int32_t img_x, int32_t img_y)
+{
+    RUNLOGF("<= genmini(%d, %d) STUB", img_x, img_y);
+}
+
 //
 // 		public	_unpack_line,_compress,_bytecount,_packdata
 //
@@ -1313,6 +1568,18 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		and.l	#$07fff,d0	; keep it on the map
 // newxx	movem.l	(sp)+,d2/d3
 // 		rts
+
+// TODO: newx - compute new x based on speed and direction
+int32_t newx(int32_t x, int32_t dir, int32_t speed)
+{
+    int32_t res = x;
+    (void)x;
+    (void)dir;
+    (void)speed;
+    RUNLOGF("%d <= newx(%d, %d, %d) STUB", res, x, dir, speed);
+    return res;
+}
+
 //
 // _newy
 // 		movem.l	d2/d3,-(sp)
@@ -1335,6 +1602,18 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		or.w	d1,d0		; and set it if need be
 // newyy	movem.l	(sp)+,d2/d3
 // 		rts
+
+// TODO: newy - compute new y based on speed and direction
+int32_t newy(int32_t y, int32_t dir, int32_t speed)
+{
+    int32_t res = y;
+    (void)y;
+    (void)dir;
+    (void)speed;
+    RUNLOGF("%d <= newy(%d, %d, %d) STUB", res, y, dir, speed);
+    return res;
+}
+
 //
 // ;		public	_joyread,_xjoy,_yjoy
 //
@@ -1373,6 +1652,17 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		rts
 // wrap1	and.w	#$7fff,d0
 // 		rts
+
+// wrap - wrap at 16K with sign extension
+int16_t wrap(int16_t v)
+{
+    if (v & (1 << 14))
+    {
+        return v | 0x8000;
+    }
+    return v & 0x7fff;
+}
+
 //
 // 		public	_map_adjust,_map_x,_map_y
 // _map_adjust
@@ -1439,6 +1729,15 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // check99
 // 		movem.l	(sp)+,d2/d3
 // 		rts
+
+// TODO: map_adjust - adjust map position
+void map_adjust(int32_t x, int32_t y)
+{
+    (void)x;
+    (void)y;
+    RUNLOGF("<= map_adjust(%d, %d) STUB", x, y);
+}
+
 //
 // 		public	_do_error
 // errms	dc.b	"ERROR "
@@ -1464,6 +1763,13 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 //
 // doerrx	rts
 //
+
+void do_error(int32_t e)
+{
+    RUNLOGF("<= do_error(%d)", e);
+    fprintf(stderr, "FATAL ERROR %d\n", e);
+}
+
 // 		public	_page_det
 // _page_det
 // 		move.l	d1,-(sp)
@@ -1502,6 +1808,16 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		move.l	(sp)+,d1
 // 		rts
 // pd10	dc.b	9,9,8,7,6,5,5,5,4,4,4
+
+// TODO: page_det - determine height based on page x?
+int32_t page_det(int32_t x)
+{
+    int32_t res = 0;
+    (void)x;
+    RUNLOGF("%d <= page_det(%d) STUB", res, x);
+    return res;
+}
+
 // com2	dc.b	0,1,2,7,9,3,6,5,4
 //
 // 		public	_decode_mouse,_handler_data,_keydir,_oldir,_drawcompass
@@ -1603,6 +1919,12 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // setcompx
 // 		movem.l	(sp)+,a0/d0-d4
 // 		rts
+
+void decode_mouse(void)
+{
+    RUNLOG("<= decode_mouse() STUB");
+}
+
 //
 // 		public	_prox
 //
@@ -1628,6 +1950,17 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		bge.s	prox99
 // 		clr.l	d0
 // prox99	rts
+
+// TODO: prox - proximity for wraith?
+int32_t prox(int32_t x, int32_t y)
+{
+    int32_t res = 0;
+    (void)x;
+    (void)y;
+    RUNLOGF("%d <= prox(%d, %d) STUB", res, x, y);
+    return res;
+}
+
 //
 // 		public	_make_mask
 //
@@ -1672,6 +2005,18 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 //
 // 		movem.l	(sp)+,d1-d4/a0-a5
 // 		rts
+
+// TODO: make_mask - dynamically creates shape mask from shape data
+void make_mask(UBYTE * s, UBYTE * d, int32_t words, int32_t lines, int32_t len)
+{
+    (void)s;
+    (void)d;
+    (void)words;
+    (void)lines;
+    (void)len;
+    RUNLOGF("<= make_mask(%p, %p, %d, %d, %d) STUB", s, d, words, lines, len);
+}
+
 //
 // ; this routine scrolls the screen very fast using only two blit channels
 // ;		on entry, a0 contains the harware regs, a1 address of bltnode
@@ -1808,6 +2153,14 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		jsr		DisownBlitter(a6)
 // 		movem.l	(sp)+,a2-a6/d1-d2	; restore regs
 // 		rts
+
+// TODO: scroll_map - scroll map in given direction 0-7
+void scrollmap(int32_t dir)
+{
+    (void)dir;
+    RUNLOGF("<= scrollmap(%d) STUB", dir);
+}
+
 //
 // 		public	_clear_blit
 //
@@ -1825,6 +2178,12 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		move.w	10(sp),BLTSIZE(a0)	; set size and DO IT!
 // 		move.w	#0,d0
 // 		rts							; look ma! no registers!
+
+void clear_blit(UBYTE * mem, LONG size)
+{
+    RUNLOGF("<= clear_blit(%p, %d) STUB", mem, size);
+}
+
 //
 // ; character blitting - 4 blits per character
 // ;	back restore	(5 planes)
@@ -1919,6 +2278,13 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		dbf		d3,sb05
 // 		movem.l	(sp)+,a2-a4/a6/d1-d3		; restore regs
 // 		rts
+
+// TODO: shape_blit - creates the composite backround mask
+void shape_blit(void)
+{
+    RUNLOG("<= shape_blit() STUB");
+}
+
 //
 // 		public	_mask_blit
 //
@@ -1966,6 +2332,13 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 //
 // 		movem.l	(sp)+,a2-a4/a6/d1-d3		; restore regs
 // 		rts
+
+// TODO: mask_blit - creates the composite backround mask
+void mask_blit(void)
+{
+    RUNLOG("<= mask_blit() STUB");
+}
+
 //
 // 		public		_save_blit
 //
@@ -2014,6 +2387,14 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 // 		movem.l	(sp)+,a2-a4/a6/d1-d3		; restore regs
 //
 // 		rts
+
+// TODO: save_blit - save "shp" background to destptr using blitter
+void save_blit(UBYTE * destptr)
+{
+    (void)destptr;
+    RUNLOGF("<= save_blit(%p) STUB", destptr);
+}
+
 //
 // 		public		_rest_blit
 //
@@ -2065,6 +2446,14 @@ int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
 //
 // 		movem.l	(sp)+,a2-a4/a6/d1-d3		; restore regs
 // 		rts
+
+// TODO: rest_blit - restore "shp" background from sourceptr using blitter
+void rest_blit(UBYTE * sourceptr)
+{
+    (void)sourceptr;
+    RUNLOGF("<= rest_blit(%p) STUB", sourceptr);
+}
+
 //
 // 		end
 

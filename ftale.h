@@ -186,6 +186,18 @@ struct setfig
 #define AL_TDISK  0x2000
 #define AL_TERR   0x4000
 
+// sst position code
+#define XY          0x80  // then x/2 then y
+
+// current RastPort
+extern struct RastPort * rp;
+
+// compass image data
+extern UBYTE hinor[];
+extern UBYTE hivar[];
+
+extern char event_msg[];
+extern char speeches[];
 
 // Xark includes after structs
 #include "fmain.h"
@@ -196,72 +208,72 @@ struct setfig
 // TODO: Clean these up
 
 void    map_draw(void);
-void    scrollmap(int dir);
-int     px_to_im(USHORT x, USHORT y);
-int     newx(int x, int dir, int speed);
-int     newy(int y, int dir, int speed);
-UBYTE * mapxy(int x, int y);
-void    map_adjust(int safe_x, int safe_y);
-void    bigdraw(int x, int y);
-void    genmini(int x, int y);
-void    move(int x, int y);
+void    scrollmap(int32_t dir);
+int32_t px_to_im(USHORT x, USHORT y);
+int32_t newx(int32_t x, int32_t dir, int32_t speed);
+int32_t newy(int32_t y, int32_t dir, int32_t speed);
+UBYTE * mapxy(int32_t x, int32_t y);
+void    map_adjust(int32_t x, int32_t y);
+void    bigdraw(int32_t x, int32_t y);
+void    genmini(int32_t x, int32_t y);
+void    move(int32_t x, int32_t y);
 void    rest_blit(UBYTE *);
 void    clear_blit(UBYTE *, LONG size);
 void    save_blit(UBYTE *);
 void    mask_blit(void);
 void    shape_blit(void);
-void    strip_draw(int s);
-void    row_draw(int r);
-void    maskit(int x, int y, int mod, char c);
-void    make_mask(UBYTE * s, UBYTE * d, int words, int lines, int len);
-void    prdec(int val, int len);
+void    strip_draw(int32_t s);
+void    row_draw(int32_t y);
+void    maskit(int32_t x, int32_t y, int32_t mod, int32_t cnum);
+void    make_mask(UBYTE * s, UBYTE * d, int32_t words, int32_t lines, int32_t len);
+void    prdec(int32_t val, int32_t len);
 void    dohit(int32_t i, int32_t j, int32_t fc, int16_t wt);
-int     page_det(int d);
+int32_t page_det(int32_t x);
 
-int  AllocDiskIO(void);
-void FreeDiskIO(void);
-void WaitDiskIO(int num);
-void InvalidDiskIO(int num);
-int  CheckDiskIO(int num);
-int  IsReadDiskIO(int num);
-int  CheckLastDiskIO(void);
-int  IsReadLastDiskIO(void);
+int32_t AllocDiskIO(void);
+void    FreeDiskIO(void);
+void    WaitDiskIO(int32_t num);
+void    InvalidDiskIO(int32_t num);
+int32_t CheckDiskIO(int32_t num);
+int32_t IsReadDiskIO(int32_t num);
+int32_t CheckLastDiskIO(void);
+int32_t IsReadLastDiskIO(void);
 
-void do_error(int e);
+void do_error(int32_t e);
 void init_music(SHORT * new_wave, UBYTE * wav_mem, UBYTE * vol_mem);
 void wrap_music(void);
-void setscore(UBYTE * v1, UBYTE * v2, UBYTE * v3, UBYTE * v4);
+void setscore(UBYTE * t1, UBYTE * t2, UBYTE * t3, UBYTE * t4);
 void stopscore(void);
 void playscore(UBYTE * t1, UBYTE * t2, UBYTE * t3, UBYTE * t4);
 void playsample(UBYTE * ptr, LONG length, LONG rate);
 
-int stuff_flag(int f);
+int32_t stuff_flag(int32_t f);
 
-void text(char *, int len);
-void ssp(char *);
-void placard(void);
-void placard_text(int msg);
-void prq(int p);
-int  getkey(void);
-int  rnd(int x);
-void decode_mouse(void);
-void msg(char *, int len);
-void speak(int p);
-void event(int e);
-void set_course(int object, int target_x, int target_y, int mode);
-void question(int q);
-void cursor(int len, int color);
+void    text(char *, int32_t len);
+void    ssp(UBYTE *);
+void    placard(void);
+void    placard_text(int32_t n);
+void    prq(int32_t n);
+int32_t getkey(void);
+int32_t rnd(int32_t m);
+void    decode_mouse(void);
+void    msg(char *, int32_t n);
+void    speak(int32_t p);
+void    event(int32_t e);
+void    set_course(int32_t object, int32_t target_x, int32_t target_y, int32_t mode);
+void    question(int32_t q);
+void    cursor(int32_t len, int32_t color);
 
-int bitrand(int m);
-int rand(void);
-int rand2(void);
-int rand4(void);
-int rand8(void);
-int rand64(void);
-int rand256(void);
-int wrap(int v);
+int32_t bitrand(int32_t m);
+int32_t ft_rand(void);        // Xark: rand->ft_rand
+int32_t rand2(void);
+int32_t rand4(void);
+int32_t rand8(void);
+int32_t rand64(void);
+int32_t rand256(void);
+int16_t wrap(int16_t v);
 
-int prox(int x, int y);
+int32_t prox(int32_t x, int32_t y);
 
 // fsubs
 int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1);

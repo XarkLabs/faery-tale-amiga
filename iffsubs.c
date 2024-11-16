@@ -1,10 +1,3 @@
-// Xark: From ftale.h: #include "exec/types.h"
-// Xark: From ftale.h: #include "exec/memory.h"
-// Xark: From ftale.h: #include "exec/io.h"
-// Xark: From ftale.h: #include "graphics/display.h"
-// Xark: From ftale.h: #include "graphics/gfxbase.h"
-// Xark: From ftale.h: #include "graphics/gfx.h"
-
 #include "ftale.h"        // Xark: Added to verify headers in sync
 
 #define FORM tags[0]
@@ -187,6 +180,8 @@ struct BitMap * bitmap;
 
 BOOL unpackbrush(char * filename, struct BitMap * bitmap, int16_t x, int16_t y)
 {
+    RUNLOGF("?= unpackbrush(\"%s\", %p, %d, %d)", filename, bitmap, x, y);
+
     int bitoffset = (x + (bitmap->BytesPerRow) * y);
 
     myfile = Open(filename, 1005);

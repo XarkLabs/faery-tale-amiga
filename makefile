@@ -18,7 +18,7 @@ CC=clang
 LD=clang
 
 CFLAGS  = -g -Os -Wall -Wextra -I AmigaOS_NDK_3.1/Includes_Libs/include_h $(shell sdl2-config --cflags)
-LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image
+LDFLAGS =  $(shell sdl2-config --libs) -lSDL2_image
 
 INCS = $(wildcard *.h)
 SRCS = $(wildcard *.c)
@@ -27,12 +27,7 @@ OBJS = $(addsuffix .o,$(basename $(SRCS)))
 all: fta
 
 fta: $(OBJS)
-	-$(LD) $(LDFLAGS) -o $@ $(OBJS) 2>ld.log
-	@grep "referenced" ld.log | sort | uniq | cut -d "," -f 1 | tr -d "\042" | sed 's/ _/ /' >link_undef.log
-	@echo === Number Remaining to Define:
-	@cat link_undef.log | wc -l
-	@echo === Undefined Symbols:
-	@cat link_undef.log
+	-$(LD) $(LDFLAGS) -o $@ $(OBJS)
 
 $(OBJS): $(INCLUDE) $(MAKEFILE_LIST)
 

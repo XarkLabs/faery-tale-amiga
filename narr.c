@@ -1,12 +1,15 @@
+// fsubs.c
+#include "ftale.h"
+
 // ;max 36 for scroll
 // ;max 29 for placard
 // ;% = character name
 // ;$ = who we are speaking to??
-// 
+//
 // 		dseg
 // 		public	_place_msg,_inside_msg,_place_tbl,_inside_tbl
 // 		public	_event_msg
-// 
+//
 // 		public	_print_cont
 // _event_msg
 // 		dc.b	"% was getting rather hungry.",0
@@ -56,10 +59,10 @@
 // 		dc.b	'% ate one of his apples.',0
 // 		dc.b	'% discovered a hidden object.',0
 // ; what if monster attacks you when you are sleeping?
-// 
+//
 // 		cseg
 // 		public	_question
-// 
+//
 // _question
 // 		move.l	4(sp),d0
 // 		add.w	d0,d0
@@ -68,9 +71,9 @@
 // 		add.l	(a0,d0),a0
 // 		move.l	a0,4(sp)
 // 		jmp		_print_cont
-// 
+//
 // qq		dc.l	q1-qq,q2-qq,q3-qq,q4-qq,q5-qq,q6-qq,q7-qq,q8-qq
-// 
+//
 // q1		dc.b	'To Quest for the...?',0
 // q2		dc.b	'Make haste, but take...?',0
 // q3		dc.b	'Scorn murderous...?',0
@@ -80,9 +83,24 @@
 // q7		dc.b	'Defy Ye that...?',0
 // q8		dc.b	'In black darker than...?',0
 // 		dc.w	0
-// 
+//
+
+// question - print copy protection question q
+void question(int32_t q)
+{
+    static char * qq[8] = {"To Quest for the...?",
+                           "Make haste, but take...?",
+                           "Scorn murderous...?",
+                           "Summon the...?",
+                           "Wing forth in...?",
+                           "Hold fast to your...?",
+                           "Defy Ye that...?",
+                           "In black darker than...?"};
+    print_cont(qq[q]);
+}
+
 // 		dseg
-// 
+//
 // _place_tbl
 // 		dc.b	51,51,19		; small keep
 // 		dc.b	64,69,02		; village
@@ -113,7 +131,41 @@
 // 		dc.b	0,79,0			; nil
 // 		dc.b	185,254,15		; desert
 // 		dc.b	0,255,0			; nil
-// 
+
+
+uint8_t place_tbl[] = {
+    51,  51,  19,        // small keep
+    64,  69,  2,         // village
+    70,  73,  3,         // vermillion
+    80,  95,  6,         // marheim
+    96,  99,  7,         // witch castle
+    138, 139, 8,         // graveyard
+    144, 144, 9,         // stone ring
+    147, 147, 10,        // lighthouse
+    148, 148, 20,        // small castle
+    159, 162, 17,        // desert city
+    163, 163, 18,        // desert fort
+    164, 167, 12,        // crystal
+    168, 168, 21,        // log cabin
+    170, 170, 22,        // dark fort
+    171, 174, 14,        // doom tower
+    176, 176, 13,        // pixie shrine
+    178, 178, 23,        // swamp cabin
+    179, 179, 24,        // tomb
+    180, 180, 25,        // unreachable castle
+    175, 180, 0,         // lava / elf - nil
+    208, 221, 11,        // swamp
+    243, 243, 16,        // oasis
+    250, 252, 0,         // nil (interface)
+    255, 255, 26,        // dragon cave
+    78,  78,  4,         // by mountain type
+    187, 239, 4,         // by mountain type
+    0,   79,  0,         // nil
+    185, 254, 15,        // desert
+    0,   255, 0          // nil
+};
+
+//
 // _inside_tbl
 // 		dc.b	2,2,02			; small chamber
 // 		dc.b	7,7,03			; large chamber
@@ -152,7 +204,47 @@
 // 		dc.b	121,129,22		; unlocked/entered
 // 		dc.b	150,161,15		; stone maze
 // 		dc.b	0,255,0			; nil
-// 
+
+UBYTE inside_tbl[] = {
+    2,   2,   2,         // small chamber
+    7,   7,   3,         // large chamber
+    4,   4,   4,         // long passageway
+    5,   6,   5,         // twisting tunnel
+    9,   10,  6,         // forked intersection
+    30,  30,  7,         // keep interior - ITEMIZE??
+    19,  33,  14,        // stone corridor
+    101, 101, 14,        // stone corridor
+    130, 134, 14,        // stone corridor
+    36,  36,  13,        // octagonal room
+    37,  42,  12,        // large room
+    46,  46,  0,         // final arena - special message
+    43,  59,  11,        // spirit world
+    100, 100, 11,        // spirit world
+    143, 149, 11,        // spirit world
+    62,  62,  16,        // small building
+    65,  66,  18,        // tavern
+    60,  78,  17,        // building
+    82,  82,  17,        // building
+    86,  87,  17,        // building
+    92,  92,  17,        // priest's building
+    94,  95,  17,        // small buildings
+    97,  99,  17,        // building
+    120, 120, 17,        // building (desfort)
+    116, 119, 17,        // building (desert)
+    139, 141, 17,        // building (desert)
+    79,  96,  9,         // palace of king mar
+    104, 104, 19,        // inn
+    114, 114, 20,        // tomb inside
+    105, 115, 8,         // castle - ITEMIZE??
+    135, 138, 8,         // castle (doom tower)
+    125, 125, 21,        // cabin inside
+    127, 127, 10,        // elf glade inside
+    142, 142, 22,        // unlocked/lighthouse
+    121, 129, 22,        // unlocked/entered
+    150, 161, 15,        // stone maze
+    0,   255, 0          // nil
+};
+//
 // ; string macros
 // ; @ = ' entered the '
 // ; # = ' came to '
@@ -160,7 +252,7 @@
 // ; ^ = ' castle'
 // ; [ = ' of '
 // ; % = substitute character name
-// 
+//
 // _place_msg
 // 			dc.b	0	; no message
 // 			dc.b	0	; do not change
@@ -195,7 +287,45 @@
 // 			dc.b	"% reached the Forbidden Keep.",0
 // 			dc.b	"% found a cave in the hillside.",0
 // ;			dc.b	"He entered the garden area.",0	; of Mar's castle
-// 
+
+char place_msg[] =
+    "\0"        // no message
+    "\0"        // do not change
+    "% returned to the village of Tambry.\0"
+    "% came to Vermillion Manor.\0"
+    "% reached the Mountains of Frost\0"
+    // 5
+    "% reached the Plain of Grief.\0"
+    "% came to the city of Marheim.\0"
+    "% came to the Witch's castle.\0"
+    "% came to the Graveyard.\0"
+    "% came to a great stone ring.\0"
+    // 10
+    "% came to a watchtower.\0"
+    "% traveled to the great Bog.\0"
+    "% came to the Crystal Palace.\0"
+    "% came to mysterious Pixle Grove.\0"
+    "% entered the Citadel of Doom.\0"
+    // 15
+    "% entered the Burning Waste.\0"
+    "% found an oasis.\0"
+    "% came to the hidden city of Azal.\0"
+    "% discovered an outlying fort.\0"
+    "% came to a small keep.\0"
+    // 20
+    "% came to an old castle.\0"
+    "% came to a log cabin.\0"
+    "% came to a dark stone tower.\0"
+    "% came to an isolated cabin.\0"
+    "% came to the Tombs of Hemsath.\0"
+    // 25
+    "% reached the Forbidden Keep.\0"
+    "% found a cave in the hillside.\0"
+    // "He entered the garden area.\0"	// of Mar's castle
+    ;
+
+
+//
 // _inside_msg
 // 			dc.b	0	; no message
 // 			dc.b	0	; do not change
@@ -224,14 +354,44 @@
 // 			dc.b	"He entered the crypt.",0
 // 			dc.b	"He walked into the cabin.",0
 // 			dc.b	"He unlocked the door and entered.",0
-// 
+//
+
+char inside_msg[] =
+    "\0"        // no message
+    "\0"        // do not change
+    "% came to a small chamber.\0"
+    "% came to a large chamber.\0"
+    "% came to a long passageway.\0"
+    // 5
+    "% came to a twisting tunnel.\0"
+    "% came to a forked intersection.\0"
+    "He entered the keep.\0"          // itemize
+    "He entered the castle.\0"        // itemize
+    "He entered the castle of King Mar.\0"
+    // 10
+    "He entered the sanctuary of the temple.\0"
+    "% entered the Spirit Plane.\0"
+    "% came to a large room.\0"
+    "% came to an octagonal room.\0"
+    "% traveled along a stone corridor.\0"
+    // 15
+    "% came to a stone maze.\0"
+    "He entered a small building.\0"
+    "He entered the building.\0"
+    "He entered the tavern.\0"
+    "He went inside the inn.\0"
+    // 20
+    "He entered the crypt.\0"
+    "He walked into the cabin.\0"
+    "He unlocked the door and entered.\0";
+
 // 			cseg
-// 
+//
 // XY			equ		128		; then x/2 then y
 // ETX			equ		0
-// 
+//
 // 			public	_ssp,_placard_text
-// 
+//
 // _placard_text
 // 			move.l	4(sp),d0
 // 			add.w	d0,d0
@@ -240,14 +400,22 @@
 // 			add.l	(a0,d0),a0
 // 			move.l	a0,4(sp)
 // 			jmp		_ssp
-// 
+
+// TODO: placard_text - print Nth message on placard
+void placard_text(int32_t n)
+{
+    (void)n;
+    RUNLOGF("<= placard_text(%d) STUB", n);
+}
+
+//
 // mst			dc.l	msg1-mst,msg2-mst,msg3-mst,msg4-mst,msg5-mst,msg6-mst
 // 			dc.l	msg7-mst,msg7a-mst
 // 			dc.l	msg8-mst,msg8a-mst,msg8b-mst
 // 			dc.l	msg9-mst,msg9a-mst,msg9b-mst
 // 			dc.l	msg10-mst,msg10a-mst,msg10b-mst
 // 			dc.l	msg11-mst,msg11a-mst,msg12-mst
-// 
+//
 // msg1		dc.b	XY,20/2,28,'   "Rescue the Talisman!"'
 // 			dc.b	XY,20/2,39,"was the Mayor's plea."
 // 			dc.b	XY,20/2,50,'"Only the Talisman can'
@@ -257,25 +425,25 @@
 // 			dc.b	XY,20/2,94,'set out on his quest to'
 // 			dc.b	XY,20/2,105,'recover it.'
 // 			dc.b	ETX
-// 
+//
 // msg2		dc.b	XY,24/2,44,"Unfortunately for Julian,"
 // 			dc.b	XY,24/2,55,"his luck had run out."
 // 			dc.b	XY,24/2,66,"Many months passed and"
 // 			dc.b	XY,24/2,77,"Julian did not return..."
 // 			dc.b	ETX
-// 
+//
 // msg3		dc.b	XY,40/2,44,"So Phillip set out,"
 // 			dc.b	XY,40/2,55,"determined to find his"
 // 			dc.b	XY,40/2,66,"brother and complete"
 // 			dc.b	XY,40/2,77,"the quest."
 // 			dc.b	ETX
-// 
+//
 // msg4		dc.b	XY,24/2,44,"But sadly, Phillip's"
 // 			dc.b	XY,24/2,55,"cleverness could not save"
 // 			dc.b	XY,24/2,66,"him from the same fate"
 // 			dc.b	XY,24/2,77,"as his older brother."
 // 			dc.b	ETX
-// 
+//
 // msg5		dc.b	XY,30/2,30,"So Kevin took up the"
 // 			dc.b	XY,30/2,41,"quest, risking all, for"
 // 			dc.b	XY,30/2,52,"the village had grown"
@@ -289,7 +457,7 @@
 // 			dc.b	XY,25/2,45,"The Lesson of the Story:"
 // 			dc.b	XY,66/2,88,"Stay at Home!"
 // 			dc.b	ETX
-// msg7		
+// msg7
 // 			dc.b	XY,28/2,32,"Having defeated the"
 // 			dc.b	XY,28/2,43,"villanous Necromancer"
 // 			dc.b	XY,28/2,54,"and recovered the"
@@ -299,7 +467,7 @@
 // 			dc.b	XY,28/2,87,"where he wed the"
 // 			dc.b	XY,28/2,98,"princess..."
 // 			dc.b	ETX
-// 
+//
 // msg8		dc.b	XY,21/2,26,ETX
 // msg8a		dc.b	" had rescued Katra,"
 // 			dc.b	XY,21/2,37,"Princess of Marheim."
@@ -309,7 +477,7 @@
 // msg8b		dc.b	" knew that"
 // 			dc.b	XY,21/2,81," his quest could not"
 // 			dc.b	XY,21/2,92,"be forsaken.",ETX
-// 
+//
 // msg9		dc.b	XY,21/2,33,ETX
 // msg9a		dc.b	" had rescued Karla"
 // 			dc.b	XY,21/2,44,"(Katra's sister), Princess"
@@ -318,7 +486,7 @@
 // 			dc.b	XY,21/2,77,"for each other, ",ETX
 // msg9b		dc.b	XY,21/2,88,"knew that his quest"
 // 			dc.b	XY,21/2,99,"could not be forsaken.",ETX
-// 
+//
 // msg10		dc.b	XY,21/2,26,ETX
 // msg10a		dc.b	" had rescued Kandy"
 // 			dc.b	XY,21/2,37,"(Katra's and Karla's"
@@ -329,7 +497,7 @@
 // msg10b		dc.b	" knew "
 // 			dc.b	XY,21/2,92,"that his quest could"
 // 			dc.b	XY,21/2,103,"not be forsaken.",ETX
-// 
+//
 // msg11		dc.b	XY,71/2,37,"After seeing the"
 // 			dc.b	XY,35/2,48,"princess safely to her"
 // 			dc.b	XY,35/2,59,"home city, and with a"
@@ -337,7 +505,7 @@
 // 			dc.b	XY,35/2,81,ETX
 // msg11a		dc.b	" once more set"
 // 			dc.b	XY,35/2,92,"out on his quest.",ETX
-// 
+//
 // msg12		dc.b	XY,128/2,19,"So..."
 // 			dc.b	XY,34/2,65,"You, game seeker, would guide the"
 // 			dc.b	XY,10/2,75,"brothers to their destiny? You would"
@@ -347,7 +515,7 @@
 // 			dc.b	ETX
 // 			dseg
 // 			public	_speeches
-// 
+//
 // _speeches
 // ; 0 - ogre speech
 // 		dc.b	'% attempted to communicate with the Ogre '
@@ -387,7 +555,7 @@
 // ; 16 - princess message
 // 		dc.b	'"Please, sir, rescue me from this horrible prison!" '
 // 		dc.b	'pleaded the princess.',0
-// ; 17 - king messages		
+// ; 17 - king messages
 // 		dc.b	'"I cannot help you, young man." said the king. '
 // 		dc.b	'"My armies are decimated, and I fear that with the '
 // 		dc.b	'loss of my children, I have lost all hope."',0
@@ -516,4 +684,4 @@
 // ; 60 - witch powerless
 // 		dc.b	'The Sunstone has made the witch vulnerable!',0
 // 		end
-// 
+//

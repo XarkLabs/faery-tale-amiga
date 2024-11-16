@@ -11,10 +11,12 @@ My rough plan:
 * Add AmigaOS includes, tweak as needed [DONE]
 * Get C code compiling fairly cleanly with clang  [DONE]
 * Fix C types to make some sense on 64-bit modern C [DONE]
-* Add stubs and/or implementation for AmigaOS functions [ON-GOING]
-* Convert 68K asm files into C (currently entire file is commented out asm)
-* Get things linking
-* Keep working on implementing and/or fixing stubs and issues until the game "thinks" it is running (with no sound/graphics).
+* Add stubs and/or implementation for AmigaOS functions [DONE]
+* Add stubs and/or implementation for asm routines [DONE]
+* Add LOG messages to enable easier tracing [DONE]
+* Get things linking [DONE]
+  * Now game "runs" but fails rapidly until more things get implemented...
+* Keep working on implementing and/or fixing stubs and issues until the game "thinks" it is running (with no sound/graphics). [ON-GOING]
   * Need to deal with endian issues (Amiga was big endian, modern machines little)
   * load all assets in Amiga (from disk image file)
   * Possibly setup 32-bit "arena" for assets (of 32-bit pointer issues)

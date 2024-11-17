@@ -228,16 +228,21 @@ BOOL unpackbrush(char * filename, struct BitMap * bitmap, int16_t x, int16_t y)
             ReadLength();
             CHECK(1 == fread(&bmhd, blocklength, 1, myfilep));
 
-            bmhd.width = swap_endian16(bmhd.width);
-            bmhd.height = swap_endian16(bmhd.height);
-            bmhd.xpic = swap_endian16(bmhd.xpic);
-            bmhd.ypic = swap_endian16(bmhd.ypic);
-            bmhd.xAspect = swap_endian16(bmhd.xAspect);
-            bmhd.yAspect = swap_endian16(bmhd.yAspect);
-            bmhd.pageWidth = swap_endian16(bmhd.pageWidth);
+            bmhd.width      = swap_endian16(bmhd.width);
+            bmhd.height     = swap_endian16(bmhd.height);
+            bmhd.xpic       = swap_endian16(bmhd.xpic);
+            bmhd.ypic       = swap_endian16(bmhd.ypic);
+            bmhd.xAspect    = swap_endian16(bmhd.xAspect);
+            bmhd.yAspect    = swap_endian16(bmhd.yAspect);
+            bmhd.pageWidth  = swap_endian16(bmhd.pageWidth);
             bmhd.pageHeight = swap_endian16(bmhd.pageHeight);
 
-            RUNLOGF("... brush size %d x %d", bmhd.width, bmhd.height);
+            RUNLOGF("... brush size %d x %d, depth %d (%d bytes, %.02f KB)",
+                    bmhd.width,
+                    bmhd.height,
+                    bmhd.nPlanes,
+                    (((bmhd.width + 15) / 8) & 0xfffe) * bmhd.height * bmhd.nPlanes,
+                    ((((bmhd.width + 15) / 8) & 0xfffe) * bmhd.height * bmhd.nPlanes) / 1024.0);
         }
         else if (memcmp(&header, CAMG, 4) == 0 || memcmp(&header, CRNG, 4) == 0 ||
                  memcmp(&header, IFFDEST, 4) == 0 || memcmp(&header, CMAP, 4) == 4 ||

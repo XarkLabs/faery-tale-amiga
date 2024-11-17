@@ -5,42 +5,82 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <stdio.h>
 #include <string.h>
 
 #define FTA_NEXGEN 1
 #define FTA_LOG    1
 
+extern const char * c_string(const char * s, int maxlen);
+extern FILE * logfilep;
+
 #if defined(FTA_LOG)
-#define RUNLOG(msg)          fprintf(stdout, "%s\n", msg)
-#define RUNLOGF(fmtmsg, ...) fprintf(stdout, fmtmsg "\n", ##__VA_ARGS__)
+#define RUNLOG(msg)                                                                                \
+    do                                                                                             \
+    {                                                                                              \
+        fprintf(logfilep, "%s\n", msg);                                                            \
+        fprintf(stdout, "%s\n", msg);                                                              \
+        fflush(logfilep);                                                                          \
+    } while (0)
+#define RUNLOGF(fmtmsg, ...)                                                                       \
+    do                                                                                             \
+    {                                                                                              \
+        fprintf(logfilep, fmtmsg "\n", ##__VA_ARGS__);                                             \
+        fprintf(stdout, fmtmsg "\n", ##__VA_ARGS__);                                               \
+        fflush(logfilep);                                                                          \
+    } while (0)
 #else
 #define RUNLOG()  (void)
 #define RUNLOGF() (void)
 #endif
 
 // only for debug assertions (debug only)
+#ifndef NDEBUG
 #define ASSERT(e)                                                                                  \
     do                                                                                             \
     {                                                                                              \
         if (!(e))                                                                                  \
         {                                                                                          \
-            fprintf(                                                                               \
-                stdout, "ASSERT FAILED: %s:%d: %s(): ASSERT(%s);\n", __FILE__, __LINE__, __FUNCTION__, #e);    \
+            fprintf(logfilep,                                                                      \
+                    "ASSERT FAILED: %s:%d: %s(): ASSERT(%s);\n",                                   \
+                    __FILE__,                                                                      \
+                    __LINE__,                                                                      \
+                    __FUNCTION__,                                                                  \
+                    #e);                                                                           \
+            fprintf(stdout,                                                                        \
+                    "ASSERT FAILED: %s:%d: %s(): ASSERT(%s);\n",                                   \
+                    __FILE__,                                                                      \
+                    __LINE__,                                                                      \
+                    __FUNCTION__,                                                                  \
+                    #e);                                                                           \
+            fflush(logfilep);                                                                      \
             __builtin_debugtrap();                                                                 \
         }                                                                                          \
     } while (0)
+#else
 
-
+#endif
 // cheesy error checking (always performed)
 #define CHECK(chk)                                                                                 \
     do                                                                                             \
     {                                                                                              \
-        if (!(chk))                                                                                \
+        char result = (chk);                                                                        \
+        if (!result)                                                                               \
         {                                                                                          \
-            fprintf(                                                                               \
-                stdout, "CHECK FAILED: %s:%d: %s(): CHECK(%s);\n", __FILE__, __LINE__, __FUNCTION__, #chk); \
-            fflush(stdout);                                                                        \
-            __builtin_debugtrap();                                                                 \
+            fprintf(logfilep,                                                                      \
+                    "CHECK FAILED: %s:%d: %s(): CHECK(%s);\n",                                     \
+                    __FILE__,                                                                      \
+                    __LINE__,                                                                      \
+                    __FUNCTION__,                                                                  \
+                    #chk);                                                                         \
+            fprintf(stdout,                                                                        \
+                    "CHECK FAILED: %s:%d: %s(): CHECK(%s);\n",                                     \
+                    __FILE__,                                                                      \
+                    __LINE__,                                                                      \
+                    __FUNCTION__,                                                                  \
+                    #chk);                                                                         \
+            fflush(logfilep);                                                                      \
+            ASSERT(result);                                                                        \
         }                                                                                          \
     } while (0)
 

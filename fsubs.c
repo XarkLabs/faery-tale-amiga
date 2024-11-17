@@ -362,35 +362,14 @@ UBYTE hivar[] = {
 // TODO: getkey - get key from keyboard buffer
 int32_t getkey(void)
 {
-    int32_t   key = 0;
-    SDL_Event e;
-    if (SDL_PollEvent(&e))
-    {
-        switch (e.type)
-        {
-            case SDL_TEXTINPUT:
-                /* Add new text onto the end of our text */
-                if (strlen(e.text.text) == 1)
-                {
-                    key = e.text.text[1];
-                }
-                break;
-            // case SDL_TEXTEDITING:
-            //     /*
-            //     Update the composition text.
-            //     Update the cursor position.
-            //     Update the selection length (if any).
-            //     */
-            //     // composition   = e.edit.text;
-            //     // cursor        = e.edit.start;
-            //     // selection_len = e.edit.length;
-            //     break;
-        }
-    }
+    sdl_pump();
 
-    if (key != 0)
+    int key = 0;
+    if (sdl_key != 0)
     {
-        RUNLOGF("%d <= getkey() [%c]", key,key);
+        RUNLOGF("%d <= getkey() %s", sdl_key, c_string(&sdl_key, 1));
+        key = toupper(sdl_key); // TODO: uppercase only?
+        sdl_key = 0;
     }
     return key;
 }
@@ -412,7 +391,7 @@ int32_t getkey(void)
 int32_t ft_rand(void)
 {
     int32_t res = rand() & 0x7fffffff;
-// spammy    RUNLOGF("%d <= ft_rand()", res);
+    // spammy    RUNLOGF("%d <= ft_rand()", res);
     return res;
 }
 
@@ -748,7 +727,7 @@ void text(char * tptr, int32_t len)
 // TODO: ssp - screen space print (with positioning code)
 void ssp(UBYTE * mp)
 {
-    RUNLOGF("<= ssp(%p) STUB", mp);
+    RUNLOGF("<= ssp(%p)", mp);
     while (*mp)
     {
         if (*mp == XY)
@@ -760,7 +739,11 @@ void ssp(UBYTE * mp)
         }
         else
         {
-            int32_t len = strlen((const char *)mp);
+            UBYTE * tp  = mp;
+            int32_t len = 0;
+            while (*tp < 128 && *tp++)
+                len++;
+
             Text(rp, (char *)mp, len);
             mp += len;
         }

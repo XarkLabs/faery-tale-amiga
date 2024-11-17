@@ -104,7 +104,7 @@ void ChangeSprite(struct ViewPort * vp, struct SimpleSprite * sprite, PLANEPTR n
 // TODO: DisownBlitter -- return blitter to free state.
 void DisownBlitter(void)
 {
-    RUNLOG("<= graphics.DisownBlitter() STUB");
+    // spammy    RUNLOG("<= graphics.DisownBlitter() STUB");
 }
 
 // TODO: FreeColorMap -- Free the ColorMap structure and return memory
@@ -227,7 +227,7 @@ void LoadRGB4(struct ViewPort * vp, UWORD * colors, int32_t count)
     (void)vp;
     (void)colors;
     (void)count;
-    RUNLOGF("<= graphics.LoadRGB4(%p, %p, %d) STUB", vp, colors, count);
+    // spammy    RUNLOGF("<= graphics.LoadRGB4(%p, %p, %d) STUB", vp, colors, count);
 }
 
 // TODO: LoadView -- Use a (possibly freshly created) coprocessor instruction list to create the
@@ -235,7 +235,7 @@ void LoadRGB4(struct ViewPort * vp, UWORD * colors, int32_t count)
 void LoadView(struct View * view)
 {
     (void)view;
-//    RUNLOGF("<= graphics.LoadView(%p) STUB", view);
+    //    RUNLOGF("<= graphics.LoadView(%p) STUB", view);
 }
 
 // TODO: MakeVPort -- generate display copper list for a viewport.
@@ -244,7 +244,7 @@ ULONG MakeVPort(struct View * view, struct ViewPort * vp)
     ULONG res = 0;
     (void)view;
     (void)vp;
-//    RUNLOGF("%d <= graphics.MakeVPort(%p, %p) STUB", res, view, vp);
+    //    RUNLOGF("%d <= graphics.MakeVPort(%p, %p) STUB", res, view, vp);
     return res;
 }
 
@@ -262,7 +262,7 @@ ULONG MrgCop(struct View * view)
 {
     ULONG res = 0;
     (void)view;
-//    RUNLOGF("%d <= graphics.MrgCop(%p) STUB", res, view);
+    //    RUNLOGF("%d <= graphics.MrgCop(%p) STUB", res, view);
     return res;
 }
 
@@ -278,7 +278,7 @@ struct TextFont * OpenFont(struct TextAttr * textAttr)
 // TODO: OwnBlitter -- get the blitter for private usage
 void OwnBlitter(void)
 {
-    RUNLOG("<= graphics.OwnBlitter() STUB");
+    // spammy    RUNLOG("<= graphics.OwnBlitter() STUB");
 }
 
 // TODO: RectFill -- Fill a rectangular region in a RastPort.
@@ -324,7 +324,7 @@ void SetAPen(struct RastPort * rp, uint32_t pen)
 {
     (void)rp;
     (void)pen;
-    RUNLOGF("<= graphics.SetAPen(%p, %d) STUB", rp, pen);
+    // spammy    RUNLOGF("<= graphics.SetAPen(%p, %d) STUB", rp, pen);
 }
 
 // TODO: SetBPen -- Set the secondary pen for a RastPort.
@@ -332,7 +332,7 @@ void SetBPen(struct RastPort * rp, uint32_t pen)
 {
     (void)rp;
     (void)pen;
-    RUNLOGF("<= graphics.SetBPen(%p, %d) STUB", rp, pen);
+    // spammy    RUNLOGF("<= graphics.SetBPen(%p, %d) STUB", rp, pen);
 }
 
 // TODO: SetDrMd -- Set drawing mode for a RastPort
@@ -340,7 +340,7 @@ void SetDrMd(struct RastPort * rp, uint32_t drawMode)
 {
     (void)rp;
     (void)drawMode;
-    RUNLOGF("<= graphics.SetDrMd(%p, %d) STUB", rp, drawMode);
+    // spammy    RUNLOGF("<= graphics.SetDrMd(%p, %d) STUB", rp, drawMode);
 }
 
 // TODO: SetRast - Set an entire drawing area to a specified color.
@@ -378,12 +378,7 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
     (void)rp;
     (void)string;
     (void)count;
-    RUNLOGF("%d <= graphics.Text(%p, \"%*s\", %d) STUB",
-            res,
-            rp,
-            count < 100 ? count : 100,
-            string,
-            count);
+    RUNLOGF("%d <= graphics.Text(%p, %s, %d) STUB", res, rp, c_string(string, count), count);
     return res;
 }
 
@@ -391,13 +386,13 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
 void WaitBOVP(struct ViewPort * vp)
 {
     (void)vp;
-//    RUNLOGF("<= graphics.WaitBOVP(%p) STUB", vp);
+    //    RUNLOGF("<= graphics.WaitBOVP(%p) STUB", vp);
 }
 
 // TODO: WaitBlit -- Wait for the blitter to be finished before proceeding
 void WaitBlit(void)
 {
-    RUNLOG("<= graphics.WaitBlit() STUB");
+    // spammy    RUNLOG("<= graphics.WaitBlit() STUB");
 }
 
 // EOF

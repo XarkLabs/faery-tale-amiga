@@ -199,10 +199,16 @@ extern UBYTE hivar[];
 extern char event_msg[];
 extern char speeches[];
 
+extern char endload[2];
+
+extern struct in_work   handler_data;
+extern struct TextFont *tfont, *afont;
+
 // Xark includes after structs
 #include "fmain.h"
 #include "fmain2.h"
 #include "iffsubs.h"
+#include "sdlsubs.h"
 
 // Xark: Functions below are from assembly files
 // TODO: Clean these up

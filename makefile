@@ -32,7 +32,7 @@ fta: $(OBJS)
 $(OBJS): $(INCLUDE) $(MAKEFILE_LIST)
 
 debug: all
-	killall -9 fta
+	-killall -9 fta
 	lldb -b -o run ./fta
 
 clean:

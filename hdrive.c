@@ -148,6 +148,14 @@ void load_track_range(int16_t f_block, int16_t b_count, APTR buffer, int16_t dr)
     // }
     // else
     {
+        RUNLOGF("<= load_track_range(%d, %d, %p) [@0x%x, 0x%x bytes/%.2f KB]",
+                f_block,
+                b_count,
+                buffer,
+                f_block * 512,
+                b_count * 512,
+                (b_count * 512) / 1024.0);
+
         CHECK(0 == fseek(filep, f_block * 512, SEEK_SET));
         CHECK(1 == fread(buffer, b_count * 512, 1, filep));
     }

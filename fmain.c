@@ -1136,9 +1136,9 @@ char pass, passmode;
 
 void read_sample(void)
 {
-    int32_t           ifflen;
-    register uint8_t *smem;
-    register int32_t  i;
+    int32_t            ifflen;
+    register uint8_t * smem;
+    register int32_t   i;
 
     RUNLOG("<= read_sample()");
 
@@ -1155,6 +1155,22 @@ void read_sample(void)
         sample[i]      = smem;
         sample_size[i] = ifflen;
         RUNLOGF("... audio sample[%d] len %d", i, ifflen);
+
+// enable to extract FTA samples as RAW audio data
+#if 0
+        {
+            char   rawname[32];
+            FILE * fp;
+            sprintf(rawname, "fta_audio_sample_%d.raw", i);
+            printf("Writing RAW audio data to \'%s\", %d bytes\n", rawname, ifflen);
+            if ((fp = fopen(rawname, "w")))
+            {
+                CHECK(1 == fwrite(smem, ifflen, 1, fp));
+                fclose(fp);
+            }
+        }
+#endif
+
         smem += ifflen;
     }
 }
@@ -1279,8 +1295,7 @@ found:
 
 extern UBYTE titletext[];
 
-struct SDL_Renderer * sdl_renderer;
-struct SDL_Window *   sdl_window;
+FILE * logfilep;
 
 int main(int argc, char ** argv)
 {
@@ -1290,31 +1305,18 @@ int main(int argc, char ** argv)
     int16_t          dif_x, dif_y, xstart, ystart, xstop, ystop;
     uint16_t         xtest, ytest;
     struct shape *   an;
+    int              res = 0;
 
     (void)argc;
     (void)argv;
 
-    RUNLOGF("FTA main(%d, %p)", argc, argv);
-
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    res = sdl_init();
+    if (res)
     {
-        fprintf(stderr, "SDL_Init() failed: %s\n", SDL_GetError());
-        return EXIT_FAILURE;
+        return res;
     }
 
-    sdl_window = SDL_CreateWindow("Faery Tale Adventure",
-                                  SDL_WINDOWPOS_CENTERED,
-                                  SDL_WINDOWPOS_CENTERED,
-                                  320,
-                                  200,
-                                  SDL_WINDOW_SHOWN);
-
-    sdl_renderer = SDL_CreateRenderer(sdl_window, -1, SDL_RENDERER_SOFTWARE);
-    SDL_RenderSetScale(sdl_renderer, 1, 1);
-    SDL_SetRenderDrawColor(sdl_renderer, 0, 0, 0, 255);
-    SDL_RenderClear(sdl_renderer);
-
-    SDL_StartTextInput();
+    RUNLOGF("*** FTA main(%d, %p)", argc, argv);
 
     // TODO: Xark needed?
     //     if (argc == 0)
@@ -1470,14 +1472,14 @@ no_intro:
     print_options();
 
     /* main program loop */
-    RUNLOG("FTA main loop");
-    __builtin_debugtrap();
+    RUNLOG("*** FTA main loop ***");
 
     cheat1 = quitflag = FALSE;
     while (!quitflag)
     {
         int16_t  cycle = 0, atype, inum = 0, notpause;
-        BYTE *   pia = (BYTE *)0xbfe001;
+// Xark:        BYTE *   pia = (BYTE *)0xbfe001;
+        BYTE *   pia = (BYTE *)"\0";
         uint8_t *backalloc, crack;
 
         cycle++;
@@ -1702,7 +1704,7 @@ no_intro:
         }
         else if (inum == DYING || inum == SINK || inum == SLEEP)
             ;
-        else if (handler_data.qualifier & 0x2000 || keyfight || (*pia & (128)) == 0)
+        else if (handler_data.qualifier & IEQUALIFIER_RBUTTON || keyfight || (*pia & (128)) == 0)
         {
             dif_x = anim_list[0].vel_x;
             dif_y = anim_list[0].vel_y;
@@ -1763,7 +1765,7 @@ no_intro:
                         oldir = (oldir - 1 & 7);
                 }
                 anim_list[0].facing = oldir;
-                if (handler_data.qualifier & 0x4000 || keydir)
+                if (handler_data.qualifier & IEQUALIFIER_LEFTBUTTON || keydir)
                     inum = WALKING;
             }
             else
@@ -4127,7 +4129,7 @@ void gen_mini(void)
 }
 
 uint32_t frame_counter;
-void pagechange(void)
+void     pagechange(void)
 {
     register struct fpage * temp;
 
@@ -4143,6 +4145,8 @@ void pagechange(void)
     MrgCop(&v);
     LoadView(&v);
     temp->savecop = v.LOFCprList;
+
+    sdl_endframe();
 
     WaitBOVP(&vp_text);
 }

@@ -923,7 +923,7 @@ motor_off()
 // {
 //     cpytest();
 //     /* diskreqs[9] = *diskreq1 */;
-// 
+//
 //     /*    diskreqs[9].iotd_Req.io_Length = 512;
 //         diskreqs[9].iotd_Req.io_Data = (APTR)shape_mem;
 //         diskreqs[9].iotd_Req.io_Offset = 0;
@@ -1659,12 +1659,17 @@ BOOL copy_protect_junk(void)
             }
             ft_rand();
         }
+        answr[i++] = '\0';
         b = answr;
-#ifndef NO_PROTECT
+        RUNLOGF("... Checking: answer \"%s\" vs expected \"%s\"", b, a);
         while (*a)
+        {
             if (*a++ != *b++)
-                return FALSE;
-#endif
+            {
+                RUNLOG("... Nope, but close enough. :-)");
+                break;
+            }
+        }
         answers[j] = NULL;
     }
     return TRUE;
@@ -1735,14 +1740,9 @@ int32_t sverr;
 // Xark: char    savename[] = "df1:A.faery";
 char savename[64];
 
-extern char endload[2];
-
-extern struct in_work   handler_data;
-extern struct TextFont *tfont, *afont;
-
 // struct FileLock *Lock(), *flock;
 // BPTR flock;
-// 
+//
 // int locktest(char * name, int32_t access)
 // {
 //     flock = Lock(name, access);
@@ -1755,14 +1755,14 @@ extern struct TextFont *tfont, *afont;
 // int cpytest(void)
 // {
 //         BOOL IsHardDrive(void);
-//     
+//
 //         if (IsHardDrive() == FALSE)
 //         {
 //             struct DeviceList * fdev;
 //             struct FileLock *   fl;
-//     
+//
 //             (void)fdev;        // Xark: might be used
-//     
+//
 //             flock = Lock("df0:", ACCESS_READ);
 //             if (flock)
 //             {
@@ -1779,7 +1779,7 @@ extern struct TextFont *tfont, *afont;
 //         else
 //         {
 //             static ULONG buffer[512 / 4];
-//     
+//
 //             load_track_range(880, 1, buffer, 0);
 //             if (buffer[123] != 230)
 //                 close_all();

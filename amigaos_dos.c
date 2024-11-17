@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include <SDL.h>
+#include "sdlsubs.h"
 
 // // TODO: Close -- Close an open file
 // LONG Close(BPTR bfile)
@@ -20,7 +21,12 @@ void Delay(int32_t timeout)
 {
     (void)timeout;
     RUNLOGF("<= dos.Delay(%d)", timeout);
-    SDL_Delay(timeout * 20);        // convert to milliseconds
+
+    while (timeout-- > 0)
+    {
+        sdl_pump();
+        SDL_Delay(1 /* 20 */);        // convert to milliseconds // FIXME: fast time
+    }
 }
 
 // IoErr -- Return extra information from the system
@@ -57,9 +63,9 @@ BPTR LoadSeg(STRPTR name)
 //     (void)name;
 //     (void)accessMode;
 //     RUNLOGF("    dos.Open(\"%s\", 0x%x) STUB", res, name, accessMode);
-// 
+//
 //     char *of;
-// 
+//
 //     if (accessMode == MODE_OLDFILE)
 //     {
 //         of = "r";
@@ -68,9 +74,9 @@ BPTR LoadSeg(STRPTR name)
 //     {
 //         assert(0);
 //     }
-// 
+//
 //     res = fopen(name, of);
-// 
+//
 //     RUNLOGF("0x%x <=", res);
 //     return res;
 // }

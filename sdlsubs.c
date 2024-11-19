@@ -266,7 +266,7 @@ void sdl_update_cursor(struct ViewPort * vp)
     SDL_ShowCursor(SDL_ENABLE);
 }
 
-#define FLIPSPAM 0
+#define FLIPSPAM 1
 
 void sdl_endframe(void)
 {
@@ -307,7 +307,7 @@ void sdl_endframe(void)
 #endif
 
         float x_window_scale = 2.0f;
-        float y_window_scale = 2.0f;    // * (480.0 / 400);
+        float y_window_scale = 2.0f;
 
         if (curvp->Modes & HIRES)
         {
@@ -317,11 +317,13 @@ void sdl_endframe(void)
         // ignore if height <= 0
         if (curvp->DHeight > 0)
         {
-            DPRINTF("... [render surface to %d,%d - %d,%d]\n",
+            DPRINTF("... [render surface to %d,%d - %d,%d, xy_scale %.02f, %.02f]\n",
                     curvp->DxOffset,
                     curvp->DyOffset,
                     curvp->DWidth,
-                    curvp->DHeight);
+                    curvp->DHeight,
+                    x_window_scale,
+                    y_window_scale);
             SDL_Texture * texture = SDL_CreateTextureFromSurface(sdl_renderer, s);
             SDL_Rect      sr      = {0, 0, curvp->DWidth, curvp->DHeight};
             SDL_Rect      dr      = {curvp->DxOffset * x_window_scale,
@@ -350,6 +352,113 @@ void sdl_endframe(void)
     DPRINT("=== SDL_RenderPresent(sdl_renderer)\n\n");
 }
 
+// Original AmigaCode -> FT_KEY table
+// See https://wiki.amigaos.net/wiki/Keymap_Library#Keyboard_Layout
+// keytrans	dc.b	"`1234567890-=\?0"
+// 			dc.b	"QWERTYUIOP{}?",26,25,24
+// 			dc.b	"ASDFGHJKL:???",27,29,23
+// 			dc.b	"?ZXCVBNM,.??.",20,21,22
+// 			dc.b	$20,$08,$09,$0D,$0D,$1B,$7F,0,0,0,$2D,0,1,2,3,4
+// 			dc.b	10,11,12,13,14,15,16,17,18,19,0,0,0,0,0,0
+//
+struct
+{
+    int32_t sdl_key;
+    int32_t ft_key;
+} sdl_to_ft_key[] = {
+    // SDL_KEY, FT_KEY             // Amiga KeyCode
+    {SDLK_BACKQUOTE, '`'},           // 00
+    {SDLK_1, '1'},                   // 01
+    {SDLK_2, '2'},                   // 02
+    {SDLK_3, '3'},                   // 03
+    {SDLK_4, '4'},                   // 04
+    {SDLK_5, '5'},                   // 05
+    {SDLK_6, '6'},                   // 06
+    {SDLK_7, '7'},                   // 07
+    {SDLK_8, '8'},                   // 08
+    {SDLK_9, '9'},                   // 09
+    {SDLK_0, '0'},                   // 0A
+    {SDLK_MINUS, '-'},               // 0B
+    {SDLK_EQUALS, '='},              // 0C
+    {SDLK_BACKSLASH, '\\'},          // 0D
+                                     // 0E
+    {SDLK_KP_0, '0'},                // 0F
+    {SDLK_q, 'Q'},                   // 10
+    {SDLK_w, 'W'},                   // 11
+    {SDLK_e, 'E'},                   // 12
+    {SDLK_r, 'R'},                   // 13
+    {SDLK_t, 'T'},                   // 14
+    {SDLK_y, 'Y'},                   // 15
+    {SDLK_i, 'I'},                   // 16
+    {SDLK_o, 'O'},                   // 17
+    {SDLK_u, 'U'},                   // 18
+    {SDLK_p, 'P'},                   // 19
+    {SDLK_LEFTBRACKET, '{'},         // 1A
+    {SDLK_RIGHTBRACKET, '}'},        // 1B
+                                     // 1C
+    {SDLK_KP_1, 26},                 // 1D
+    {SDLK_KP_2, 25},                 // 1E
+    {SDLK_KP_3, 24},                 // 1F
+    {SDLK_a, 'A'},                   // 20
+    {SDLK_s, 'S'},                   // 21
+    {SDLK_d, 'D'},                   // 22
+    {SDLK_f, 'F'},                   // 23
+    {SDLK_g, 'G'},                   // 24
+    {SDLK_h, 'H'},                   // 25
+    {SDLK_j, 'J'},                   // 26
+    {SDLK_k, 'K'},                   // 27
+    {SDLK_l, 'L'},                   // 28
+    {SDLK_SEMICOLON, ':'},           // 29
+                                     // 2A
+                                     // 2B
+                                     // 2C
+    {SDLK_KP_4, 27},                 // 2D
+    {SDLK_KP_5, 29},                 // 2E
+    {SDLK_KP_6, 23},                 // 2F
+                                     // 30
+    {SDLK_z, 'Z'},                   // 31
+    {SDLK_x, 'X'},                   // 32
+    {SDLK_c, 'C'},                   // 33
+    {SDLK_v, 'V'},                   // 34
+    {SDLK_b, 'B'},                   // 35
+    {SDLK_n, 'N'},                   // 36
+    {SDLK_m, 'M'},                   // 37
+    {SDLK_COMMA, ','},               // 38
+    {SDLK_PERIOD, '.'},              // 39
+                                     // 3A
+                                     // 3B
+    {SDLK_KP_PERIOD, '.'},           // 3C
+    {SDLK_KP_7, 20},                 // 3D
+    {SDLK_KP_8, 21},                 // 3E
+    {SDLK_KP_9, 22},                 // 3F
+    {SDLK_SPACE, ' '},               // 40
+    {SDLK_BACKSPACE, '\b'},          // 41
+    {SDLK_TAB, '\t'},                // 42
+    {SDLK_RETURN, '\r'},             // 43
+    {SDLK_KP_ENTER, '\r'},           // 44
+    {SDLK_ESCAPE, '\x1b'},           // 45
+    {SDLK_DELETE, '\x7f'},           // 46
+                                     // 47
+                                     // 48
+                                     // 49
+    {SDLK_KP_MINUS, '-'},            // 4A
+                                     // 4B
+    {SDLK_UP, 1},                    // 4C
+    {SDLK_DOWN, 2},                  // 4D
+    {SDLK_RIGHT, 3},                 // 4E
+    {SDLK_LEFT, 4},                  // 4F
+    {SDLK_F1, 10},                   // 50
+    {SDLK_F2, 11},                   // 51
+    {SDLK_F3, 12},                   // 52
+    {SDLK_F4, 13},                   // 53
+    {SDLK_F5, 14},                   // 54
+    {SDLK_F6, 15},                   // 55
+    {SDLK_F7, 16},                   // 56
+    {SDLK_F8, 17},                   // 57
+    {SDLK_F9, 18},                   // 58
+    {SDLK_F10, 19},                  // 59
+};
+
 void sdl_pump(void)
 {
     SDL_Event e;
@@ -365,53 +474,37 @@ void sdl_pump(void)
                 break;
 
             case SDL_KEYDOWN:
-                if (e.key.keysym.sym == SDLK_ESCAPE)
+                // Ctrl-C or Ctrl-ESC to quit
+                if (e.key.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL) &&
+                    ((e.key.keysym.sym == SDLK_c) || (e.key.keysym.sym == SDLK_ESCAPE)))
                 {
-                    // TODO: ESC to quit is abrupt, but nice for development
-                    RUNLOG("... ESC pressed");
-                    sdl_quit = TRUE;
+                    if ((e.key.keysym.sym == SDLK_c) || (e.key.keysym.sym == SDLK_ESCAPE))
+                    {
+                        RUNLOG("... QUIT key pressed");
+                        sdl_quit = TRUE;
+                    }
                 }
                 else
                 {
-                    if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_RETURN2 ||
-                        e.key.keysym.sym == SDLK_KP_ENTER)
+                    for (uint32_t ki = 0; ki < NUM_ELEMENTS(sdl_to_ft_key); ki++)
                     {
-                        sdl_key = '\r';
+                        if (e.key.keysym.sym == sdl_to_ft_key[ki].sdl_key)
+                        {
+                            sdl_key = sdl_to_ft_key[ki].ft_key;
+                            break;
+                        }
                     }
-                    else if (e.key.keysym.sym == SDLK_BACKSPACE || e.key.keysym.sym == SDLK_DELETE)
-                    {
-                        sdl_key = '\b';
-                    }
-                    else
-                    {
-                        sdl_key = e.key.keysym.sym;
-                    }
-                    // {
-                    //     char kstr[2] = {0};
-                    //     kstr[0]      = (char)e.key.keysym.sym;
-                    //     RUNLOGF("... KEYDOWN 0x%02x %s", sdl_key, c_string(kstr, 1));
-                    // }
                 }
                 break;
             case SDL_KEYUP:
-                if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_RETURN2 ||
-                    e.key.keysym.sym == SDLK_KP_ENTER)
+                for (uint32_t ki = 0; ki < NUM_ELEMENTS(sdl_to_ft_key); ki++)
                 {
-                    sdl_key = '\r' | IECODE_UP_PREFIX;
+                    if (e.key.keysym.sym == sdl_to_ft_key[ki].sdl_key)
+                    {
+                        sdl_key = sdl_to_ft_key[ki].ft_key | IECODE_UP_PREFIX;
+                        break;
+                    }
                 }
-                else if (e.key.keysym.sym == SDLK_BACKSPACE || e.key.keysym.sym == SDLK_DELETE)
-                {
-                    sdl_key = '\b' | IECODE_UP_PREFIX;
-                }
-                else
-                {
-                    sdl_key = e.key.keysym.sym | IECODE_UP_PREFIX;
-                }
-                // {
-                //     char kstr[2] = {0};
-                //     kstr[0]      = (char)e.key.keysym.sym;
-                //     RUNLOGF("... KEYUP 0x%02x %s", sdl_key, c_string(kstr, 1));
-                // }
                 break;
             case SDL_MOUSEMOTION:
                 handler_data.xsprite = e.motion.x;
@@ -421,7 +514,6 @@ void sdl_pump(void)
                 handler_data.xsprite = e.motion.x;
                 handler_data.ysprite = e.motion.y;
                 RUNLOGF("*SDL* mousedown: %d,%d", handler_data.xsprite, handler_data.ysprite);
-
                 break;
             case SDL_MOUSEBUTTONUP:
                 RUNLOGF("*SDL* mouseup: %d,%d", handler_data.xsprite, handler_data.ysprite);

@@ -104,6 +104,8 @@ extern FILE * logfilep;
         }                                                                                          \
     } while (0)
 
+#define NUM_ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
+
 // SDL things
 extern struct SDL_Surface * sdl_cursor_image;
 extern struct SDL_Cursor * sdl_cursor;

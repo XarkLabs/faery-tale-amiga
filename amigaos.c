@@ -36,10 +36,15 @@ void Delay(int32_t timeout)
     (void)timeout;
     // spammy    RUNLOGF("<= dos.Delay(%d)", timeout);
 
+    if (timeout > 50 && timeout < 0x8000)        // FIXME: fast time
+        timeout = 50;
+
+    timeout &= 0x7fff;
+
     while (timeout-- > 0)
     {
         sdl_pump();
-        SDL_Delay(1 /* 20 */);        // convert to milliseconds // FIXME: fast time
+        SDL_Delay(20);        // convert to milliseconds
     }
 }
 
@@ -121,9 +126,10 @@ void ChangeSprite(struct ViewPort * vp, uint16_t width, uint16_t height, UBYTE *
     ASSERT(width == 16);
     if (!sdl_cursor_image)
     {
-        sdl_cursor_image = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
+        sdl_cursor_image =
+            SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
     }
-        
+
     if (!SDL_LockSurface(sdl_cursor_image))
     {
         uint16_t * sb = (uint16_t *)newData;
@@ -358,11 +364,6 @@ void OwnBlitter(void)
 // TODO: RectFill -- Fill a rectangular region in a RastPort.
 void RectFill(struct RastPort * rp, int32_t xMin, int32_t yMin, int32_t xMax, int32_t yMax)
 {
-    (void)rp;
-    (void)xMin;
-    (void)yMin;
-    (void)xMax;
-    (void)yMax;
     RUNLOGF("<= graphics.RectFill(%p, %d, %d, %d, %d)", rp, xMin, yMin, xMax, yMax);
     SDL_Rect dr = {xMin, yMin, xMax - xMin, yMax - yMin};
     SDL_FillRect(rp->BitMap->Surface, &dr, rp->FgPen);
@@ -398,8 +399,6 @@ void ScrollRaster(struct RastPort * rp,
 // TODO: SetAPen -- Set the primary pen for a RastPort.
 void SetAPen(struct RastPort * rp, uint32_t pen)
 {
-    (void)rp;
-    (void)pen;
     // spammy    RUNLOGF("<= graphics.SetAPen(%p, %d) STUB", rp, pen);
     rp->FgPen = pen;
 }
@@ -407,8 +406,6 @@ void SetAPen(struct RastPort * rp, uint32_t pen)
 // TODO: SetBPen -- Set the secondary pen for a RastPort.
 void SetBPen(struct RastPort * rp, uint32_t pen)
 {
-    (void)rp;
-    (void)pen;
     // spammy    RUNLOGF("<= graphics.SetBPen(%p, %d) STUB", rp, pen);
     rp->BgPen = pen;
 }
@@ -416,8 +413,6 @@ void SetBPen(struct RastPort * rp, uint32_t pen)
 // TODO: SetDrMd -- Set drawing mode for a RastPort
 void SetDrMd(struct RastPort * rp, uint32_t drawMode)
 {
-    (void)rp;
-    (void)drawMode;
     // spammy    RUNLOGF("<= graphics.SetDrMd(%p, %d) STUB", rp, drawMode);
     rp->DrawMode = drawMode;
 }
@@ -449,29 +444,21 @@ void SetRGB4(struct ViewPort * vp, int32_t index, uint32_t red, uint32_t green, 
     (void)green;
     (void)blue;
 
-    if (vp->RasInfo->BitMap->Surface && vp->RasInfo->BitMap->Surface->format &&
-        vp->RasInfo->BitMap->Surface->format->palette)
-    {
-        static SDL_Color sdl_color;
-        sdl_color.r = ((red & 0xf00) >> 4) | ((red & 0xf00) >> 8);
-        sdl_color.g = ((green & 0xf0) >> 0) | ((green & 0xf0) >> 4);
-        sdl_color.b = ((blue & 0xf) << 4) | ((blue & 0xf) << 0);
-        sdl_color.a = 0xff;
-        RUNLOGF("SetRGB4 -> [#%2d %02x%02x%02x%02x = %1x%1x%1x]",
-                index,
-                sdl_color.r,
-                sdl_color.g,
-                sdl_color.b,
-                sdl_color.a,
-                red,
-                green,
-                blue);
-        SDL_SetPaletteColors(vp->RasInfo->BitMap->Surface->format->palette, &sdl_color, index, 1);
-    }
-    else
-    {
-        RUNLOGF("SetRGB4 colors %d NOT set", index);
-    }
+    static SDL_Color sdl_color;
+    sdl_color.r = ((red & 0xf00) >> 4) | ((red & 0xf00) >> 8);
+    sdl_color.g = ((green & 0xf0) >> 0) | ((green & 0xf0) >> 4);
+    sdl_color.b = ((blue & 0xf) << 4) | ((blue & 0xf) << 0);
+    sdl_color.a = 0xff;
+    RUNLOGF("SetRGB4 -> [#%2d %02x%02x%02x%02x = %1x%1x%1x]",
+            index,
+            sdl_color.r,
+            sdl_color.g,
+            sdl_color.b,
+            sdl_color.a,
+            red,
+            green,
+            blue);
+    SDL_SetPaletteColors(vp->RasInfo->BitMap->Surface->format->palette, &sdl_color, index, 1);
 }
 
 // Text -- Write text characters (no formatting).
@@ -488,9 +475,13 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
     {
         len = count;
     }
-    SDL_Rect dr = {rp->cp_x, rp->cp_y, len * 9, 11};
     RUNLOGF("... [text rect %d,%d - %d,%d, pen=%d]", rp->cp_x, rp->cp_y, len * 9, 11, rp->FgPen);
-    SDL_FillRect(rp->BitMap->Surface, &dr, rp->FgPen);        // TODO: Text render
+    for (uint32_t x = 0; x < len; x++)
+    {
+        SDL_Rect dr = {rp->cp_x, rp->cp_y, 8, 9};
+        SDL_FillRect(rp->BitMap->Surface, &dr, rp->FgPen);        // TODO: Real Text render
+        rp->cp_x += 9;
+    }
 
     return res;
 }

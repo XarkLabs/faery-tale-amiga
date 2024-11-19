@@ -7,6 +7,30 @@
 
 #include "amigaos.h"        // Xark: most AmigaOS includes (like "amiga39.pre")
 
+// FTA defines and sizes
+
+/* playing map is 6 * 19 = 114 */ // Xark: Or 120? 
+
+#define TERRA_BLOCK 149
+#define NO_REGION   10
+
+#define MAXCOORD (16 * 16 * 128)
+#define MAXMASK  MAXCOORD - 1
+
+#define QPLAN_SZ   4096           /* 1 plane of 64 chars */
+#define IPLAN_SZ   16384          /* 1 plane of 256 chars */
+#define IMAGE_SZ   (IPLAN_SZ * 5) /* 5 planes of 256 chars - 81K */
+#define SHAPE_SZ   (78000)
+#define SHADOW_SZ  8192 + 4096          /* background masks */
+#define SECTOR_SZ  ((128 * 256) + 4096) /* 256 sectors - 32K+4K region map */
+#define SECTOR_OFF (128 * 256)          /* 256 sectors - 32K */
+#define SAMPLE_SZ  (5632)               /* 5K for samples */
+
+#define S_WAVBUF (128 * 8)
+#define S_VOLBUF (10 * 256)
+#define VOICE_SZ (S_WAVBUF + S_VOLBUF)
+#define SCORE_SZ 5900
+
 /* motion states */
 #define WALKING  12
 #define STILL    13

@@ -12,6 +12,8 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
+#define DEBUG_WINDOW 1
+
 char raw_asset_fname[128];
 
 BOOL sdl_quit;
@@ -20,9 +22,13 @@ uint8_t sdl_key;
 
 struct SDL_Renderer * sdl_renderer;
 struct SDL_Window *   sdl_window;
-SDL_Joystick *        sdl_controller;
-struct SDL_Surface *  sdl_cursor_image;
-struct SDL_Cursor *   sdl_cursor;
+#if DEBUG_WINDOW
+struct SDL_Renderer * sdl_debug_renderer;
+struct SDL_Window *   sdl_debug_window;
+#endif
+SDL_Joystick *       sdl_controller;
+struct SDL_Surface * sdl_cursor_image;
+struct SDL_Cursor *  sdl_cursor;
 
 // TODO: Check if already big-endian
 uint32_t swap_endian(uint32_t v)
@@ -178,16 +184,25 @@ int sdl_init(void)
         return EXIT_FAILURE;
     }
 
+#if DEBUG_WINDOW
+    sdl_debug_window = SDL_CreateWindow(
+        "FTA Debug", SDL_WINDOWPOS_CENTERED_DISPLAY(1), 10, 320, 240, SDL_WINDOW_SHOWN);
+    sdl_debug_renderer = SDL_CreateRenderer(sdl_debug_window, -1, 0);
+    SDL_RenderSetScale(sdl_renderer, 640.0 / 640, 480.0 / 400);
+    SDL_SetRenderDrawColor(sdl_debug_renderer, 0x20, 0x00, 0x00, 255);
+    SDL_RenderClear(sdl_debug_renderer);
+    SDL_RenderPresent(sdl_debug_renderer);
+#endif
+
     sdl_window = SDL_CreateWindow("Faery Tale Adventure",
                                   SDL_WINDOWPOS_CENTERED,
                                   SDL_WINDOWPOS_CENTERED,
                                   640,
                                   480,
                                   SDL_WINDOW_SHOWN);
-
     sdl_renderer =
         SDL_CreateRenderer(sdl_window, -1, /* SDL_RENDERER_SOFTWARE | */ SDL_RENDERER_PRESENTVSYNC);
-    SDL_RenderSetScale(sdl_renderer, 1, 1);
+    SDL_RenderSetScale(sdl_renderer, 640.0 / 640, 480.0 / 400);
     SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x40, 0x90, 255);        // Amiga blue
     SDL_RenderClear(sdl_renderer);
     SDL_RenderPresent(sdl_renderer);
@@ -226,11 +241,14 @@ void sdl_exit(int retval)
     exit(retval);
 }
 
-uint16_t hack_cursor[] = {0x0000, 0x0c74, 0x0d96, 0x0fca};  // TODO: get from VP
+uint16_t hack_cursor[] = {0x0000,
+                          0x0c74,
+                          0x0d96,
+                          0x0fca};        // TODO: get colors from proper place
 
 void sdl_update_cursor(struct ViewPort * vp)
 {
-    (void) vp;
+    (void)vp;
     SDL_Color t                                  = {0, 0, 0, 0};
     sdl_cursor_image->format->palette->colors[0] = t;
     for (int i = 1; i < 4; i++)
@@ -239,7 +257,8 @@ void sdl_update_cursor(struct ViewPort * vp)
         SDL_Color sc = amiga_color(ac);        // 16 is offset due to sprite 0
         sdl_cursor_image->format->palette->colors[i] = sc;
 
-        RUNLOGF("... [sprite #%2d %02x%02x%02x%02x = %04x", i, sc.r, sc.g, sc.b, sc.a, ac);
+        // spammy        RUNLOGF("... [sprite #%2d %02x%02x%02x%02x = %04x", i, sc.r, sc.g, sc.b,
+        // sc.a, ac);
     }
 
     sdl_cursor = SDL_CreateColorCursor(sdl_cursor_image, 0, 0);
@@ -287,20 +306,33 @@ void sdl_endframe(void)
         print_bitmap_info("RasInfo.BitMap", curvp->RasInfo->BitMap);
 #endif
 
+        float x_window_scale = 2.0f;
+        float y_window_scale = 2.0f;    // * (480.0 / 400);
+
+        if (curvp->Modes & HIRES)
+        {
+            x_window_scale = 1.0f;
+        }
+
         // ignore if height <= 0
         if (curvp->DHeight > 0)
         {
-#if FLIPSPAM
-            DPRINTF("... [render surface to %d,%d]", curvp->DxOffset, curvp->DyOffset);
-#endif
-
+            DPRINTF("... [render surface to %d,%d - %d,%d]\n",
+                    curvp->DxOffset,
+                    curvp->DyOffset,
+                    curvp->DWidth,
+                    curvp->DHeight);
             SDL_Texture * texture = SDL_CreateTextureFromSurface(sdl_renderer, s);
-            SDL_Rect      dr      = {curvp->DxOffset, curvp->DyOffset, 0x7fff, 0x7fff};
-            SDL_RenderCopy(sdl_renderer, texture, NULL, &dr);
+            SDL_Rect      sr      = {0, 0, curvp->DWidth, curvp->DHeight};
+            SDL_Rect      dr      = {curvp->DxOffset * x_window_scale,
+                                     curvp->DyOffset * y_window_scale,
+                                     curvp->DWidth * x_window_scale,
+                                     curvp->DHeight * y_window_scale};
+            SDL_RenderCopy(sdl_renderer, texture, &sr, &dr);
         }
         else
         {
-            DPRINT("... [height <= 0]");
+            DPRINT("... [height <= 0]\n");
         }
 
         curvp = curvp->Next;
@@ -413,10 +445,33 @@ BOOL unpack_png(char * filename, struct BitMap * bitmap, int16_t wx, int16_t y)
         RUNLOGF("... failed: %s", SDL_GetError());
         return FALSE;
     }
-    RUNLOGF("... [size %d x %d]", img->w, img->h);
+    RUNLOGF("... [size %d x %d %s]", img->w, img->h, SDL_GetPixelFormatName(img->format->format));
 
-    SDL_Rect dest = {wx * 16, y, 0x7fff, 0x7fff};
+    SDL_Rect dest = {wx * 8, y, 0x7fff, 0x7fff};
     SDL_BlitSurface(img, NULL, bitmap->Surface, &dest);
+
+#if DEBUG_WINDOW        // test code to see image
+    SDL_Texture * ttex = SDL_CreateTextureFromSurface(sdl_debug_renderer, img);
+    int32_t       w    = img->w;
+    int32_t       h    = img->h;
+    if (img->w > 320)
+    {
+        h <<= 1;
+    }
+    else
+    {
+        w <<= 1;
+        h <<= 1;
+    }
+    SDL_SetWindowSize(sdl_debug_window, w, h * (480.0 / 400));
+    SDL_RenderSetScale(sdl_renderer, (float)w / img->w, (480.0 / 400));
+    SDL_RenderClear(sdl_debug_renderer);
+    SDL_RenderCopy(sdl_debug_renderer, ttex, NULL, NULL);
+    SDL_SetRenderDrawColor(sdl_debug_renderer, 0x20, 0x00, 0x00, 255);
+    SDL_RenderPresent(sdl_debug_renderer);
+#endif
+
+    SDL_FreeSurface(img);
 
     return TRUE;
 }

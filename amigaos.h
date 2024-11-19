@@ -107,6 +107,7 @@ extern FILE * logfilep;
 // SDL things
 extern struct SDL_Surface * sdl_cursor_image;
 extern struct SDL_Cursor * sdl_cursor;
+extern struct SDL_Renderer * sdl_renderer;
 
 // exec
 typedef void *   APTR;   /* 32-bit untyped pointer */

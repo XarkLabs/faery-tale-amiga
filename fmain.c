@@ -676,8 +676,6 @@ char * datanames[] = {
 
 uint16_t xreg, yreg; /* where the region is */
 
-#define TERRA_BLOCK 149
-#define NO_REGION   10
 #define MAP_STABLE  (new_region >= NO_REGION)
 #define MAP_FLUX    (new_region < NO_REGION)
 
@@ -699,20 +697,6 @@ struct need file_index[10] = {
     {{680, 760, 800, 840}, 10, 9, 96, 192, 0, "Dungeons-Caves"}     /* F10 - dungeons and caves */
 };
 
-/* playing map is 6 * 19 = 114 */
-
-#define MAXCOORD (16 * 16 * 128)
-#define MAXMASK  MAXCOORD - 1
-
-#define QPLAN_SZ   4096           /* 1 plane of 64 chars */
-#define IPLAN_SZ   16384          /* 1 plane of 256 chars */
-#define IMAGE_SZ   (IPLAN_SZ * 5) /* 5 planes of 256 chars - 81K */
-#define SHAPE_SZ   (78000)
-#define SHADOW_SZ  8192 + 4096          /* background masks */
-#define SECTOR_SZ  ((128 * 256) + 4096) /* 256 sectors - 32K+4K region map */
-#define SECTOR_OFF (128 * 256)          /* 256 sectors - 32K */
-#define SAMPLE_SZ  (5632)               /* 5K for samples */
-
 int32_t /* Xark: LoadSeg(), */ seg;
 struct DiskFontHeader *        font;
 struct TextFont *              tfont;        // topaz font
@@ -731,11 +715,6 @@ uint8_t * terra_mem; /* Terrain data */
 
 uint8_t * nextshape;
 uint8_t * tempshape;
-
-#define S_WAVBUF (128 * 8)
-#define S_VOLBUF (10 * 256)
-#define VOICE_SZ (S_WAVBUF + S_VOLBUF)
-#define SCORE_SZ 5900
 
 uint8_t * wavmem;
 uint8_t * volmem;
@@ -1357,7 +1336,7 @@ int main(int argc, char ** argv)
     SetAPen(rp, i);
 
     RUNLOG("... [legals delay]");
-    Delay(50);
+    Delay(50 | 0x8000);
 
     rp             = &rp_text;
     rp_text.BitMap = &bm_scroll;

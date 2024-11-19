@@ -226,6 +226,8 @@ extern char * stuff;
 
 void dohit(int32_t i, int32_t j, int32_t fc, int16_t wt)
 {
+    RUNLOGF("<= dohit(%d, %d, %d, %d)", i, j, fc, wt);
+
     if (anim_list[0].weapon < 4 &&
         (anim_list[j].race == 9 || (anim_list[j].race == 0x89 && stuff[7] == 0)))
     {
@@ -259,6 +261,9 @@ char           turtle_eggs;
 void aftermath(void)
 {
     register int32_t dead, flee, i;        // Xark: unused:, j;
+
+    RUNLOG("<= aftermath()");
+
     dead = flee = 0;
     for (i = 3; i < anix; i++)
     {
@@ -297,6 +302,9 @@ int proxcheck(int x, int y, int i)
 {
     register int32_t x1, y1;
     register int32_t j;
+
+    RUNLOGF("<= proxcheck(%d, %d, %d)", x, y, i);
+
     if (anim_list[i].type != ENEMY || anim_list[i].race != 2) /* wraith */
     {
         x1 = prox(x, y);
@@ -323,6 +331,9 @@ int proxcheck(int x, int y, int i)
 int nearest_fig(char constraint, int16_t dist)
 {
     register int32_t d, i;
+
+    RUNLOGF("<= nearest_fig(%d, %d)", constraint, dist);
+
     nearest = 0;
     for (i = 1; i < anix2; i++)
     {
@@ -343,6 +354,8 @@ int nearest_fig(char constraint, int16_t dist)
 int calc_dist(int32_t a, int32_t b)
 {
     register int32_t x, y;
+    RUNLOGF("<= calc_dist(%d, %d)", a, b);
+
     // Xark: unused:    int16_t          dist;
     x = anim_list[a].abs_x - anim_list[b].abs_x;
     if (x < 0)
@@ -362,6 +375,9 @@ int calc_dist(int32_t a, int32_t b)
 int move_figure(int16_t fig, int16_t dir, int16_t dist)
 {
     register uint16_t xtest, ytest;
+
+    RUNLOGF("?= move_figure(%d, %d, %d)", fig, dir, dist);
+
     xtest = newx(anim_list[fig].abs_x, dir, dist);
     ytest = newy(anim_list[fig].abs_y, dir, dist);
     if (proxcheck(xtest, ytest, fig))
@@ -419,6 +435,8 @@ void fade_page(int16_t r, int16_t g, int16_t b, int16_t limit, USHORT * colors)
 {
     register int32_t r1, b1, g1, g2;
     int16_t          i;
+
+    RUNLOGF("<= fade_page(%d, %d, %d, %d, %p)", r, g, b, limit, colors);
 
     if (region_num == 4)
         pagecolors[31] = 0x0980;
@@ -492,6 +510,9 @@ extern struct RastPort * rp;
 void colorplay() /* teleport effect */
 {
     register int32_t i, j;
+
+    RUNLOGF("<= colorplay()");
+
     for (j = 0; j < 32; j++)
     {
         for (i = 1; i < 32; i++)
@@ -594,7 +615,10 @@ void prq(int32_t n)
     if (pnext != pplay)        // if room in print_que
     {
         print_que[prec] = n;
-        prec            = pnext;
+
+        RUNLOGF("... [prq(%d) queued in slot %d]", n, prec);
+
+        prec = pnext;
     }
 }
 
@@ -733,18 +757,18 @@ void msg(char * msgptr, int32_t n)
     extract(msgptr);
 }
 
-// event - find and exract Nth event_msg
-void event(int32_t n)
-{
-    RUNLOGF("<= event(%d)", n);
-    msg(event_msg, n);
-}
-
 // speak - find and exract Nth speech from speeches
 void speak(int32_t n)
 {
     RUNLOGF("<= speak(%d)", n);
     msg(speeches, n);
+}
+
+// event - find and exract Nth event_msg
+void event(int32_t n)
+{
+    RUNLOGF("<= event(%d)", n);
+    msg(event_msg, n);
 }
 
 void announce_container(char * s)
@@ -863,6 +887,8 @@ extern int16_t actor_file, set_file;
 
 void shape_read(void)
 {
+    RUNLOG("<= shape_read()");
+
     nextshape = shape_mem;
     read_shapes(3);
     prep(OBJECTS);
@@ -962,6 +988,8 @@ void prep(int16_t slot)
     WaitDiskIO(8);    /* WaitIO((struct IORequest *)&diskreqs[8]); */
     InvalidDiskIO(8); /* diskreqs[8].iotd_Req.io_Command = CMD_INVALID; */
 
+    RUNLOGF("<= prep(%d)", slot);
+
     make_mask(seq_list[slot].location,
               seq_list[slot].maskloc,
               seq_list[slot].width,
@@ -983,17 +1011,25 @@ void read_score(void)
     FILE *           filep;
     int32_t          packlen, sc_load, sc_count;
     register int32_t i;
+
+    RUNLOGF("<= read_score() [scoremem = %p]", scoremem);
+
     sc_load = sc_count = 0;
     if ((filep = fopen("game/songs", "r")))
     {
         for (i = 0; i < (4 * 7); i++)
         {
-            fread(&packlen, 4, 1, filep);        // TODO: error checking
-            if ((packlen * 2 + sc_load) > 5900)
+
+            CHECK(1 == fread(&packlen, 4, 1, filep));
+            packlen = swap_endian(packlen);
+            if ((packlen * 2 + sc_load) > SCORE_SZ)
+            {
                 break;
+            }
             track[sc_count] = scoremem + sc_load;
             sc_count++;
-            fread(scoremem + sc_load, packlen * 2, 1, filep);
+            CHECK(1 == fread(scoremem + sc_load, packlen * 2, 1, filep));
+            RUNLOGF("... track[%d]: +%d, len %d", sc_count - 1, sc_load, packlen * 2);
             sc_load += (packlen * 2);
         }
         fclose(filep);
@@ -1005,6 +1041,8 @@ extern struct BitMap pagea, pageb;
 
 void copypage(char * br1, char * br2, int16_t x, int16_t y)
 {
+    RUNLOGF("<= copypage(%s, %s, %d, %d)", br1, br2, x, y);
+
     if (skipp)
         return;
     Delay(350);
@@ -1150,13 +1188,16 @@ void witch_fx(struct fpage * fp)
     // register struct RastPort * r;
     SHORT x1, y1, x2, y2, x3, y3, x4, y4;
     SHORT xh, yh, dx, dy, dx1, dy1;
+
+    RUNLOGF("<= witch_fx(%p)", fp);
+    ASSERT(0);        // TODO: witdh_fx
+
     xh = hero_x - (map_x & 0xfff0);
     yh = hero_y - (map_y & 0xffe0);
 
     //     layer    = CreateUpfrontLayer(li, rp_map.BitMap, 0, 0, 16 * 19, 6 * 32, LAYERSIMPLE,
     //     NULL); r        = &rp_map; oldlayer = r->Layer; r->Layer = layer;
     //
-    ASSERT(0);        // TODO: witdh_fx
 
     w1 = ((fp->witchdir + 63) * 4);
     w  = witchpoints + w1;
@@ -1472,6 +1513,8 @@ int16_t j_1;        // Xark: "j1" conflicted with math.h
 
 void do_objects(void)
 {
+    RUNLOG("<= do_objects()");
+
     j_1 = 2;
     set_objects(ob_listg, glbobs, 0x80);
     set_objects(ob_table[region_num], mapobs[region_num], 0);
@@ -1481,6 +1524,8 @@ void do_objects(void)
 
 void leave_item(int16_t i, int16_t object)
 {
+    RUNLOGF("<= leave_item(%d, %d)", i, object);
+
     ob_listg[0].xc      = anim_list[i].abs_x;
     ob_listg[0].yc      = anim_list[i].abs_y + 10;
     ob_listg[0].ob_id   = object;
@@ -1492,6 +1537,9 @@ void change_object(int32_t id, int32_t flag)
 {
     register struct shape *  an;
     register struct object * ob;
+
+    RUNLOGF("<= change_object(%d, %d)", id, flag);
+
     an = anim_list + id;
     id = an->vitality & 0x07f;
     if (an->vitality & 0x080)
@@ -1514,6 +1562,8 @@ void set_objects(struct object * list, int16_t length, int32_t f)
 {
     int16_t xstart, ystart, i, k;
     BYTE    cf, id;
+
+    RUNLOGF("<= set_objects(%p, %d, %d)", list, length, f);
 
     db1         = length;
     db2         = region_num;
@@ -1632,7 +1682,7 @@ BOOL copy_protect_junk(void)
     register char *  a, *b;
     int32_t          h;
 
-    RUNLOG("?= copy_protect_junk()");
+    RUNLOG("1 <= copy_protect_junk()");
 
     (void)b;        // Xark: might be used
     SetDrMd(rp, JAM2);
@@ -1699,17 +1749,17 @@ BOOL copy_protect_junk(void)
 //             movem.l    a0-a6/d0-d7,-(sp)
 
 //             clr.l    d0                    ; set B pen color = 0
-//             jsr        SetBPen(a6)
+//             jsr        SetBPen(a6)       // Xark a1 was not set...
 
 //             clr.l    d0                    ; d0 already clear
 //             clr.l    d1
 //             move.w    _xx,d0
 //             move.w    _yy,d1
-//             jsr        Move(a6)
+//             jsr        Move(a6)          // Xark a1 was not set...
 
 //             lea        _answr,a0            ; string = answr
 //             move.l    60+4(sp),d0            ; length of string = arg 1
-//             jsr        Text(a6)
+//             jsr        Text(a6)           // Xark a1 was not set...
 
 //             move.l    _rp,a1
 //             move.l    _GfxBase,a6
@@ -1742,7 +1792,15 @@ void cursor(int32_t len, int32_t color)
 {
     (void)len;
     (void)color;
-    RUNLOGF("<= cursor(%d, %d) STUB", len, color);
+    static char space_str[] = " ";
+    RUNLOGF("<= cursor(%d, %d)", len, color);
+    SetBPen(rp, 0);
+    Move(rp, xx, yy);
+    Text(rp, answr, len);
+    SetBPen(rp, color);
+    Text(rp, space_str, 1);
+    SetBPen(rp, 0);
+    Text(rp, space_str, 1);
 }
 
 BYTE    svflag;
@@ -1751,23 +1809,23 @@ int32_t sverr;
 // Xark: char    savename[] = "df1:A.faery";
 char savename[64];
 
-BOOL waitnewdisk(void)
-{
-    int16_t i;
-
-    RUNLOG("?= waitnewdisk()");
-
-    for (i = 0; i < 300; i++)
-    {
-        if (handler_data.newdisk)
-        {
-            handler_data.newdisk = 0;
-            return TRUE;
-        }
-        Delay(5);
-    }
-    return FALSE;
-}
+// BOOL waitnewdisk(void)
+// {
+//     int16_t i;
+// 
+//     RUNLOG("?= waitnewdisk()");
+// 
+//     for (i = 0; i < 300; i++)
+//     {
+//         if (handler_data.newdisk)
+//         {
+//             handler_data.newdisk = 0;
+//             return TRUE;
+//         }
+//         Delay(5);
+//     }
+//     return FALSE;
+// }
 
 void savegame(int16_t hit)
 {

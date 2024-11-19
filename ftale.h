@@ -5,16 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "amiga39.h"        // Xark: most AmigaOS includes (like "amiga39.pre")
-
-#define free_chip(new, old, size)                                                                  \
-    if (new != old)                                                                                \
-        FreeMem(new, size);
-
-// TODO: used based pointer
-#define BPTR_ADDR(bptr, ptype) (ptype *)((intptr_t)bptr << 2)
-// TODO: used based pointer
-#define BPTR_OFFSET_ADDR(bptr, byteoff, ptype) (ptype *)((intptr_t)(bptr << 2) + byteoff)
+#include "amigaos.h"        // Xark: most AmigaOS includes (like "amiga39.pre")
 
 /* motion states */
 #define WALKING  12
@@ -68,13 +59,16 @@ struct shape
     uint16_t abs_x, abs_y, rel_x, rel_y;
     char     type;
     UBYTE    race;
-    char     index, visible,       /* image index and on-screen flag */
-        weapon,                    /* type of weapon carried */
-        environ,                   /* environment variable */
-        goal, tactic,              /* current goal mode and means to carry it out */
-        state, facing;             /* current movement state and facing */
-    int16_t vitality;              /* also original object number */
-    char    vel_x, vel_y;          /* velocity for slippery areas */
+    char     index;
+    char     visible; /* image index and on-screen flag */
+    char     weapon;  /* type of weapon carried */
+    char     environ; /* environment variable */
+    char     goal;
+    char     tactic; /* current goal mode and means to carry it out */
+    char     state;
+    char     facing;               /* current movement state and facing */
+    int16_t  vitality;             /* also original object number */
+    char     vel_x, vel_y;         /* velocity for slippery areas */
     /*	APTR	source_struct;	*/ /* address of generating structure */
 };
 
@@ -87,15 +81,18 @@ struct fpage
     struct sshape *  shape_queue;
     uint8_t *        backsave;
     int32_t          saveused;
-    int16_t          witchx, witchy, witchdir, wflag; /* for erasure */
+    int16_t          witchx, witchy;
+    int16_t          witchdir;
+    int16_t          wflag; /* for erasure */
 };
 
 struct seq_info
 {
-    int16_t  width, height, count; /* this part loaded in */
-    uint8_t *location, *maskloc;
-    int16_t  bytes; /* this part calculated */
-    int16_t  current_file;
+    int16_t   width, height, count; /* this part loaded in */
+    uint8_t * location;
+    uint8_t * maskloc;
+    int16_t   bytes; /* this part calculated */
+    int16_t   current_file;
 };
 
 enum sequences
@@ -128,6 +125,7 @@ struct inv_item
 struct need
 {
     USHORT image[4], terra1, terra2, sector, region, setchar;
+    char * debug_name;
 };
 
 struct in_work
@@ -159,11 +157,79 @@ struct in_work
 // "begger" = 13
 #define NUM_SETFIG_ENTRIES 14
 
-// Xark: moved here
 struct setfig
 {
     BYTE cfile_entry, image_base, can_talk;
 };
+
+struct extent
+{
+    UWORD x1, y1, x2, y2;
+    UBYTE etype, v1, v2, v3;
+};
+
+extern struct extent extent_list[];
+
+struct encounter
+{
+    char hitpoints, agressive, arms, cleverness, treasure, file_id;
+};
+
+extern struct encounter encounter_chart[];
+
+extern char treasure_probs[];
+extern char weapon_probs[];
+
+extern char bow_x[];
+extern char bow_y[];
+extern char bowshotx[];
+extern char bowshoty[];
+extern char gunshoty[];
+
+extern UBYTE place_tbl[];
+extern UBYTE inside_tbl[];
+extern char  place_msg[];
+extern char  inside_msg[];
+
+extern char    turtle_eggs;
+extern UBYTE   fallstates[];
+extern int16_t cheat1;
+extern char    quitflag;
+
+extern uint16_t encounter_type;
+extern uint8_t  encounter_number;
+extern char     actors_loading;
+extern int16_t  wt;
+
+extern struct object ob_listg[];
+extern struct object ob_list8[];
+
+extern int16_t minimap[120];
+
+extern BYTE svflag;
+
+extern UBYTE itrans[];
+extern char  jtrans[];
+
+extern int16_t s1, s2;
+
+extern USHORT pagecolors[];
+
+extern char skipp;
+
+extern UBYTE titletext[];
+
+extern struct View     v;
+extern struct ViewPort vp_page;
+extern struct ViewPort vp_text;
+
+extern struct RastPort rp_map;
+extern struct RastPort rp_text;
+extern struct BitMap * bm_draw;
+extern struct fpage *  fp_drawing;
+extern struct fpage *  fp_viewing;
+
+extern char viewstatus;
 
 // Xark: moved here
 #define SETFN(n) openflags |= n
@@ -187,14 +253,14 @@ struct setfig
 #define AL_TERR   0x4000
 
 // sst position code
-#define XY          0x80  // then x/2 then y
+#define XY 0x80        // followed by x/2 then y
 
 // current RastPort
 extern struct RastPort * rp;
 
 // compass image data
-extern UBYTE hinor[];
-extern UBYTE hivar[];
+extern UBYTE nhinor[];
+extern UBYTE nhivar[];
 
 extern char event_msg[];
 extern char speeches[];
@@ -207,34 +273,34 @@ extern struct TextFont *tfont, *afont;
 // Xark includes after structs
 #include "fmain.h"
 #include "fmain2.h"
-#include "iffsubs.h"
 #include "sdlsubs.h"
 
 // Xark: Functions below are from assembly files
 // TODO: Clean these up
 
-void    map_draw(void);
-void    scrollmap(int32_t dir);
-int32_t px_to_im(USHORT x, USHORT y);
-int32_t newx(int32_t x, int32_t dir, int32_t speed);
-int32_t newy(int32_t y, int32_t dir, int32_t speed);
-UBYTE * mapxy(int32_t x, int32_t y);
-void    map_adjust(int32_t x, int32_t y);
-void    bigdraw(int32_t x, int32_t y);
-void    genmini(int32_t x, int32_t y);
-void    move(int32_t x, int32_t y);
-void    rest_blit(UBYTE *);
-void    clear_blit(UBYTE *, LONG size);
-void    save_blit(UBYTE *);
-void    mask_blit(void);
-void    shape_blit(void);
-void    strip_draw(int32_t s);
-void    row_draw(int32_t y);
-void    maskit(int32_t x, int32_t y, int32_t mod, int32_t cnum);
-void    make_mask(UBYTE * s, UBYTE * d, int32_t words, int32_t lines, int32_t len);
-void    prdec(int32_t val, int32_t len);
-void    dohit(int32_t i, int32_t j, int32_t fc, int16_t wt);
-int32_t page_det(int32_t x);
+const char * c_string(const char * s, int maxlen);
+void         map_draw(void);
+void         scrollmap(int32_t dir);
+int32_t      px_to_im(USHORT x, USHORT y);
+int32_t      newx(int32_t x, int32_t dir, int32_t speed);
+int32_t      newy(int32_t y, int32_t dir, int32_t speed);
+UBYTE *      mapxy(int32_t x, int32_t y);
+void         map_adjust(int32_t x, int32_t y);
+void         bigdraw(int32_t x, int32_t y);
+void         genmini(int32_t x, int32_t y);
+void         move(int32_t x, int32_t y);
+void         rest_blit(UBYTE *);
+void         clear_blit(UBYTE *, LONG size);
+void         save_blit(UBYTE *);
+void         mask_blit(void);
+void         shape_blit(void);
+void         strip_draw(int32_t s);
+void         row_draw(int32_t y);
+void         maskit(int32_t x, int32_t y, int32_t mod, int32_t cnum);
+void         make_mask(UBYTE * s, UBYTE * d, int32_t words, int32_t lines, int32_t len);
+void         prdec(int32_t val, int32_t len);
+void         dohit(int32_t i, int32_t j, int32_t fc, int16_t wt);
+int32_t      page_det(int32_t x);
 
 int32_t AllocDiskIO(void);
 void    FreeDiskIO(void);
@@ -280,9 +346,6 @@ int32_t rand256(void);
 int16_t wrap(int16_t v);
 
 int32_t prox(int32_t x, int32_t y);
-
-// fsubs
-int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1);
 
 // makebitmap
 BOOL MakeBitMap(struct BitMap * b, int32_t depth, int32_t width, int32_t height);

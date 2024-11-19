@@ -234,15 +234,15 @@
 // 			dc.b	10,11,12,13,14,15,16,17,18,19,0,0,0,0,0,0
 //
 
-// TODO: Amiga low level input handler?
-int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
-{
-    int32_t d0 = 0;
-    (void)a0;
-    (void)a1;
-    RUNLOGF("%d <= HandlerInterface(%p, %p) STUB", d0, a0, a1);
-    return 0;
-}
+
+// int32_t HandlerInterface(struct InputEvent * a0, struct in_work * a1)
+// {
+//     int32_t d0 = 0;
+//     (void)a0;
+//     (void)a1;
+//     RUNLOGF("%d <= HandlerInterface(%p, %p) STUB", d0, a0, a1);
+//     return 0;
+// }
 
 // XY			equ		128		; then x/2 then y
 // ETX			equ		0
@@ -309,7 +309,7 @@ UBYTE titletext[] =
 //
 
 // Xark: compass base image? NOTE: converted to byte due to big-endian
-UBYTE hinor[] = {
+UBYTE nhinor[] = {
     0x01, 0xFF, 0xF8, 0xFF, 0xFC, 0x03, 0x80, 0x00, 0x01, 0xFF, 0x00, 0x07, 0xFC, 0x03, 0x80, 0x00,
     0x07, 0xE0, 0xF0, 0x78, 0x3F, 0x03, 0x80, 0x00, 0x19, 0x0F, 0xE0, 0x3F, 0xC4, 0xC3, 0x80, 0x00,
     0xFC, 0x7F, 0xC0, 0x1F, 0xF1, 0xFF, 0x80, 0x00, 0xF1, 0x9F, 0x80, 0x0F, 0xCC, 0x7F, 0x80, 0x00,
@@ -325,7 +325,7 @@ UBYTE hinor[] = {
     0x03, 0xFF, 0xF8, 0xFF, 0xFF, 0xFF, 0x00, 0x00};
 
 // Xark: compass direction image? NOTE: converted to byte due to big-endian
-UBYTE hivar[] = {
+UBYTE nhivar[] = {
     0x01, 0xFF, 0xF8, 0xFF, 0xFC, 0x03, 0x80, 0x00, 0x79, 0xFF, 0x02, 0x07, 0xFC, 0xF3, 0x80, 0x00,
     0x67, 0xE0, 0xF2, 0x78, 0x3F, 0x33, 0x80, 0x00, 0x19, 0x0F, 0xE7, 0x3F, 0xC4, 0xC3, 0x80, 0x00,
     0xFC, 0x7F, 0xCF, 0x9F, 0xF1, 0xFF, 0x80, 0x00, 0xF1, 0x9F, 0x9F, 0xCF, 0xCC, 0x7F, 0x80, 0x00,
@@ -367,8 +367,20 @@ int32_t getkey(void)
     int key = 0;
     if (sdl_key != 0)
     {
-        RUNLOGF("%d <= getkey() %s", sdl_key, c_string(&sdl_key, 1));
-        key = toupper(sdl_key); // TODO: uppercase only?
+        char ukey[2] = {0};
+        ukey[0]      = toupper(sdl_key & 0x7f);
+        if (sdl_key & IECODE_UP_PREFIX)
+        {
+            key = ukey[0] | IECODE_UP_PREFIX;
+        }
+        else
+        {
+            key = ukey[0];
+        }
+        RUNLOGF("%d <= getkey() %s %s",
+                key,
+                c_string(ukey, 1),
+                sdl_key & IECODE_UP_PREFIX ? "UP" : "DOWN");
         sdl_key = 0;
     }
     return key;
@@ -1820,13 +1832,37 @@ void do_error(int32_t e)
 // 		rts
 // pd10	dc.b	9,9,8,7,6,5,5,5,4,4,4
 
-// TODO: page_det - determine height based on page x?
-int32_t page_det(int32_t x)
+// TODO: page_det - determine page turn speed
+int32_t page_det(int32_t v)
 {
-    int32_t res = 0;
-    (void)x;
-    RUNLOGF("%d <= page_det(%d) STUB", res, x);
-    return res;
+    static UBYTE pd10[] = {9, 9, 8, 7, 6, 5, 5, 5, 4, 4, 4};
+
+    if (v < 11)
+    {
+        return pd10[v];
+    }
+    if (v > 136)
+    {
+        return 10;
+    }
+    if (v > 135)
+    {
+        return 7;
+    }
+    if (v > 123)
+    {
+        return 6;
+    }
+    if (v > 98)
+    {
+        return 5;
+    }
+    if (v > 71)
+    {
+        return 4;
+    }
+
+    return 3;
 }
 
 // com2	dc.b	0,1,2,7,9,3,6,5,4
@@ -1931,9 +1967,10 @@ int32_t page_det(int32_t x)
 // 		movem.l	(sp)+,a0/d0-d4
 // 		rts
 
+// TODO: decode_mouse
 void decode_mouse(void)
 {
-    RUNLOG("<= decode_mouse() STUB");
+ // spammy   RUNLOG("<= decode_mouse() STUB");
 }
 
 //
@@ -2192,7 +2229,8 @@ void scrollmap(int32_t dir)
 
 void clear_blit(UBYTE * mem, LONG size)
 {
-    RUNLOGF("<= clear_blit(%p, %d) STUB", mem, size);
+    // spammy    RUNLOGF("<= clear_blit(%p, %d) STUB", mem, size);
+    memset(mem, 0, size);
 }
 
 //

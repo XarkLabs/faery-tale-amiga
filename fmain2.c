@@ -386,21 +386,20 @@ struct compvars
                    {0, 0, 1, 1},
                    {0, 0, 1, 1}};
 
-extern UBYTE *        nhinor, *nhivar;
 extern struct BitMap *bm_text, *bm_source;
 
 void drawcompass(int16_t dir)
 {
     register int32_t xr, yr, xs, ys;
-    xr                   = comptable[dir].xrect;
-    yr                   = comptable[dir].yrect;
-    xs                   = comptable[dir].xsize;
-    ys                   = comptable[dir].ysize;
-    bm_source->Planes[2] = nhinor;
+    xr = comptable[dir].xrect;
+    yr = comptable[dir].yrect;
+    xs = comptable[dir].xsize;
+    ys = comptable[dir].ysize;
+    // bm_source->Planes[2] = nhinor;
     BltBitMap(bm_source, 0, 0, bm_text, 567, 15, 48, 24, 0xC0, 4, NULL);
     if (dir < 9)
     {
-        bm_source->Planes[2] = nhivar;
+        // bm_source->Planes[2] = nhivar;
         BltBitMap(bm_source, xr, yr, bm_text, 567 + xr, 15 + yr, xs, ys, 0xC0, 4, NULL);
     }
 }
@@ -527,8 +526,8 @@ void ppick()
                 print("Coords = ");
                 prdec(hero_x, 6);
                 prdec(hero_y, 6);
-                print("Memory Available: ");
-                prdec(AvailMem(0), 6);
+                print("Memory Available: (lots)");
+                // prdec(AvailMem(0), 6);
                 break;
             case 3:
                 print("You are at: ");
@@ -723,19 +722,28 @@ void msg(char * msgptr, int32_t n)
 {
     (void)msgptr;
     (void)n;
-    RUNLOGF("<= msg(%d) STUB", n);
-    // extract(msgptr);
+    RUNLOGF("<= msg(%p, %d)", msgptr, n);
+    while (n)
+    {
+        while (*msgptr++)
+            ;
+        n--;
+    }
+    RUNLOGF("... [%p %s]", msgptr, c_string(msgptr, 80));
+    extract(msgptr);
 }
 
 // event - find and exract Nth event_msg
 void event(int32_t n)
 {
+    RUNLOGF("<= event(%d)", n);
     msg(event_msg, n);
 }
 
 // speak - find and exract Nth speech from speeches
 void speak(int32_t n)
 {
+    RUNLOGF("<= speak(%d)", n);
     msg(speeches, n);
 }
 
@@ -759,14 +767,9 @@ void name(void)
     print_cont(datanames[brother - 1]);
 }
 
-extern struct RastPort rp_map, rp_text;
-extern struct ViewPort vp_page, vp_text;
-extern struct BitMap * bm_draw;
-extern struct fpage *  fp_drawing, *fp_viewing;
-extern char            viewstatus;
-
 void map_message(void)
 {
+    RUNLOG("... [map_message]");
     fade_down();
     rp            = &rp_map;
     rp_map.BitMap = fp_drawing->ri_page->BitMap;
@@ -782,6 +785,7 @@ void map_message(void)
 
 void message_off(void)
 {
+    RUNLOG("... [message_off]");
     fade_down();
     rp            = &rp_text;
     vp_text.Modes = HIRES | SPRITES;
@@ -791,6 +795,7 @@ void message_off(void)
 
 void fade_down(void)
 {
+    RUNLOG("... [fade_down]");
     register int32_t i;
     for (i = 100; i >= 0; i -= 5)
     {
@@ -801,6 +806,7 @@ void fade_down(void)
 
 void fade_normal(void)
 {
+    RUNLOG("... [fade_normal]");
     register int32_t i;
     for (i = 0; i <= 100; i += 5)
     {
@@ -811,6 +817,7 @@ void fade_normal(void)
 
 void stillscreen(void)
 {
+    RUNLOG("... [stillscreen]");
     fp_drawing->ri_page->RxOffset = fp_drawing->ri_page->RyOffset = 0;
     pagechange();
 }
@@ -823,28 +830,29 @@ struct cfile_info
     UBYTE  numblocks;            /* number of block to load in */
     UBYTE  seq_num;              /* which seq_list slot to load into */
     USHORT file_id;
+    char * debug_name;        // Xark: Added
 } cfiles[] = {
-    {1, 32, 67, 42, PHIL, 1376},     /* julian */
-    {1, 32, 67, 42, PHIL, 1418},     /* phillip */
-    {1, 32, 67, 42, PHIL, 1460},     /* kevin */
-    {1, 16, 116, 36, OBJECTS, 1312}, /* objects */
-    {2, 32, 2, 3, RAFT, 1348},       /* raft */
+    {1, 32, 67, 42, PHIL, 1376, "Julian"},      /* julian */
+    {1, 32, 67, 42, PHIL, 1418, "Phillip"},     /* phillip */
+    {1, 32, 67, 42, PHIL, 1460, "Kevin"},       /* kevin */
+    {1, 16, 116, 36, OBJECTS, 1312, "Objects"}, /* objects */
+    {2, 32, 2, 3, RAFT, 1348, "Raft"},          /* raft */
 
-    {2, 32, 16, 20, CARRIER, 1351}, /* turtle */
-    {1, 32, 64, 40, ENEMY, 960},    /* ogre file */
-    {1, 32, 64, 40, ENEMY, 1080},   /* ghost file */
-    {1, 32, 64, 40, ENEMY, 1000},   /* dknight file (spiders) */
-    {1, 32, 64, 40, ENEMY, 1040},   /* necromancer (farmer / loraii) */
+    {2, 32, 16, 20, CARRIER, 1351, "Turtle"},            /* turtle */
+    {1, 32, 64, 40, ENEMY, 960, "Ogre"},                 /* ogre file */
+    {1, 32, 64, 40, ENEMY, 1080, "Ghost"},               /* ghost file */
+    {1, 32, 64, 40, ENEMY, 1000, "DKnight-Spiders"},     /* dknight file (spiders) */
+    {1, 32, 64, 40, ENEMY, 1040, "Necro-Farmer-Loraii"}, /* necromancer (farmer / loraii) */
 
-    {3, 40, 5, 12, DRAGON, 1160},  /* dragon */
-    {4, 64, 8, 40, CARRIER, 1120}, /* bird */
-    {1, 32, 64, 40, ENEMY, 1376},  /* snake and salamander */
-    {1, 32, 8, 5, SETFIG, 936},    /* wizard/priest */
-    {1, 32, 8, 5, SETFIG, 931},    /* royal set */
+    {3, 40, 5, 12, DRAGON, 1160, "Dragon"},           /* dragon */
+    {4, 64, 8, 40, CARRIER, 1120, "Bird"},            /* bird */
+    {1, 32, 64, 40, ENEMY, 1376, "Snake-Salamander"}, /* snake and salamander */
+    {1, 32, 8, 5, SETFIG, 936, "Wizard-Priest"},      /* wizard/priest */
+    {1, 32, 8, 5, SETFIG, 931, "Royal-Set"},          /* royal set */
 
-    {1, 32, 8, 5, SETFIG, 941}, /* bartender */
-    {1, 32, 8, 5, SETFIG, 946}, /* witch */
-    {1, 32, 8, 5, SETFIG, 951}, /* ranger/begger */
+    {1, 32, 8, 5, SETFIG, 941, "Bartender"},     /* bartender */
+    {1, 32, 8, 5, SETFIG, 946, "Witch"},         /* witch */
+    {1, 32, 8, 5, SETFIG, 951, "Ranger-Beggar"}, /* ranger/begger */
 };
 
 #define SHAPE_SZ (78000) /* 73K for now */
@@ -877,6 +885,8 @@ void read_shapes(int32_t num)
     int32_t          size;
     register int32_t slot;
 
+    RUNLOGF("<= read_shapes(%d) [%s]", num, cfiles[num].debug_name);
+
     slot = cfiles[num].seq_num;
 
     seq_list[slot].bytes    = cfiles[num].height * cfiles[num].width * 2;
@@ -888,9 +898,23 @@ void read_shapes(int32_t num)
     if ((nextshape + (size * 6)) <= (shape_mem + SHAPE_SZ))
     {
         load_track_range(cfiles[num].file_id, cfiles[num].numblocks, nextshape, 8);
+#if SAVE_RAW
+        sprintf(raw_asset_fname,
+                "raw_assets/shape_%d_%s_%dx%d_x%d.raw",
+                num,
+                cfiles[num].debug_name,
+                cfiles[num].width * 16,
+                cfiles[num].height,
+                cfiles[num].count);
+        save_raw_asset(raw_asset_fname, nextshape, size * 6, 1);
+#endif
         nextshape += size * 5;
         seq_list[slot].maskloc = nextshape;
         nextshape += size;
+    }
+    else
+    {
+        RUNLOG("!!! out of shape mem for shape");
     }
 }
 
@@ -985,8 +1009,10 @@ void copypage(char * br1, char * br2, int16_t x, int16_t y)
         return;
     Delay(350);
     BltBitMap(&pageb, 0, 0, &pagea, 0, 0, 320, 200, 0xC0, 0x1f, 0);
-    unpackbrush(br1, &pageb, 4, 24);
-    unpackbrush(br2, &pageb, x, y);
+    // unpackbrush(br1, &pageb, 4, 24);
+    unpack_png(br1, &pageb, 4, 24);
+    // unpackbrush(br2, &pageb, x, y);
+    unpack_png(br2, &pageb, x, y);
     if (skipint())
         return;
     flipscan();
@@ -1055,24 +1081,6 @@ int skipint(void)
     return skipp = (getkey() == ' ');
 }
 
-/* UBYTE *AllocMem(); */
-
-UBYTE * into_chip(UBYTE * oldpointer, int32_t size)
-{
-    //     register UBYTE * newpointer;
-    //     register int32_t i;
-    //
-    //     if (TypeOfMem(oldpointer) & MEMF_CHIP)
-    //         return oldpointer;
-    //
-    //     newpointer = AllocMem(size, MEMF_CHIP);
-    //     for (i = 0; i < size; i++)
-    //         newpointer[i] = *oldpointer++;
-    //     return newpointer;
-    (void)size;
-    return oldpointer;
-}
-
 char jtrans[] = {0, 3, 8, 10, 11, 15, 1, 30, 2, 45, 3, 75, 13, 20};
 
 char treasure_probs[] = {
@@ -1126,29 +1134,29 @@ BYTE witchpoints[] = {
     -10, 99,  -1,  9,
 };
 
-struct TmpRas   mytmp /* Xark: , *InitTmpRas() */;
-struct AreaInfo myAreaInfo;
-WORD            areabuffer[20];
-PLANEPTR        myras /* Xark:, AllocRaster() */;
+// struct TmpRas   mytmp /* Xark: , *InitTmpRas() */;
+// struct AreaInfo myAreaInfo;
+// WORD            areabuffer[20];
+// UBYTE *        myras /* Xark:, AllocRaster() */;
 
-struct Layer *             layer, templayer, *oldlayer /*, *CreateUpfrontLayer() */;
-extern struct Layer_Info * li;
-SHORT                      s1, s2;
+// struct Layer *             layer, templayer, *oldlayer /*, *CreateUpfrontLayer() */;
+// extern struct Layer_Info * li;
+SHORT s1, s2;
 
 void witch_fx(struct fpage * fp)
 {
-    UBYTE                      w1;
-    register BYTE *            w;
-    register struct RastPort * r;
-    SHORT                      x1, y1, x2, y2, x3, y3, x4, y4;
-    SHORT                      xh, yh, dx, dy, dx1, dy1;
+    UBYTE           w1;
+    register BYTE * w;
+    // register struct RastPort * r;
+    SHORT x1, y1, x2, y2, x3, y3, x4, y4;
+    SHORT xh, yh, dx, dy, dx1, dy1;
     xh = hero_x - (map_x & 0xfff0);
     yh = hero_y - (map_y & 0xffe0);
 
-    layer    = CreateUpfrontLayer(li, rp_map.BitMap, 0, 0, 16 * 19, 6 * 32, LAYERSIMPLE, NULL);
-    r        = &rp_map;
-    oldlayer = r->Layer;
-    r->Layer = layer;
+    //     layer    = CreateUpfrontLayer(li, rp_map.BitMap, 0, 0, 16 * 19, 6 * 32, LAYERSIMPLE,
+    //     NULL); r        = &rp_map; oldlayer = r->Layer; r->Layer = layer;
+    //
+    ASSERT(0);        // TODO: witdh_fx
 
     w1 = ((fp->witchdir + 63) * 4);
     w  = witchpoints + w1;
@@ -1181,27 +1189,29 @@ void witch_fx(struct fpage * fp)
     if (s2 >= 0)
         sg2 = 1;
 
-    SetDrMd(r, COMPLEMENT);
-    if ((myras = AllocRaster(100, 100)))
-    {
-        struct TmpRas *   oldtmp;
-        struct AreaInfo * oldarea;
-        oldtmp    = r->TmpRas;
-        oldarea   = r->AreaInfo;
-        r->TmpRas = InitTmpRas(&mytmp, myras, RASSIZE(100, 100));
-        InitArea(&myAreaInfo, areabuffer, 9);
-        r->AreaInfo = &myAreaInfo;
-        AreaMove(r, x1, y1);
-        AreaDraw(r, x2, y2);
-        AreaDraw(r, x4, y4);
-        AreaDraw(r, x3, y3);
-        AreaEnd(r);
-        FreeRaster(myras, 100, 100);
-        r->TmpRas   = oldtmp;
-        r->AreaInfo = oldarea;
-    }
-    r->Layer = oldlayer;
-    DeleteLayer(0, layer);        // Xark: NULL -> 0 (int32_t dummy)
+    // TODO: Complement rectangle for witch effect
+
+    // SetDrMd(r, COMPLEMENT);
+    // if ((myras = AllocRaster(100, 100)))
+    // {
+    //     struct TmpRas *   oldtmp;
+    //     struct AreaInfo * oldarea;
+    //     oldtmp    = r->TmpRas;
+    //     oldarea   = r->AreaInfo;
+    //     r->TmpRas = InitTmpRas(&mytmp, myras, RASSIZE(100, 100));
+    //     InitArea(&myAreaInfo, areabuffer, 9);
+    //     r->AreaInfo = &myAreaInfo;
+    //     AreaMove(r, x1, y1);
+    //     AreaDraw(r, x2, y2);
+    //     AreaDraw(r, x4, y4);
+    //     AreaDraw(r, x3, y3);
+    //     AreaEnd(r);
+    //     FreeRaster(myras, 100, 100);
+    //     r->TmpRas   = oldtmp;
+    //     r->AreaInfo = oldarea;
+    // }
+    // r->Layer = oldlayer;
+    // DeleteLayer(0, layer);        // Xark: NULL -> 0 (int32_t dummy)
 }
 
 enum obytes
@@ -1458,15 +1468,15 @@ int16_t mapobs[10] = {3, 1, 5, 12, 3, 5, 1, 1, 61 + 16, 9}; /* count */
 int16_t dstobs[10] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1};        /* distributed */
 int16_t glbobs     = 11;
 
-int16_t j1;
+int16_t j_1;        // Xark: "j1" conflicted with math.h
 
 void do_objects(void)
 {
-    j1 = 2;
+    j_1 = 2;
     set_objects(ob_listg, glbobs, 0x80);
     set_objects(ob_table[region_num], mapobs[region_num], 0);
-    if (j1 > 3)
-        anix = j1;
+    if (j_1 > 3)
+        anix = j_1;
 }
 
 void leave_item(int16_t i, int16_t object)
@@ -1562,7 +1572,7 @@ void set_objects(struct object * list, int16_t length, int32_t f)
             register struct shape * an;
             if (list->ob_stat == 3 || list->ob_stat == 4)
             {
-                an = &(anim_list[j1++]);
+                an = &(anim_list[j_1++]);
                 if (an->abs_x == list->xc && an->abs_y == list->yc)
                 {
                     if (an->state == DEAD)
@@ -1581,8 +1591,8 @@ void set_objects(struct object * list, int16_t length, int32_t f)
                     an->state = STILL;
                 an->race = id + 0x80;
                 ystart -= 18;
-                if (j1 > anix2)
-                    anix2 = j1;
+                if (j_1 > anix2)
+                    anix2 = j_1;
             }
             else
             {
@@ -1639,6 +1649,7 @@ BOOL copy_protect_junk(void)
         yy = rp->cp_y;
         i  = 0;
         cursor(0, 4);
+        RUNLOG("... [type your answer]");
         while (TRUE)
         {
             key = getkey();
@@ -1660,7 +1671,7 @@ BOOL copy_protect_junk(void)
             ft_rand();
         }
         answr[i++] = '\0';
-        b = answr;
+        b          = answr;
         RUNLOGF("... Checking: answer \"%s\" vs expected \"%s\"", b, a);
         while (*a)
         {
@@ -1740,60 +1751,6 @@ int32_t sverr;
 // Xark: char    savename[] = "df1:A.faery";
 char savename[64];
 
-// struct FileLock *Lock(), *flock;
-// BPTR flock;
-//
-// int locktest(char * name, int32_t access)
-// {
-//     flock = Lock(name, access);
-//     if (flock)
-//         UnLock(flock);
-//     return (int)flock;
-// }
-
-// // cpytest - copy protection check (checks disk/image "tick" value)
-// int cpytest(void)
-// {
-//         BOOL IsHardDrive(void);
-//
-//         if (IsHardDrive() == FALSE)
-//         {
-//             struct DeviceList * fdev;
-//             struct FileLock *   fl;
-//
-//             (void)fdev;        // Xark: might be used
-//
-//             flock = Lock("df0:", ACCESS_READ);
-//             if (flock)
-//             {
-//                 fl   = BPTR_ADDR(flock, struct FileLock);
-//                 fdev = BPTR_ADDR(fl->fl_Volume, struct DeviceList);
-//     #ifndef NO_PROTECT
-//                 if (fdev->dl_VolumeDate.ds_Tick != 230)
-//                     cold();
-//     #endif
-//                 UnLock(flock);
-//             }
-//             return (int)flock;
-//         }
-//         else
-//         {
-//             static ULONG buffer[512 / 4];
-//
-//             load_track_range(880, 1, buffer, 0);
-//             if (buffer[123] != 230)
-//                 close_all();
-//         }
-//     return TRUE;        // Xark: added
-// }
-
-// #asm
-
-//         public    _cold
-// _cold    jmp        -4
-
-// #endasm
-
 BOOL waitnewdisk(void)
 {
     int16_t i;
@@ -1812,25 +1769,6 @@ BOOL waitnewdisk(void)
     return FALSE;
 }
 
-extern int16_t cheat1;
-extern char    quitflag;
-
-struct extent
-{
-    UWORD x1, y1, x2, y2;
-    UBYTE etype, v1, v2, v3;
-};
-
-extern struct extent extent_list[1];
-extern int16_t       encounter_type;
-extern char          encounter_number, actors_loading;
-extern int16_t       wt;
-
-extern struct encounter
-{
-    char hitpoints, agressive, arms, cleverness, treasure, file_id;
-} encounter_chart[5];
-
 void savegame(int16_t hit)
 {
     int32_t i;
@@ -1843,33 +1781,6 @@ void savegame(int16_t hit)
 
     SetFont(rp, tfont);
 
-    // stest:
-    //     name = savename;
-    //
-    //     if (hdrive == FALSE && locktest("image", ACCESS_READ))
-    //     {
-    //         name += 4;
-    //         hdrive = TRUE;
-    //     }
-    //     else if (locktest("df1:", ACCESS_WRITE))
-    //     {
-    //         savename[2] = '1';
-    //     }
-    //     else if (locktest("df0:", ACCESS_WRITE) && !locktest("df0:winpic", ACCESS_READ))
-    //     {
-    //         savename[2] = '0';
-    //     }
-    //     else
-    //     {
-    //         print("Insert a writable disk in ANY drive.");
-    //         if (waitnewdisk() == 0)
-    //         {
-    //             print("Aborted.");
-    //             goto nosave;
-    //         }
-    //         goto stest;
-    //     }
-    //    savename[4] = 'A' + hit;
     snprintf(savename, sizeof(savename) - 1, ".faery_tale_%c.save", hit + 'A');
 
     RUNLOGF(" ... savegame name = %s", savename);
@@ -1918,18 +1829,7 @@ void savegame(int16_t hit)
         else
             print("ERROR: Couldn't load game.");
     }
-    // if (hdrive == FALSE)
-    //     while (TRUE)
-    //     {
-    //         flock = Lock("df0:winpic", ACCESS_READ);
-    //         if (flock)
-    //         {
-    //             UnLock(flock);
-    //             break;
-    //         }
-    //         print("Please insert GAME disk.");
-    //         waitnewdisk();
-    //     }
+
     if (svflag == 0)
     {
         wt               = 0;
@@ -2046,7 +1946,8 @@ void win_colors(void)
     placard();
     Delay(80);
     bm_draw = fp_drawing->ri_page->BitMap;
-    unpackbrush("game/winpic", bm_draw, 0, 0);
+    // unpackbrush("game/winpic", bm_draw, 0, 0);
+    unpack_png("assets/winpic.png", bm_draw, 0, 0);
     LoadRGB4(&vp_page, (void *)blackcolors, 32);
     LoadRGB4(&vp_text, (void *)blackcolors, 32);
     vp_text.Modes = HIRES | SPRITES | VP_HIDE;

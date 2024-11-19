@@ -71,7 +71,7 @@
 //
 // MakeBitMap(b,depth,width,height)
 // 	register struct BitMap *b; LONG width, height, depth;
-// {	register short i, success=TRUE; PLANEPTR AllocRaster();
+// {	register short i, success=TRUE; UBYTE * AllocRaster();
 //
 // 	if (!b) return FALSE;
 // 	for (i=0; i<depth; i++) b->Planes[i] = NULL;	/* set all planes = nonexistant */
@@ -87,28 +87,28 @@
 
 BOOL MakeBitMap(struct BitMap * b, int32_t depth, int32_t width, int32_t height)
 {
-    BOOL    success = TRUE;
-    int16_t i;
+    // int16_t i;
 
-    RUNLOGF("?= MakeBitMap(0x%p, %d, %d, %d)", b, depth, width, height);
+    RUNLOGF("<= MakeBitMap(0x%p, %d, %d, %d)", b, depth, width, height);
 
     if (!b)
         return FALSE;
 
-    for (i = 0; i < depth; i++)
-        b->Planes[i] = NULL; /* set all planes = nonexistant */
+    // for (i = 0; i < depth; i++)
+    //     b->Planes[i] = NULL; /* set all planes = nonexistant */
 
     InitBitMap(b, depth, width, height); /* initialize map */
 
-    for (i = 0; i < depth && success; i++) /* allocate all planes */
-    {
-        if (!(b->Planes[i] = AllocRaster(width, height)))
-            success = FALSE;
-    }
-    if (!success)
-        UnMakeBitMap(b); /* if failure, de-allocate */
+    // for (i = 0; i < depth && success; i++) /* allocate all planes */
+    // {
+    //     if (!(b->Planes[i] = AllocRaster(width, height)))
+    //         success = FALSE;
+    // }
 
-    return success; /* return TRUE or FALSE */
+    // if (!success)
+    //     UnMakeBitMap(b); /* if failure, de-allocate */
+
+    return TRUE; /* return TRUE or FALSE */
 }
 
 //
@@ -160,19 +160,22 @@ BOOL MakeBitMap(struct BitMap * b, int32_t depth, int32_t width, int32_t height)
 
 void UnMakeBitMap(struct BitMap * b)
 {
-    int16_t i;
+    // int16_t i;
     
     RUNLOGF("<= UnMakeBitMap(0x%p)", b);
 
-    for (i = 0; i < b->Depth; i++) /* for each plane */
-    {
-        if (b->Planes[i]) /* if that plane exists */
-        {
-            FreeRaster(b->Planes[i], b->BytesPerRow, b->Rows); /* free it */
-            b->Planes[i] = NULL;                               /* mark as free */
-        }
-        b->Depth = 0; /* mark bitmap as empty */
-    }
+    // for (i = 0; i < b->Depth; i++) /* for each plane */
+    // {
+    //     if (b->Planes[i]) /* if that plane exists */
+    //     {
+    //         FreeRaster(b->Planes[i], b->BytesPerRow, b->Rows); /* free it */
+    //         b->Planes[i] = NULL;                               /* mark as free */
+    //     }
+    //     b->Depth = 0; /* mark bitmap as empty */
+    // }
+    b->Depth = 0; /* mark bitmap as empty */
+    SDL_FreeSurface(b->Surface);
+    b->Surface = NULL;
 }
 
 // EOF

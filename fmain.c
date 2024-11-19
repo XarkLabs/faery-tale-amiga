@@ -17,8 +17,9 @@
 #define RAST_HEIGHT 200
 #define TEXT_HEIGHT 57
 
-struct View     v, *oldview;
-struct ViewPort vp_page, vp_text, vp_title, *vp;
+struct View     v;
+struct ViewPort vp_page;
+struct ViewPort vp_text;
 
 /* add name of setfig for generic messages?? */
 struct setfig setfig_table[NUM_SETFIG_ENTRIES] = {
@@ -42,10 +43,7 @@ struct seq_info seq_list[7];
 
 /* defines the variables for currently defined actors, on screen or off */
 
-struct encounter
-{
-    char hitpoints, agressive, arms, cleverness, treasure, file_id;
-} encounter_chart[] = {
+struct encounter encounter_chart[] = {
     {18, TRUE, 2, 0, 2, 6}, /* 0 - Ogre */
     {12, TRUE, 4, 1, 1, 6}, /* 1 - Orcs */
     {16, TRUE, 6, 1, 4, 7}, /* 2 - Wraith */
@@ -56,11 +54,8 @@ struct encounter
     {40, TRUE, 7, 1, 0, 8}, /* 7 - DKnight - elf glade */
     {12, TRUE, 6, 1, 0, 9}, /* 8 - Loraii - astral plane */
     {50, TRUE, 5, 0, 0, 9}, /* 9 - Necromancer - final arena */
-    {4, FALSE, 0, 0, 0, 9},
-    /* 10 - Woodcutter */        // Xark: NULL -> FALSE
+    {4, FALSE, 0, 0, 0, 9}, /* 10 - Woodcutter */
 };
-
-extern char treasure_probs[], weapon_probs[];
 
 #define MAXSHAPES 25
 
@@ -75,11 +70,12 @@ int16_t mdex;
 struct missile
 {
     uint16_t abs_x, abs_y;
-    char     missile_type, /* NULL, arrow, rock, 'thing', or fireball */
-        time_of_flight,    /* in frames? */
-        speed,             /* 0 = still unshot */
-        direction, archer; /* ID of archer */
-} missile_list[6];         /* six missiles max */
+    char     missile_type;   /* NULL, arrow, rock, 'thing', or fireball */
+    char     time_of_flight; /* in frames? */
+    char     speed;          /* 0 = still unshot */
+    char     direction;
+    char     archer; /* ID of archer */
+} missile_list[6];   /* six missiles max */
 
 char fiery_death;
 
@@ -128,9 +124,6 @@ char fiery_death;
 #define SHOOTFRUST  9  /* arrows not getting through */
 #define EGG_SEEK    10 /* snakes going for the eggs */
 
-extern char  turtle_eggs;
-extern UBYTE fallstates[];
-
 struct transition
 {
     char newstate[4];             /* transition table */
@@ -146,9 +139,9 @@ struct transition
 
 struct state
 {
-    char figure,      /* figure # to use */
-        wpn_no,       /* weapon index to use */
-        wpn_x, wpn_y; /* weapon x,y coord */
+    char figure;       /* figure # to use */
+    char wpn_no;       /* weapon index to use */
+    char wpn_x, wpn_y; /* weapon x,y coord */
 } statelist[87] = {
 
     /* 0 = southwalk sequence */
@@ -259,8 +252,6 @@ struct state
     /* 86 - asleep */
     {66, 10, 5, 11}};
 
-extern char bow_x[], bow_y[], bowshotx[], bowshoty[], gunshoty[];
-
 /* var1 is usually clock, var2 is usually direction */
 
 /* three types of doors + F1/F9 doors, F1/F10 doors and F9/F10 doors */
@@ -288,10 +279,10 @@ extern char bow_x[], bow_y[], bowshotx[], bowshoty[], gunshoty[];
 
 struct door
 {                      /* mark locations of all doors */
-    uint16_t xc1, yc1, /* outside image coords relative to F1 */
-        xc2, yc2;      /* inside image coords relative to F9 */
-    char type;         /* wood, stone */
-    char secs;         /* what sectors are joined by this */
+    uint16_t xc1, yc1; /* outside image coords relative to F1 */
+    uint16_t xc2, yc2; /* inside image coords relative to F9 */
+    char     type;     /* wood, stone */
+    char     secs;     /* what sectors are joined by this */
 } doorlist[DOORCOUNT] = {
     {0x1170, 0x5060, 0x2870, 0x8b60, HWOOD, 1},  /* desert fort */
     {0x1170, 0x5060, 0x2870, 0x8b60, HWOOD, 1},  /* desert fort */
@@ -388,50 +379,45 @@ struct door
 
 /* need to define self-destructing extents?? */
 
-struct extent
-{
-    UWORD x1, y1, x2, y2;
-    UBYTE etype, v1, v2, v3;
-} *extn, extent_list[] = {
-             {2118, 27237, 2618, 27637, 70, 0, 1, 11}, /* bird extent */
-             {0, 0, 0, 0, 70, 0, 1, 5},                /* turtle extent */
-             {6749, 34951, 7249, 35351, 70, 0, 1, 10}, /* dragon extent */
-             {4063, 34819, 4909, 35125, 53, 4, 1, 6},  /* spider pit */
-             {9563, 33883, 10144, 34462, 60, 1, 1, 9}, /* necromancer */
+struct extent * extn;
+struct extent   extent_list[23] = {
+    {2118, 27237, 2618, 27637, 70, 0, 1, 11}, /* bird extent */
+    {0, 0, 0, 0, 70, 0, 1, 5},                /* turtle extent */
+    {6749, 34951, 7249, 35351, 70, 0, 1, 10}, /* dragon extent */
+    {4063, 34819, 4909, 35125, 53, 4, 1, 6},  /* spider pit */
+    {9563, 33883, 10144, 34462, 60, 1, 1, 9}, /* necromancer */
 
-             {22945, 5597, 23225, 5747, 61, 3, 2, 4},    /* turtle eggs */
-             {10820, 35646, 10877, 35670, 83, 1, 1, 0},  /* princess extent */
-             {19596, 17123, 19974, 17401, 48, 8, 8, 2},  /* graveyard ext */
-             {19400, 17034, 20240, 17484, 80, 4, 20, 0}, /* around city */
+    {22945, 5597, 23225, 5747, 61, 3, 2, 4},    /* turtle eggs */
+    {10820, 35646, 10877, 35670, 83, 1, 1, 0},  /* princess extent */
+    {19596, 17123, 19974, 17401, 48, 8, 8, 2},  /* graveyard ext */
+    {19400, 17034, 20240, 17484, 80, 4, 20, 0}, /* around city */
 
-             /* arena with lots of loraii?? (replenished for 10) */
-             /* dungeons with lotsa wraiths = 15, 31, etc. */
+    /* arena with lots of loraii?? (replenished for 10) */
+    /* dungeons with lotsa wraiths = 15, 31, etc. */
 
-             {0x2400, 0x8200, 0x3100, 0x8a00, 52, 3, 1, 8}, /* astral plane */
-             {5272, 33300, 6112, 34200, 81, 0, 1, 0},       /* king pax */
-             {11712, 37350, 12416, 38020, 82, 0, 1, 0},     /* sorceress pax */
-             {2752, 33300, 8632, 35400, 80, 0, 1, 0},       /* peace 1 - buildings */
-             {10032, 35550, 12976, 40270, 80, 0, 1, 0},     /* peace 2 - specials */
+    {0x2400, 0x8200, 0x3100, 0x8a00, 52, 3, 1, 8}, /* astral plane */
+    {5272, 33300, 6112, 34200, 81, 0, 1, 0},       /* king pax */
+    {11712, 37350, 12416, 38020, 82, 0, 1, 0},     /* sorceress pax */
+    {2752, 33300, 8632, 35400, 80, 0, 1, 0},       /* peace 1 - buildings */
+    {10032, 35550, 12976, 40270, 80, 0, 1, 0},     /* peace 2 - specials */
 
-             {4712, 38100, 10032, 40350, 80, 0, 1, 0},  /* peace 3 - cabins */
-             {21405, 25583, 21827, 26028, 60, 1, 1, 7}, /* hidden valley */
-             {6156, 12755, 12316, 15905, 7, 1, 8, 0},   /* swamp region */
-             {5140, 34860, 6260, 37260, 8, 1, 8, 0},    /* spider region */
+    {4712, 38100, 10032, 40350, 80, 0, 1, 0},  /* peace 3 - cabins */
+    {21405, 25583, 21827, 26028, 60, 1, 1, 7}, /* hidden valley */
+    {6156, 12755, 12316, 15905, 7, 1, 8, 0},   /* swamp region */
+    {5140, 34860, 6260, 37260, 8, 1, 8, 0},    /* spider region */
 
-             {660, 33510, 2060, 34560, 8, 1, 8, 0},     /* spider region */
-             {18687, 15338, 19211, 16136, 80, 0, 1, 0}, /* village */
-             {16953, 18719, 20240, 17484, 3, 1, 3, 0},  /* around village */
-             {20593, 18719, 23113, 22769, 3, 1, 3, 0},  /* around city */
+    {660, 33510, 2060, 34560, 8, 1, 8, 0},     /* spider region */
+    {18687, 15338, 19211, 16136, 80, 0, 1, 0}, /* village */
+    {16953, 18719, 20240, 17484, 3, 1, 3, 0},  /* around village */
+    {20593, 18719, 23113, 22769, 3, 1, 3, 0},  /* around city */
 
-             {0, 0, 0x7fff, 0x9fff, 3, 1, 8, 0}, /* whole world */
+    {0, 0, 0x7fff, 0x9fff, 3, 1, 8, 0}, /* whole world */
 };
 
 #define EXT_COUNT 22
 
 uint8_t stone_list[] = {54, 43,  71, 77, 78, 102, 66, 121, 12, 85, 79,
                         40, 107, 38, 73, 21, 12,  26, 26,  53, 84, 60};
-
-extern struct object ob_listg[], ob_list8[];
 
 struct inv_item inv_list[] = {{12, 10, 0, 0, 0, 8, 1, "Dirk"},
                               {9, 10, 10, 0, 0, 8, 1, "Mace"},
@@ -483,14 +469,20 @@ struct inv_item inv_list[] = {{12, 10, 0, 0, 0, 8, 1, "Dirk"},
 #define GOLDBASE  31
 #define ARROWBASE 35
 
-UBYTE *stuff, julstuff[ARROWBASE], philstuff[ARROWBASE], kevstuff[ARROWBASE];
+UBYTE * stuff;
+UBYTE   julstuff[ARROWBASE];
+UBYTE   philstuff[ARROWBASE];
+UBYTE   kevstuff[ARROWBASE];
 
 /* defines the variables for on-screen animated shapes */
 
 struct sshape
 {
     uint8_t * backsave;
-    int16_t   savesize, blitsize, Coff, Cmod;
+    int16_t   savesize;
+    int16_t   blitsize;
+    int16_t   Coff;
+    int16_t   Cmod;
 };
 
 struct sshape * shp;
@@ -518,25 +510,30 @@ struct RastPort   rp_text;
 struct RastPort   rp_text2;
 struct RastPort * rp;
 
-#define BM_SIZE (sizeof(struct BitMap))
+UBYTE ** pl;
+LONG     i;
+SHORT    j, k, n;
 
-PLANEPTR * pl;
-LONG       i;
-SHORT      j, k, n;
+// struct GfxBase * GfxBase;
+// struct Library * LayersBase;
 
-struct GfxBase * GfxBase;
-struct Library * LayersBase;
-
-UBYTE *nhinor, *nhivar;
-
-struct SimpleSprite pointer = {0, 16, 0, 0, 0};
-
-int32_t *sprite_data, _sprite_data[] = {0,          0x80060000, 0x60010002, 0x40012000, 0x10030000,
-                                        0x08FE0001, 0x0581007F, 0x03000081, 0x06010101, 0x0C800201,
-                                        0x08410401, 0x08200401, 0x08110401, 0x080C0401, 0x880F0401,
-                                        0x98074400, 0x75560FFC, 0,          0,          0};
-
-extern USHORT pagecolors[];
+// 16x16, with each line having two "bitplanes"
+uint16_t sprite_data[16][2] = {{0x8006, 0x0000},
+                               {0x6001, 0x0002},
+                               {0x4001, 0x2000},
+                               {0x1003, 0x0000},
+                               {0x08FE, 0x0001},
+                               {0x0581, 0x007F},
+                               {0x0300, 0x0081},
+                               {0x0601, 0x0101},
+                               {0x0C80, 0x0201},
+                               {0x0841, 0x0401},
+                               {0x0820, 0x0401},
+                               {0x0811, 0x0401},
+                               {0x080C, 0x0401},
+                               {0x880F, 0x0401},
+                               {0x9807, 0x4400},
+                               {0x7556, 0x0FFC}};
 
 USHORT textcolors[] = {0x000, 0xFFF, 0xC00, 0xF60, 0x00f, 0xc0f, 0x090, 0xFF0, 0xf90, 0xf0c,
                        0xA50, 0xFDB, 0xEB7, 0xCCC, 0x888, 0x444, 0x000, 0xDB0, 0x740, 0xC70};
@@ -621,9 +618,6 @@ int16_t hit; /* which menu we hit */        // Xark: char->int16_t due to "char-
 /***** this section defines some variables that are used in maintaining
        the playing map */
 
-extern UBYTE place_tbl[], inside_tbl[];
-extern char  place_msg[], inside_msg[];
-
 uint16_t map_x, map_y,      /* absolute map coordinates in pixels */
     hero_x, hero_y,         /* shorthand variables for hero location */
     safe_x, safe_y, safe_r, /* last 'safe zone' visited */
@@ -639,37 +633,40 @@ int16_t princess;
 int16_t hero_sector; /* what sector is the hero on?? */
 USHORT  hero_place;  /* what place name is this? */
 /* 8 */
-USHORT  daynight, lightlevel;
-int16_t actor_file, set_file; /* which actor or setfig file is loaded */
-int16_t active_carrier;       /* is turtle of bird active */
-USHORT  xtype;
-int16_t leader; /* leader of the enemies */
-int16_t secret_timer, light_timer, freeze_timer;
-int16_t cmode;
-USHORT  encounter_type;
+USHORT   daynight, lightlevel;
+int16_t  actor_file, set_file; /* which actor or setfig file is loaded */
+int16_t  active_carrier;       /* is turtle of bird active */
+USHORT   xtype;
+int16_t  leader; /* leader of the enemies */
+int16_t  secret_timer, light_timer, freeze_timer;
+int16_t  cmode;
+uint16_t encounter_type;
 /* 28 */
 USHORT pad1, pad2, pad3, pad4, pad5, pad6, pad7;
 
-char           viewstatus; /* 0 = normal, 1 = big, 99 = corrupt */
-char           flasher;
-char           actors_on_screen; /* is there anyone else on the screen?? */
-char           actors_loading;   /* currently attempting to load actors */
-char           safe_flag;        /* is this a safe area?? */
-char           battleflag;       /* are we in battle? */
-char           frustflag;        /* is the character blocked ?? */
-char           quitflag;         /* is it time to quit?? */
-char           witchflag, wdir;  /* is the witch on the screen */
-uint8_t        goodfairy;        /* good fairy on screen? */
-extern int16_t s1, s2;
-int16_t        nearest;                 /* nearest object/character to player */
-int16_t        nearest_person, perdist; /* nearest character to player */
-int16_t        last_person;             /* last character near to player */
-UBYTE          witchindex;
-int16_t        dayperiod;
-int16_t        sleepwait;
-uint8_t        encounter_number, danger_level;
-uint16_t       encounter_x, encounter_y; /* encounter origin */
-int16_t        mixflag, wt;
+char     viewstatus; /* 0 = normal, 1 = big, 99 = corrupt */
+char     flasher;
+char     actors_on_screen; /* is there anyone else on the screen?? */
+char     actors_loading;   /* currently attempting to load actors */
+char     safe_flag;        /* is this a safe area?? */
+char     battleflag;       /* are we in battle? */
+char     frustflag;        /* is the character blocked ?? */
+char     quitflag;         /* is it time to quit?? */
+char     witchflag;        /* is the witch on the screen? */
+char     wdir;             /* witch direction */
+uint8_t  goodfairy;        /* good fairy on screen? */
+int16_t  nearest;          /* nearest object/character to player */
+int16_t  nearest_person;   /* nearest character to player */
+int16_t  perdist;          /* nearest character to player distance */
+int16_t  last_person;      /* last character near to player */
+UBYTE    witchindex;
+int16_t  dayperiod;
+int16_t  sleepwait;
+uint8_t  encounter_number;
+uint8_t  danger_level;
+uint16_t encounter_x, encounter_y; /* encounter origin */
+int16_t  mixflag;
+int16_t  wt;
 
 char * datanames[] = {
     "Julian",
@@ -684,24 +681,25 @@ uint16_t xreg, yreg; /* where the region is */
 #define MAP_STABLE  (new_region >= NO_REGION)
 #define MAP_FLUX    (new_region < NO_REGION)
 
-UWORD       new_region, lregion, region_num = 3;
-struct need current_loads  = {{0, 0, 0, 0}, 1, 2, 0, 0, 0};
+UWORD new_region;
+UWORD lregion;
+UWORD region_num = 3;
+
+struct need current_loads  = {{0, 0, 0, 0}, 1, 2, 0, 0, 0, "?"};
 struct need file_index[10] = {
-    {{320, 480, 520, 560}, 0, 1, 32, 160, 22}, /* F1 - snowy region */
-    {{320, 360, 400, 440}, 2, 3, 32, 160, 21}, /* F2 - witch wood */
-    {{320, 360, 520, 560}, 2, 1, 32, 168, 22}, /* F3 - swampy region */
-    {{320, 360, 400, 440}, 2, 3, 32, 168, 21}, /* F4 - plains and rocks */
-    {{320, 480, 520, 600}, 0, 4, 32, 176, 0},  /* F5 - desert area */
-    {{320, 280, 240, 200}, 5, 6, 32, 176, 23}, /* F6 - bay / city / farms */
-    {{320, 640, 520, 600}, 7, 4, 32, 184, 0},  /* F7 - volcanic */
-    {{320, 280, 240, 200}, 5, 6, 32, 184, 24}, /* F8 - forest and wilderness */
-    {{680, 720, 800, 840}, 8, 9, 96, 192, 0},  /* F9  - inside of buildings */
-    {{680, 760, 800, 840}, 10, 9, 96, 192, 0}  /* F10 - dungeons and caves */
+    {{320, 480, 520, 560}, 0, 1, 32, 160, 22, "Snowy-Region"},      /* F1 - snowy region */
+    {{320, 360, 400, 440}, 2, 3, 32, 160, 21, "Witch-Woods"},       /* F2 - witch wood */
+    {{320, 360, 520, 560}, 2, 1, 32, 168, 22, "Swamp-Region"},      /* F3 - swampy region */
+    {{320, 360, 400, 440}, 2, 3, 32, 168, 21, "Plans-Rocks"},       /* F4 - plains and rocks */
+    {{320, 480, 520, 600}, 0, 4, 32, 176, 0, "Desert-Area"},        /* F5 - desert area */
+    {{320, 280, 240, 200}, 5, 6, 32, 176, 23, "Bay-City-Farms"},    /* F6 - bay / city / farms */
+    {{320, 640, 520, 600}, 7, 4, 32, 184, 0, "Volcanic"},           /* F7 - volcanic */
+    {{320, 280, 240, 200}, 5, 6, 32, 184, 24, "Forest-Wilderness"}, /* F8 - forest and wilderness */
+    {{680, 720, 800, 840}, 8, 9, 96, 192, 0, "Inside-Buildings"},   /* F9  - inside of buildings */
+    {{680, 760, 800, 840}, 10, 9, 96, 192, 0, "Dungeons-Caves"}     /* F10 - dungeons and caves */
 };
 
 /* playing map is 6 * 19 = 114 */
-
-extern int16_t minimap[114];
 
 #define MAXCOORD (16 * 16 * 128)
 #define MAXMASK  MAXCOORD - 1
@@ -717,45 +715,55 @@ extern int16_t minimap[114];
 
 int32_t /* Xark: LoadSeg(), */ seg;
 struct DiskFontHeader *        font;
-struct TextFont *              tfont, *afont;
-struct TextAttr                topaz_ta = {"topaz.font", 8, 0, FPF_ROMFONT};
+struct TextFont *              tfont;        // topaz font
+struct TextFont *              afont;        // amber font
+// struct TextAttr                topaz_ta = {"topaz.font", 8, 0, FPF_ROMFONT};
 
-uint8_t
-    //	*into_chip(),	// Xark: removeed since added prototype
-    *image_mem,
-    *sector_mem, *map_mem, *shadow_mem, *shape_mem, *bmask_mem, *queue_mem, *sample_mem,
-    *terra_mem; /* Terrain data */
+uint8_t * image_mem;
+uint8_t * sector_mem;
+uint8_t * map_mem;
+uint8_t * shadow_mem;
+uint8_t * shape_mem;
+uint8_t * bmask_mem;
+uint8_t * queue_mem;
+uint8_t * sample_mem;
+uint8_t * terra_mem; /* Terrain data */
 
-uint8_t *nextshape, *tempshape;
+uint8_t * nextshape;
+uint8_t * tempshape;
 
 #define S_WAVBUF (128 * 8)
 #define S_VOLBUF (10 * 256)
 #define VOICE_SZ (S_WAVBUF + S_VOLBUF)
 #define SCORE_SZ 5900
 
-uint8_t *wavmem, *volmem, *scoremem;
-int16_t  new_wave[] = {0x0000,
-                       0x0000,
-                       0x0000,
-                       0x0000,
-                       0x0005,
-                       0x0202,
-                       0x0101,
-                       0x0103,
-                       0x0004,
-                       0x0504,
-                       0x0100,
-                       0x0500};
+uint8_t * wavmem;
+uint8_t * volmem;
+uint8_t * scoremem;
 
-UWORD      openflags;
-PLANEPTR * planes;
+int16_t new_wave[] = {0x0000,
+                      0x0000,
+                      0x0000,
+                      0x0000,
+                      0x0005,
+                      0x0202,
+                      0x0101,
+                      0x0103,
+                      0x0004,
+                      0x0504,
+                      0x0100,
+                      0x0500};
 
-uint8_t *mask_buffer, *shapedata;
-int16_t  shift, aoff, boff, bmod, planesize, wmask;
+UWORD    openflags;
+UBYTE ** planes;
+
+uint8_t * mask_buffer;
+uint8_t * shapedata;
+int16_t   shift, aoff, boff, bmod, planesize, wmask;
 
 #define CBK_SIZE (96 << 6) + 5
 
-int32_t seed1 = 19837325, seed2 = 23098324;
+// int32_t seed1 = 19837325, seed2 = 23098324;
 
 /* features:
     1 = impassable, 2 = sink, 3 = slow/brush;
@@ -771,14 +779,14 @@ struct in_work handler_data;
 
 /* this function opens everything that needs to be opened */
 
-struct BitMap *     wb_bmap;
-struct Layer_Info * li /* , *NewLayerInfo() */;          // Xark: moved comma, removed prototype
-struct Process *    thistask /* , *FindTask() */;        // Xark: removed prototype
-BPTR                origDir;
+struct BitMap * wb_bmap;
+// struct Layer_Info * li /* , *NewLayerInfo() */;          // Xark: moved comma, removed prototype
+// struct Process *    thistask /* , *FindTask() */;        // Xark: removed prototype
+// BPTR                origDir;
 
-struct IOAudio * ioaudio;
-struct MsgPort * audioport;
-BOOL             audio_open;
+// struct IOAudio * ioaudio;
+// struct MsgPort * audioport;
+BOOL audio_open;
 
 struct BitMap work_bm;
 
@@ -801,7 +809,7 @@ int open_all(void)
     if (!MakeBitMap(&work_bm, 2, 640, 200))
         return 2;
 
-    li = NewLayerInfo();
+    // li = NewLayerInfo();
     InitRastPort(&rp_map);
     InitRastPort(&rp_text);
     InitRastPort(&rp_text2);
@@ -815,40 +823,40 @@ int open_all(void)
     SetDrMd(rp, JAM2);
     SetRast(rp, 0); /* clear workbench screen (not!) */
 
-    if ((bm_page1 = (struct BitMap *)AllocMem(5 * BM_SIZE, MEMF_CHIP | MEMF_CLEAR)) == NULL)
+    // NOTE: alloc 5 structs at once...
+    if ((bm_page1 = (struct BitMap *)AllocMem(5 * sizeof(struct BitMap), MEMF_CHIP | MEMF_CLEAR)) ==
+        NULL)
         return 1;
     SETFN(AL_BMAP); /* allocated the bitmap structures */
+    bm_page2  = bm_page1 + 1;
+    bm_text   = bm_page1 + 2;
+    bm_source = bm_page1 + 3;
+    bm_lim    = bm_page1 + 4;
 
     if ((i = AllocDiskIO()))
         return i;
 
-#if 0
-	if ((diskport = CreatePort(0,0))==0) return 30;
-	SETFN(AL_PORT);
-	if ((diskreq1=(struct IOExtTD *)CreateExtIO(diskport,sizeof(struct IOExtTD)))==0) return 31;
-	SETFN(AL_IOREQ);
-	if (OpenDevice(TD_NAME,0,(struct IORequest *)diskreq1,0)) return 32;
-	SETFN(AL_TDISK);
-	for (i=0; i<9; i++)
-	{	diskreqs[i] = *diskreq1;
-	}
-#endif
+    // if ((diskport = CreatePort(0,0))==0) return 30;
+    // SETFN(AL_PORT);
+    // if ((diskreq1=(struct IOExtTD *)CreateExtIO(diskport,sizeof(struct IOExtTD)))==0) return 31;
+    // SETFN(AL_IOREQ);
+    // if (OpenDevice(TD_NAME,0,(struct IORequest *)diskreq1,0)) return 32;
+    // SETFN(AL_TDISK);
+    // for (i=0; i<9; i++)
+    // {	diskreqs[i] = *diskreq1;
+    // }
 
-#if 1        // TODO: font stuff
-    RUNLOG("... skipping font open");
-#else
-    if ((seg = LoadSeg("game/fonts/Amber/9")) == 0)
-        return 15;        // Xark: NULL -> 0 (since BPTR)
-                          // Xark:	font = (struct DiskFontHeader *) ((seg<<2)+8);
-    font = BPTR_OFFSET_ADDR(seg, 8, struct DiskFontHeader);
-    SETFN(AL_FONT); /* opened the font */
-
-    tfont = OpenFont(&topaz_ta);
-    SetFont(&rp_text, tfont);
-    SetFont(&rp_text2, tfont);
-    SetFont(&rp_map, tfont);
-    afont = &(font->dfh_TF);
-#endif
+    //     if ((seg = LoadSeg("game/fonts/Amber/9")) == 0)
+    //         return 15;        // Xark: NULL -> 0 (since BPTR)
+    //                           // Xark:	font = (struct DiskFontHeader *) ((seg<<2)+8);
+    //     font = BPTR_OFFSET_ADDR(seg, 8, struct DiskFontHeader);
+    //     SETFN(AL_FONT); /* opened the font */
+    //
+    //     tfont = OpenFont(&topaz_ta);
+    //     SetFont(&rp_text, tfont);
+    //     SetFont(&rp_text2, tfont);
+    //     SetFont(&rp_map, tfont);
+    //     afont = &(font->dfh_TF);
 
     /* add the input handler */
     // handler_data.xsprite = handler_data.ysprite = 320;
@@ -863,8 +871,8 @@ int open_all(void)
     /* set trap handler */
 
     SETFN(AL_HANDLE);
-    FreeSprite(0);
-    GetSprite(&pointer, 0); /* test for error */
+    // FreeSprite(0);
+    // GetSprite(&pointer, 0); /* test for error */
 
     InitView(&v); /* initialize view */
 
@@ -875,24 +883,20 @@ int open_all(void)
     vp_text.Next = &vp_page; /* make links to additional viewports */
     vp_page.Next = NULL;
 
-    vp_page.DWidth = 288; /* lo-res screen is 36 bytes wide */
-    vp_text.DWidth = 640; /* hi-res screen */
-
+    vp_page.DWidth   = 288; /* lo-res screen is 36 bytes wide */
+    vp_page.DHeight  = 140;
     vp_page.DxOffset = 16;
-    vp_page.DyOffset = vp_text.DxOffset = 0;
-    vp_page.DHeight                     = 140;
+    vp_page.DyOffset = 0;
 
-    vp_text.DyOffset = PAGE_HEIGHT;
+    vp_text.DWidth   = 640;         /* hi-res screen */
     vp_text.DHeight  = TEXT_HEIGHT; /* make bigger later */
+    vp_text.DxOffset = 0;
+    vp_text.DyOffset = PAGE_HEIGHT;
 
-    vp_text.Modes = HIRES | SPRITES | VP_HIDE;
+    vp_text.Modes = HIRES;        // | SPRITES | VP_HIDE;
 
     /* init bit map (for rasinfo and rastport) */
 
-    bm_page2  = bm_page1 + 1;
-    bm_text   = bm_page1 + 2;
-    bm_source = bm_page1 + 3;
-    bm_lim    = bm_page1 + 4;
     InitBitMap(bm_page1, PAGE_DEPTH, PHANTA_WIDTH, RAST_HEIGHT);
     InitBitMap(bm_page2, PAGE_DEPTH, PHANTA_WIDTH, RAST_HEIGHT);
     InitBitMap(bm_text, 4, 640, TEXT_HEIGHT);
@@ -923,64 +927,71 @@ int open_all(void)
 
     /* (init color table) */
 
-    vp_page.ColorMap = GetColorMap(32);
-    vp_text.ColorMap = GetColorMap(20);
+    vp_page.ColorMap = GetColorMap(NUM_AMIGA_COLORS);
+    vp_text.ColorMap = GetColorMap(NUM_AMIGA_COLORS);
+
+    // NOTE: BitMap has a Surface, but no Planes
 
     /* reset all plane pointers */
 
-    for (i = 0; i < 5; i++)
-        bm_page1->Planes[i] = bm_page2->Planes[i] = NULL;
+    // for (i = 0; i < 5; i++)
+    //     bm_page1->Planes[i] = bm_page2->Planes[i] = NULL;
 
     /* allocate space for bitmap */
-    for (i = 0; i < 5; i++)
-    {
-        bm_page1->Planes[i] = AllocRaster(PHANTA_WIDTH, RAST_HEIGHT);
-        if (bm_page1->Planes[i] == NULL)
-            return 4;
-        bm_page2->Planes[i] = AllocRaster(PHANTA_WIDTH, RAST_HEIGHT);
-        if (bm_page2->Planes[i] == NULL)
-            return 5;
-    }
+    //     for (i = 0; i < 5; i++)
+    //     {
+    //         bm_page1->Planes[i] = AllocRaster(PHANTA_WIDTH, RAST_HEIGHT);
+    //         if (bm_page1->Planes[i] == NULL)
+    //             return 4;
+    //         bm_page2->Planes[i] = AllocRaster(PHANTA_WIDTH, RAST_HEIGHT);
+    //         if (bm_page2->Planes[i] == NULL)
+    //             return 5;
+    //     }
+    //
+    //     bm_text->Planes[0] = wb_bmap->Planes[0];
+    //     bm_text->Planes[1] = wb_bmap->Planes[1];
+    //     bm_text->Planes[2] = bm_text->Planes[0] + (TEXT_HEIGHT * 80);
+    //     bm_text->Planes[3] = bm_text->Planes[1] + (TEXT_HEIGHT * 80);
+    //
+    //     queue_mem = bm_text->Planes[2] + (TEXT_HEIGHT * 80);
+    //     bmask_mem = bm_text->Planes[3] + (TEXT_HEIGHT * 80);
 
-    bm_text->Planes[0] = wb_bmap->Planes[0];
-    bm_text->Planes[1] = wb_bmap->Planes[1];
-    bm_text->Planes[2] = bm_text->Planes[0] + (TEXT_HEIGHT * 80);
-    bm_text->Planes[3] = bm_text->Planes[1] + (TEXT_HEIGHT * 80);
+    bmask_mem = AllocMem(CBK_SIZE, 0);        // TODO: this size need to account for chunky pixels
+    // fp_page1.backsave = queue_mem + 962;
+    // fp_page2.backsave = bmask_mem + 962;
+    fp_page1.backsave =
+        AllocMem(TEXT_HEIGHT * 80, 0);        // TODO: this size need to account for chunky pixels
+    fp_page2.backsave =
+        AllocMem(TEXT_HEIGHT * 80, 0);        // TODO: this size need to account for chunky pixels
 
-    queue_mem = bm_text->Planes[2] + (TEXT_HEIGHT * 80);
-    bmask_mem = bm_text->Planes[3] + (TEXT_HEIGHT * 80);
-
-    fp_page1.backsave = queue_mem + 962;
-    fp_page2.backsave = bmask_mem + 962;
-
-    fp_page1.shape_queue = (struct sshape *)queue_mem;
-    fp_page2.shape_queue = (struct sshape *)(queue_mem + ((sizeof(struct sshape)) * MAXSHAPES));
+    fp_page1.shape_queue = (struct sshape *)AllocMem(sizeof(struct sshape) * MAXSHAPES, 0);
+    fp_page2.shape_queue = (struct sshape *)AllocMem(sizeof(struct sshape) * MAXSHAPES, 0);
 
     vp_text.RasInfo = &ri_text;
-    MakeVPort(&v, &vp_text);
+    // MakeVPort(&v, &vp_text);
 
-    if ((audioport = CreatePort(NULL, 0)))
-    {
-        if ((ioaudio = (struct IOAudio *)CreateExtIO(audioport, sizeof *ioaudio)))
-        {
-            UBYTE data = 0x0f;
-
-            ioaudio->ioa_Data   = &data;
-            ioaudio->ioa_Length = 1;
-
-            if (!OpenDevice("audio.device", 0L, &ioaudio->ioa_Request, 0L))
-            {
-                ioaudio->ioa_Request.io_Command = CMD_RESET;
-                ioaudio->ioa_Request.io_Flags   = IOF_QUICK;
-                BeginIO(&ioaudio->ioa_Request);
-
-                if (!(ioaudio->ioa_Request.io_Flags & IOF_QUICK))
-                    WaitIO(&ioaudio->ioa_Request);
-
-                audio_open = 1;
-            }
-        }
-    }
+    //     if ((audioport = CreatePort(NULL, 0)))
+    //     {
+    //         if ((ioaudio = (struct IOAudio *)CreateExtIO(audioport, sizeof *ioaudio)))
+    //         {
+    //             UBYTE data = 0x0f;
+    //
+    //             ioaudio->ioa_Data   = &data;
+    //             ioaudio->ioa_Length = 1;
+    //
+    //             if (!OpenDevice("audio.device", 0L, &ioaudio->ioa_Request, 0L))
+    //             {
+    //                 ioaudio->ioa_Request.io_Command = CMD_RESET;
+    //                 ioaudio->ioa_Request.io_Flags   = IOF_QUICK;
+    //                 BeginIO(&ioaudio->ioa_Request);
+    //
+    //                 if (!(ioaudio->ioa_Request.io_Flags & IOF_QUICK))
+    //                     WaitIO(&ioaudio->ioa_Request);
+    //
+    //                 audio_open = 1;
+    //             }
+    //         }
+    //     }
 
     if ((wavmem = AllocMem(VOICE_SZ, MEMF_CHIP)) == NULL)
         return 16;
@@ -1018,21 +1029,19 @@ int open_all(void)
         fclose(filep);
     }
 
-    bm_scroll.Planes[0] = bm_text->Planes[0];
+    // TODO: Hmmm... BitMaps alias?
+    // bm_scroll.Planes[0] = bm_text->Planes[0];
 
-    sprite_data = (int32_t *)into_chip((void *)_sprite_data, 88);
+    ChangeSprite(&vp_text, 16, 16, (void *)sprite_data);
 
-    ChangeSprite(&vp_text, &pointer, (void *)sprite_data);
     handler_data.vbase = &vp_text;
 
-    nhinor = into_chip(&hinor[0], (16 * 16));
-    nhivar = into_chip(&hivar[0], (16 * 16));
     return 0;
 }
 
 int close_all(void)
 {
-    register int32_t i;
+    // register int32_t i;
 
     RUNLOG("<= close_all()");
 
@@ -1055,41 +1064,38 @@ int close_all(void)
         FreeMem(scoremem, SCORE_SZ);
     }
 
-    free_chip(sprite_data, _sprite_data, 88);
-    free_chip(nhinor, &hinor[0], (16 * 16));
-    free_chip(nhivar, &hivar[0], (16 * 16));
-    LoadView(oldview);
-    FreeVPortCopLists(&vp_page);
-    FreeVPortCopLists(&vp_text);
-    FreeCprList(fp_page1.savecop);
-    FreeCprList(fp_page2.savecop);
-    FreeCprList(v.SHFCprList);
+    // LoadView(oldview);
+    // FreeVPortCopLists(&vp_page);
+    // FreeVPortCopLists(&vp_text);
+    // FreeCprList(fp_page1.savecop);
+    // FreeCprList(fp_page2.savecop);
+    // FreeCprList(v.SHFCprList);
 
     if (vp_page.ColorMap)
         FreeColorMap(vp_page.ColorMap);
     if (vp_text.ColorMap)
         FreeColorMap(vp_text.ColorMap);
-    for (i = 0; i < PAGE_DEPTH; i++)
-        if (bm_page1 && bm_page1->Planes[i])
-            FreeRaster(bm_page1->Planes[i], PHANTA_WIDTH, RAST_HEIGHT);
-    for (i = 0; i < PAGE_DEPTH; i++)
-        if (bm_page2 && bm_page2->Planes[i])
-            FreeRaster(bm_page2->Planes[i], PHANTA_WIDTH, RAST_HEIGHT);
+    // for (i = 0; i < PAGE_DEPTH; i++)
+    //     if (bm_page1 && bm_page1->Planes[i])
+    //         FreeRaster(bm_page1->Planes[i], PHANTA_WIDTH, RAST_HEIGHT);
+    // for (i = 0; i < PAGE_DEPTH; i++)
+    //     if (bm_page2 && bm_page2->Planes[i])
+    //         FreeRaster(bm_page2->Planes[i], PHANTA_WIDTH, RAST_HEIGHT);
 
 
-    if (audio_open)
-        CloseDevice(&ioaudio->ioa_Request);
-    if (ioaudio)
-        DeleteExtIO(&ioaudio->ioa_Request);
-    if (audioport)
-        DeletePort(audioport);
+    // if (audio_open)
+    //     CloseDevice(&ioaudio->ioa_Request);
+    // if (ioaudio)
+    //     DeleteExtIO(&ioaudio->ioa_Request);
+    // if (audioport)
+    //     DeletePort(audioport);
 
-    if (TSTFN(AL_HANDLE))
-        wrap_device();
+    // if (TSTFN(AL_HANDLE))
+    //     wrap_device();
     if (TSTFN(AL_FONT))
     {
-        UnLoadSeg(seg);
-        CloseFont(tfont);
+        // UnLoadSeg(seg);
+        // CloseFont(tfont);
     }
 
 #if 0
@@ -1102,22 +1108,22 @@ int close_all(void)
 
     if (TSTFN(AL_GBASE))
     {
-        CloseLibrary((struct Library *)GfxBase);
-        CloseLibrary(LayersBase);
+        // CloseLibrary((struct Library *)GfxBase);
+        // CloseLibrary(LayersBase);
     }
     if (TSTFN(AL_BMAP))
-        FreeMem(bm_page1, 5 * BM_SIZE);
+        FreeMem(bm_page1, 5 * sizeof(struct BitMap));
     if (TSTFN(AL_BMAP))
         UnMakeBitMap(&work_bm);
-    DisposeLayerInfo(li);
-    FreeSprite(0);
+    // DisposeLayerInfo(li);
+    // FreeSprite(0);
     openflags = 0;
 
     // TODO: Xark needed?
     // if (origDir)
     //     CurrentDir(origDir);
 
-    exit(0);
+    sdl_exit(0);
 }
 
 int16_t oldir       = 9;
@@ -1177,8 +1183,7 @@ void read_sample(void)
 
 /* subroutine for opening doors */
 
-extern char skipp;
-char        bumped;
+char bumped;
 enum ky
 {
     NOKEY = 0,
@@ -1293,8 +1298,6 @@ found:
     return FALSE;
 }
 
-extern UBYTE titletext[];
-
 FILE * logfilep;
 
 int main(int argc, char ** argv)
@@ -1318,14 +1321,6 @@ int main(int argc, char ** argv)
 
     RUNLOGF("*** FTA main(%d, %p)", argc, argv);
 
-    // TODO: Xark needed?
-    //     if (argc == 0)
-    //     {
-    //         extern struct WBStartup * WBenchMsg;
-    //
-    //         //  origDir = CurrentDir(WBenchMsg->sm_ArgList->wa_Lock);
-    //     }
-
     light_timer = 0;
     i           = open_all();
     if (i)
@@ -1336,6 +1331,8 @@ int main(int argc, char ** argv)
 
     stopscore();
 
+    RUNLOG("... [draw legals]");
+
     vp_page.RasInfo  = &ri_page1;
     fp_page2.ri_page = &ri_page2;
     rp_map.BitMap    = fp_viewing->ri_page->BitMap;
@@ -1343,7 +1340,12 @@ int main(int argc, char ** argv)
     rp_map.BitMap = fp_drawing->ri_page->BitMap;
     SetRast(&rp_map, 0);
     rp = &rp_map;
-    screen_size(156);
+
+    RUNLOG("... [display legals]");
+
+    screen_size(156);   // this does pagechange
+
+
     SetRGB4(&vp_page, 0, 0, 0, 6);
     SetRGB4(&vp_page, 1, 15, 15, 15);
 
@@ -1354,6 +1356,7 @@ int main(int argc, char ** argv)
     ssp(titletext);
     SetAPen(rp, i);
 
+    RUNLOG("... [legals delay]");
     Delay(50);
 
     rp             = &rp_text;
@@ -1367,14 +1370,13 @@ int main(int argc, char ** argv)
 
     Delay(50);
 
-    vp              = &vp_page; /* so that iff subs can communicate */
     vp_page.RasInfo = &ri_page1;
 
-    for (i = 0; i < 5; i++)
-    {
-        pagea.Planes[i] = (pageb.Planes[i] = image_mem + (i * 8000)) + 40000;
-    }
-    bm_lim->Planes[0] = sector_mem;
+    // for (i = 0; i < 5; i++)
+    // {
+    //     pagea.Planes[i] = (pageb.Planes[i] = image_mem + (i * 8000)) + 40000;
+    // }
+    // bm_lim->Planes[0] = sector_mem;
 
     playscore(track[12], track[13], track[14], track[15]);
 
@@ -1389,7 +1391,8 @@ int main(int argc, char ** argv)
     if (skipint())
         goto no_intro;
 
-    unpackbrush("game/page0", &pageb, 0, 0);
+    // unpackbrush("game/page0", &pageb, 0, 0);
+    unpack_png("assets/page0.png", &pageb, 0, 0);
     BltBitMap(&pageb, 0, 0, bm_page1, 0, 0, 320, 200, 0xC0, 0x1f, 0);
     BltBitMap(&pageb, 0, 0, bm_page2, 0, 0, 320, 200, 0xC0, 0x1f, 0);
 
@@ -1400,12 +1403,16 @@ int main(int argc, char ** argv)
 
     if (skipint())
         goto end_intro;
-    copypage("game/p1a", "game/p1b", 21, 29);
-    copypage("game/p2a", "game/p2b", 20, 29);
-    copypage("game/p3a", "game/p3b", 20, 33);
+    // copypage("game/p1a", "game/p1b", 21, 29);
+    // copypage("game/p2a", "game/p2b", 20, 29);
+    // copypage("game/p3a", "game/p3b", 20, 33);
+    copypage("assets/p1a.png", "assets/p1b.png", 21, 29);
+    copypage("assets/p2a.png", "assets/p2b.png", 20, 29);
+    copypage("assets/p3a.png", "assets/p3b.png", 20, 33);
     if (!skipp)
         Delay(190);
 end_intro:
+    DPRINT("... [end intro]");
     fp_page2.ri_page = &ri_page1;
     for (i = 156; i >= 0; i -= 4)
         screen_size(i);
@@ -1424,13 +1431,11 @@ no_intro:
     screen_size(156);
     SetRGB4(&vp_page, 0, 0, 0, 3);
     load_track_range(896, 24, shadow_mem, 0);
-    // TODO: Xark fixme WaitLastDiskIO()
-    // WaitLastDiskIO(); /* WaitIO((struct IORequest *)lastreq); */
-    // TODO: Xark fixme WaitLastDiskIO()
-    // InvalidLastDiskIO(); /* lastreq->iotd_Req.io_Command = CMD_INVALID; */
+    save_raw_asset("raw_assets/shadow_mem_gfx.raw", shadow_mem, 24 * 512, 0);
 
     SetRGB4(&vp_page, 0, 0, 0, 6);
-    unpackbrush("game/hiscreen", bm_text, 0, 0);
+    // unpackbrush("game/hiscreen", bm_text, 0, 0);
+    unpack_png("assets/hiscreen.png", bm_text, 0, 0);
 
     SetRGB4(&vp_page, 1, 15, 15, 15);
 
@@ -1459,9 +1464,9 @@ no_intro:
     vp_page.DxOffset = 16;
     vp_page.DWidth   = 288; /* lo-res screen is 36 bytes wide */
     vp_page.DyOffset = 0;
-    MakeVPort(&v, &vp_text);
+    // MakeVPort(&v, &vp_text);
     LoadRGB4(&vp_text, textcolors, 20);
-    handler_data.pbase = &pointer;
+    // handler_data.pbase = &pointer;
 
     fp_page1.obcount = fp_page2.obcount = 0;
     fp_page1.wflag = fp_page2.wflag = 0;
@@ -1477,8 +1482,8 @@ no_intro:
     cheat1 = quitflag = FALSE;
     while (!quitflag)
     {
-        int16_t  cycle = 0, atype, inum = 0, notpause;
-// Xark:        BYTE *   pia = (BYTE *)0xbfe001;
+        int16_t cycle = 0, atype, inum = 0, notpause;
+        // Xark:        BYTE *   pia = (BYTE *)0xbfe001;
         BYTE *   pia = (BYTE *)"\0";
         uint8_t *backalloc, crack;
 
@@ -2545,7 +2550,7 @@ no_intro:
         /* generate map */
 
         bm_draw = fp_drawing->ri_page->BitMap;
-        planes  = bm_draw->Planes;
+        // planes  = bm_draw->Planes;       // Xark: used by asm draw code
 
         OwnBlitter();
         for (i = fp_drawing->obcount; i > 0; i--)
@@ -4038,7 +4043,7 @@ void screen_size(int32_t x)
 
     fade_page(y * 2 - 40, y * 2 - 70, y * 2 - 100, 0, introcolors);
 
-    MakeVPort(&v, &vp_text);
+    // MakeVPort(&v, &vp_text);
     pagechange();
 }
 
@@ -4139,70 +4144,68 @@ void     pagechange(void)
     fp_drawing      = fp_viewing;
     fp_viewing      = temp;
     vp_page.RasInfo = temp->ri_page;
-    v.LOFCprList    = temp->savecop;
+    // v.LOFCprList    = temp->savecop;
 
-    MakeVPort(&v, &vp_page);
-    MrgCop(&v);
-    LoadView(&v);
-    temp->savecop = v.LOFCprList;
+    // MakeVPort(&v, &vp_page);
+    // MrgCop(&v);
+    // LoadView(&v);        // Xark: v is assumed to be the View
+    // temp->savecop = v.LOFCprList;
 
     sdl_endframe();
 
-    WaitBOVP(&vp_text);
+    //    WaitBOVP(&vp_text);     // wait vsync
 }
 
-struct MsgPort *  inputDevPort;
-struct IOStdReq * inputRequestBlock;
-struct Interrupt  handlerStuff;
+// struct MsgPort *  inputDevPort;
+// struct IOStdReq * inputRequestBlock;
+// struct Interrupt  handlerStuff;
 
 // Xark: removed prototype: extern struct MsgPort *CreatePort();
 // Xark: removed prototype: extern struct IOStdReq *CreateStdIO();
 
-BOOL add_device(void)
-{
+// BOOL add_device(void)
+// {
+//
+//     SHORT error;
+//
+//     handler_data.laydown = handler_data.pickup = 0;
+//     if ((inputDevPort = CreatePort(0, 0)) == NULL)
+//         return FALSE;
+//     inputRequestBlock = CreateStdIO(inputDevPort);
+//     if (inputRequestBlock == 0)
+//     {
+//         DeletePort(inputDevPort);
+//         return FALSE;
+//     }
+//
+//     handlerStuff.is_Data        = (APTR)&handler_data;
+//     handlerStuff.is_Code        = (void (*)())HandlerInterface;
+//     handlerStuff.is_Node.ln_Pri = 51;
+//
+//     error = OpenDevice("input.device", 0, (struct IORequest *)inputRequestBlock, 0);
+//     if (error)
+//         return FALSE;
+//
+//     inputRequestBlock->io_Command = IND_ADDHANDLER;
+//     inputRequestBlock->io_Data    = (APTR)&handlerStuff;
+//
+//     DoIO((struct IORequest *)inputRequestBlock);
+//
+//     RUNLOG("1 <= add_device()");
+//     return TRUE;
+// }
 
-    RUNLOG("... skipping inputhandler");
-
-    //     SHORT error;
-    //
-    //     handler_data.laydown = handler_data.pickup = 0;
-    //     if ((inputDevPort = CreatePort(0, 0)) == NULL)
-    //         return FALSE;
-    //     inputRequestBlock = CreateStdIO(inputDevPort);
-    //     if (inputRequestBlock == 0)
-    //     {
-    //         DeletePort(inputDevPort);
-    //         return FALSE;
-    //     }
-    //
-    //     handlerStuff.is_Data        = (APTR)&handler_data;
-    //     handlerStuff.is_Code        = (void (*)())HandlerInterface;
-    //     handlerStuff.is_Node.ln_Pri = 51;
-    //
-    //     error = OpenDevice("input.device", 0, (struct IORequest *)inputRequestBlock, 0);
-    //     if (error)
-    //         return FALSE;
-    //
-    //     inputRequestBlock->io_Command = IND_ADDHANDLER;
-    //     inputRequestBlock->io_Data    = (APTR)&handlerStuff;
-    //
-    //     DoIO((struct IORequest *)inputRequestBlock);
-
-    RUNLOG("1 <= add_device()");
-    return TRUE;
-}
-
-void wrap_device(void)
-{
-    RUNLOG("<= wrap_device()");
-
-    inputRequestBlock->io_Command = IND_REMHANDLER;
-    inputRequestBlock->io_Data    = (APTR)&handlerStuff;
-    DoIO((struct IORequest *)inputRequestBlock);
-    CloseDevice((struct IORequest *)inputRequestBlock);
-    DeleteStdIO(inputRequestBlock);
-    DeletePort(inputDevPort);
-}
+// void wrap_device(void)
+// {
+//     RUNLOG("<= wrap_device()");
+//
+//     // inputRequestBlock->io_Command = IND_REMHANDLER;
+//     // inputRequestBlock->io_Data    = (APTR)&handlerStuff;
+//     // DoIO((struct IORequest *)inputRequestBlock);
+//     // CloseDevice((struct IORequest *)inputRequestBlock);
+//     // DeleteStdIO(inputRequestBlock);
+//     // DeletePort(inputDevPort);
+// }
 
 void print_options(void)
 {
@@ -4277,11 +4280,7 @@ void propt(int16_t j, int16_t pena)
         Text(&rp_text2, menus[cmode].label_list + (k - 25), 5);
 }
 
-int32_t     secx, secy;
-extern BYTE svflag;
-
-extern UBYTE itrans[];
-extern char  jtrans[];
+int32_t secx, secy;
 
 LONG dbg;
 
@@ -4310,12 +4309,13 @@ void do_option(int16_t hit)
 
                 InitBitMap(&pagea, 5, 16, 8000);
                 data = seq_list[OBJECTS].location;
+                (void)data;        // TODO: object data Surface?
                 /* all objects are 32 (16 * 1 word) bytes per plane */
-                pagea.Planes[0] = data;
-                pagea.Planes[1] = data + 32;
-                pagea.Planes[2] = data + 64;
-                pagea.Planes[3] = data + 96;
-                pagea.Planes[4] = data + 128;
+                // pagea.Planes[0] = data;
+                // pagea.Planes[1] = data + 32;
+                // pagea.Planes[2] = data + 64;
+                // pagea.Planes[3] = data + 96;
+                // pagea.Planes[4] = data + 128;
 
                 for (j = 0; j < GOLDBASE; j++)
                 {
@@ -4600,7 +4600,7 @@ void do_option(int16_t hit)
                     if (cheat1 == 0 && region_num > 7)
                         return;
                     bm_draw = fp_drawing->ri_page->BitMap;
-                    planes  = bm_draw->Planes;
+                    // planes  = bm_draw->Planes;   // Xark: Used by asm code
                     bigdraw(map_x, map_y);
 
                     i             = (hero_x >> 4) - ((secx + xreg) << 4) - 4;
@@ -5012,7 +5012,7 @@ void load_new_region(void)
     register uint8_t *     imem;
     uint8_t *              imem0;
 
-    RUNLOGF("<= load_new_region()");
+    RUNLOGF("<= load_new_region() [region %03d %s]", new_region, file_index[new_region].debug_name);
 
     if (MAP_STABLE)
         return;
@@ -5020,21 +5020,37 @@ void load_new_region(void)
     if (nd->sector != current_loads.sector)
     {
         load_track_range(nd->sector, 64, sector_mem, 0);
+#if SAVE_RAW
+        sprintf(raw_asset_fname, "raw_assets/sector_%03d_%s.raw", nd->sector, nd->debug_name);
+        save_raw_asset(raw_asset_fname, sector_mem, 64 * 512, 0);
+#endif
         current_loads.sector = nd->sector;
     }
     if (nd->region != current_loads.region)
     {
         load_track_range(nd->region, 8, map_mem, 0);
+#if SAVE_RAW
+        sprintf(raw_asset_fname, "raw_assets/map_%03d_%s.raw", nd->region, nd->debug_name);
+        save_raw_asset(raw_asset_fname, map_mem, 8 * 512, 0);
+#endif
         current_loads.region = nd->region;
     }
     if (nd->terra1 != current_loads.terra1)
     {
         load_track_range(TERRA_BLOCK + nd->terra1, 1, terra_mem, 1);
+#if SAVE_RAW
+        sprintf(raw_asset_fname, "raw_assets/terrain_%03d_%s.raw", nd->terra1, nd->debug_name);
+        save_raw_asset(raw_asset_fname, terra_mem, 1 * 512, 0);
+#endif
         current_loads.terra1 = nd->terra1;
     }
     if (nd->terra2 != current_loads.terra2)
     {
         load_track_range(TERRA_BLOCK + nd->terra2, 1, terra_mem + 512, 2);
+#if SAVE_RAW
+        sprintf(raw_asset_fname, "raw_assets/terrain_%03d_%s.raw", nd->terra2, nd->debug_name);
+        save_raw_asset(raw_asset_fname, terra_mem + 512, 1 * 512, 0);
+#endif
         current_loads.terra2 = nd->terra2;
     }
     imem0 = image_mem;
@@ -5044,14 +5060,30 @@ void load_new_region(void)
         {
             imem = imem0;
             load_track_range(nd->image[i] + 0, 8, imem, 3);
+#if SAVE_RAW
+            sprintf(raw_asset_fname, "raw_assets/image_%03d_%s.raw", nd->image[i], nd->debug_name);
+            save_raw_asset(raw_asset_fname, imem, 8 * 512, 0);
+#endif
             imem += IPLAN_SZ;
             load_track_range(nd->image[i] + 8, 8, imem, 4);
+#if SAVE_RAW
+            save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
+#endif
             imem += IPLAN_SZ;
             load_track_range(nd->image[i] + 16, 8, imem, 5);
+#if SAVE_RAW
+            save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
+#endif
             imem += IPLAN_SZ;
             load_track_range(nd->image[i] + 24, 8, imem, 6);
+#if SAVE_RAW
+            save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
+#endif
             imem += IPLAN_SZ;
             load_track_range(nd->image[i] + 32, 8, imem, 7);
+#if SAVE_RAW
+            save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
+#endif
             current_loads.image[i] = nd->image[i];
             return;
         }
@@ -5064,21 +5096,22 @@ void load_new_region(void)
         map_mem[i] = map_mem[i + 1] = map_mem[i + 128] = map_mem[i + 129] = 254;
     }
 
-    for (i = 0; i < 7; i++)
-    {
-#if 1
-        if (IsReadDiskIO(i))
-            WaitDiskIO(i);
-        InvalidDiskIO(i);
-#else
-        lastreq = &(diskreqs[i]);
-        if (lastreq->iotd_Req.io_Command == CMD_READ)
-            WaitIO((struct IORequest *)lastreq);
-        lastreq->iotd_Req.io_Command = CMD_INVALID;
-#endif
-    }
+    //     for (i = 0; i < 7; i++)
+    //     {
+    // #if 1
+    //         if (IsReadDiskIO(i))
+    //             WaitDiskIO(i);
+    //         InvalidDiskIO(i);
+    // #else
+    //         lastreq = &(diskreqs[i]);
+    //         if (lastreq->iotd_Req.io_Command == CMD_READ)
+    //             WaitIO((struct IORequest *)lastreq);
+    //         lastreq->iotd_Req.io_Command = CMD_INVALID;
+    // #endif
+    //     }
+    //
+    //     motor_off();
 
-    motor_off();
     region_num = new_region;
     new_region = NO_REGION;
 }

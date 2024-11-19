@@ -32,7 +32,6 @@ void      read_score(void);
 void      copypage(char * br1, char * br2, int16_t x, int16_t y);
 void      flipscan(void);
 int       skipint(void);
-uint8_t * into_chip(uint8_t * oldpointer, int32_t size);
 void      witch_fx(struct fpage * fp);
 void      do_objects(void);
 void      leave_item(int16_t i, int16_t object);

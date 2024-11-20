@@ -499,7 +499,7 @@ struct RasInfo    ri_title;
 struct BitMap *   bm_page1;
 struct BitMap *   bm_page2;
 struct BitMap *   bm_text;
-struct BitMap *   bm_lim;
+// struct BitMap *   bm_lim;
 struct BitMap *   bm_draw;
 struct BitMap *   bm_source;
 struct BitMap     bm_scroll;
@@ -761,7 +761,6 @@ struct in_work handler_data;
 
 /* this function opens everything that needs to be opened */
 
-struct BitMap * wb_bmap;
 // struct Layer_Info * li /* , *NewLayerInfo() */;          // Xark: moved comma, removed prototype
 // struct Process *    thistask /* , *FindTask() */;        // Xark: removed prototype
 // BPTR                origDir;
@@ -788,7 +787,7 @@ int open_all(void)
     SETFN(AL_GBASE); /* opened the graphics library */
     // Xark: oldview = GfxBase->ActiView;
 
-    if (!MakeBitMap(&work_bm, 2, 640, 200))
+    if (!MakeBitMap(&work_bm, 2, 640, 200, "work_bm"))
         return 2;
 
     // li = NewLayerInfo();
@@ -797,13 +796,10 @@ int open_all(void)
     InitRastPort(&rp_text2);
     rp = &rp_text;
 
-    /* wb_bmap = oldview->ViewPort->RasInfo->BitMap; */ /* workbench bitmap */
-    wb_bmap = &work_bm;
-
-    rp_text.BitMap = wb_bmap; /* workbench screen (not!) */
+    rp_text.BitMap = &work_bm;
     SetBPen(rp, 0);
     SetDrMd(rp, JAM2);
-    SetRast(rp, 0); /* clear workbench screen (not!) */
+    SetRast(rp, 0);
 
     // NOTE: alloc 5 structs at once...
     if ((bm_page1 = (struct BitMap *)AllocMem(5 * sizeof(struct BitMap), MEMF_CHIP | MEMF_CLEAR)) ==
@@ -813,7 +809,7 @@ int open_all(void)
     bm_page2  = bm_page1 + 1;
     bm_text   = bm_page1 + 2;
     bm_source = bm_page1 + 3;
-    bm_lim    = bm_page1 + 4;
+    // bm_lim    = bm_page1 + 4;
 
     if ((i = AllocDiskIO()))
         return i;
@@ -825,12 +821,12 @@ int open_all(void)
     // if (OpenDevice(TD_NAME,0,(struct IORequest *)diskreq1,0)) return 32;
     // SETFN(AL_TDISK);
     // for (i=0; i<9; i++)
-    // {	diskreqs[i] = *diskreq1;
+    // {        diskreqs[i] = *diskreq1;
     // }
 
     //     if ((seg = LoadSeg("game/fonts/Amber/9")) == 0)
     //         return 15;        // Xark: NULL -> 0 (since BPTR)
-    //                           // Xark:	font = (struct DiskFontHeader *) ((seg<<2)+8);
+    //                           // Xark:        font = (struct DiskFontHeader *) ((seg<<2)+8);
     //     font = BPTR_OFFSET_ADDR(seg, 8, struct DiskFontHeader);
     //     SETFN(AL_FONT); /* opened the font */
     //
@@ -879,14 +875,14 @@ int open_all(void)
 
     /* init bit map (for rasinfo and rastport) */
 
-    InitBitMap(bm_page1, PAGE_DEPTH, PHANTA_WIDTH, RAST_HEIGHT);
-    InitBitMap(bm_page2, PAGE_DEPTH, PHANTA_WIDTH, RAST_HEIGHT);
-    InitBitMap(bm_text, 4, 640, TEXT_HEIGHT);
-    InitBitMap(bm_lim, 1, 320, 200);
-    InitBitMap(&pagea, 5, 320, 200);
-    InitBitMap(&pageb, 5, 320, 200);
-    InitBitMap(&bm_scroll, 1, 640, TEXT_HEIGHT);
-    InitBitMap(bm_source, 3, 64, 24);
+    InitBitMap(bm_page1, PAGE_DEPTH, PHANTA_WIDTH, RAST_HEIGHT, "bm_page1");
+    InitBitMap(bm_page2, PAGE_DEPTH, PHANTA_WIDTH, RAST_HEIGHT, "bm_page2");
+    InitBitMap(bm_text, 4, 640, TEXT_HEIGHT, "bm_text");
+    // InitBitMap(bm_lim, 1, 320, 200, "bm_lim");
+    InitBitMap(&pagea, 5, 320, 200, "bm_pagea");
+    InitBitMap(&pageb, 5, 320, 200, "bm_pageb");
+    InitBitMap(&bm_scroll, 1, 640, TEXT_HEIGHT, "bm_scroll");
+    InitBitMap(bm_source, 3, 64, 24, "bm_source");
 
     rp_text2.BitMap = bm_text;
 
@@ -1081,9 +1077,9 @@ int close_all(void)
     }
 
 #if 0
-	if (TSTFN(AL_TDISK)) CloseDevice((struct IORequest *)diskreq1);
-	if (TSTFN(AL_IOREQ))  DeleteExtIO((struct IORequest *)diskreq1);
-	if (TSTFN(AL_PORT)) DeletePort(diskport);
+        if (TSTFN(AL_TDISK)) CloseDevice((struct IORequest *)diskreq1);
+        if (TSTFN(AL_IOREQ))  DeleteExtIO((struct IORequest *)diskreq1);
+        if (TSTFN(AL_PORT)) DeletePort(diskport);
 #endif
 
     FreeDiskIO();
@@ -1238,7 +1234,7 @@ found:
     /* okay-- we seem to know where the door starts. now which type is it */
     sec_id = *(mapxy(x, y));
     reg_id = current_loads.image[(sec_id >> 6)];
-    /*	prdec(x,4); prdec(y,4); prdec(sec_id,3); */
+    /*        prdec(x,4); prdec(y,4); prdec(sec_id,3); */
     for (j = 0; j < 17; j++)
     {
         if (open_list[j].map_id == reg_id && open_list[j].door_id == sec_id)
@@ -1338,8 +1334,10 @@ int main(int argc, char ** argv)
     ssp(titletext);
     SetAPen(rp, i);
 
+    sdl_endframe(); // Xark: render legals
+
     RUNLOG("... [legals delay]");
-    Delay(50 | 0x8000);
+    Delay(50);
 
     rp             = &rp_text;
     rp_text.BitMap = &bm_scroll;
@@ -3591,8 +3589,6 @@ no_intro:
     }
     stopscore();
 quit_all:
-    rp_text.BitMap = wb_bmap;
-    SetRast(&rp_text, 0);
     close_all();
 }
 
@@ -3636,8 +3632,8 @@ void find_place(int16_t flag)
 findagain:
     j = hero_sector = hero_sector & 255;
 
-    // TODO: Xark no-effect fixme?	((hero_x>>8) - xreg) & 64;
-    // TODO: Xark no-effect fixme?	((hero_y>>8) - yreg) & 32;
+    // TODO: Xark no-effect fixme?        ((hero_x>>8) - xreg) & 64;
+    // TODO: Xark no-effect fixme?        ((hero_y>>8) - yreg) & 32;
     if (region_num > 7)
     {
         tbl = inside_tbl;
@@ -3948,6 +3944,7 @@ void revive(int16_t is_new)        // Xark: renamed new -> is_new
         if (brother == 1)
         {
             placard_text(0);
+
             rp_map.BitMap = fp_drawing->ri_page->BitMap;
             SetRast(&rp_map, 0);
             rp_map.BitMap = fp_viewing->ri_page->BitMap;
@@ -3960,6 +3957,7 @@ void revive(int16_t is_new)        // Xark: renamed new -> is_new
             placard_text(5);
 
         placard();
+        sdl_endframe(); // Xark: show placard
         Delay(120);
 
         if (brother > 3)
@@ -4142,12 +4140,11 @@ void gen_mini(void)
     genmini(img_x, img_y);
 }
 
-uint32_t frame_counter;
 void     pagechange(void)
 {
-    register struct fpage * temp;
+    register struct fpage * temp; 
 
-    RUNLOGF("<= pagechange() [page %d, frame %9d]", fp_drawing != &fp_page1, frame_counter++);
+    RUNLOGF("<= pagechange()");
 
     temp            = fp_drawing;
     fp_drawing      = fp_viewing;
@@ -4315,8 +4312,8 @@ void do_option(int16_t hit)
                 bm            = fp_drawing->ri_page->BitMap;
                 rp_map.BitMap = bm;
                 SetRast(&rp_map, 0);
-
-                InitBitMap(&pagea, 5, 16, 8000);
+                // TODO: object images
+                InitBitMap(&pagea, 5, 16, 8000, "pagea_objects");
                 data = seq_list[OBJECTS].location;
                 (void)data;        // TODO: object data Surface?
                 /* all objects are 32 (16 * 1 word) bytes per plane */

@@ -9,7 +9,7 @@
 
 // FTA defines and sizes
 
-/* playing map is 6 * 19 = 114 */ // Xark: Or 120?
+/* playing map is 6 * 19 = 114 */        // Xark: Or 120?
 
 #define TERRA_BLOCK 149
 #define NO_REGION   10
@@ -90,10 +90,10 @@ struct shape
     char     goal;
     char     tactic; /* current goal mode and means to carry it out */
     char     state;
-    char     facing;               /* current movement state and facing */
-    int16_t  vitality;             /* also original object number */
-    char     vel_x, vel_y;         /* velocity for slippery areas */
-    /*	APTR	source_struct;	*/ /* address of generating structure */
+    char     facing;              /* current movement state and facing */
+    int16_t  vitality;            /* also original object number */
+    char     vel_x, vel_y;        /* velocity for slippery areas */
+    /* APTR     source_struct; */ /* address of generating structure */
 };
 
 struct fpage
@@ -152,7 +152,7 @@ struct need
     char * debug_name;
 };
 
- /* input handler data */
+/* input handler data */
 struct in_work
 {
     int16_t               xsprite, ysprite;
@@ -256,10 +256,10 @@ extern struct fpage *  fp_viewing;
 
 extern char viewstatus;
 
-#define FTMOUSE_MIN_X    5
-#define FTMOUSE_MAX_X    315
-#define FTMOUSE_MIN_Y    147
-#define FTMOUSE_MAX_Y    195
+#define FTMOUSE_MIN_X 5
+#define FTMOUSE_MAX_X 315
+#define FTMOUSE_MIN_Y 147
+#define FTMOUSE_MAX_Y 195
 
 // Xark: moved here
 #define SETFN(n) openflags |= n
@@ -303,7 +303,6 @@ extern struct TextFont *tfont, *afont;
 // Xark includes after structs
 #include "fmain.h"
 #include "fmain2.h"
-#include "sdlsubs.h"
 
 // Xark: Functions below are from assembly files
 // TODO: Clean these up
@@ -378,7 +377,26 @@ int16_t wrap(int16_t v);
 int32_t prox(int32_t x, int32_t y);
 
 // makebitmap
-BOOL MakeBitMap(struct BitMap * b, int32_t depth, int32_t width, int32_t height);
+BOOL MakeBitMap(struct BitMap * b, int32_t depth, int32_t width, int32_t height, const char * name);
 void UnMakeBitMap(struct BitMap * b);
+
+// sdlsubs.c
+extern uint8_t sdl_key;
+extern char    raw_asset_fname[128];
+extern float   sdl_window_scale;
+
+uint32_t  swap_endian(uint32_t v);
+uint16_t  swap_endian16(uint16_t v);
+SDL_Color amiga_color(UWORD color);
+void      print_surface_info(char * msg, SDL_Surface * s);
+void      save_raw_asset(const char * fname, void * ptr, int32_t len, int appendflag);
+int       sdl_init(void);
+void      sdl_exit(int retval) __attribute__((noreturn));
+void      sdl_update_cursor(struct ViewPort * vp);
+void      sdl_endframe(void);
+void      ft_mouse_pos(int16_t x, int16_t y);
+
+void sdl_pump(void);
+BOOL unpack_png(char * filename, struct BitMap * bitmap, int16_t wx, int16_t y);
 
 // EOF

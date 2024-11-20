@@ -107,8 +107,8 @@ extern FILE * logfilep;
 #define NUM_ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
 
 // SDL things
-extern struct SDL_Surface * sdl_cursor_image;
-extern struct SDL_Cursor * sdl_cursor;
+extern struct SDL_Surface *  sdl_cursor_image;
+extern struct SDL_Cursor *   sdl_cursor;
 extern struct SDL_Renderer * sdl_renderer;
 
 // exec
@@ -137,6 +137,11 @@ typedef int16_t  BOOL;
 APTR AllocMem(uint32_t bytesize, uint32_t attributes);
 void FreeMem(APTR memoryBlock, uint32_t byteSize);
 
+// input
+#define IECODE_UP_PREFIX       0x80
+#define IEQUALIFIER_RBUTTON    0x2000
+#define IEQUALIFIER_LEFTBUTTON 0x4000
+
 // Gfx
 #define JAM1       0 /* jam 1 color into raster */
 #define JAM2       1 /* jam 2 colors into raster */
@@ -153,6 +158,7 @@ struct BitMap
     UWORD         Rows;
     UBYTE         Flags;
     UBYTE         Depth;
+    const char *  Name;
     SDL_Surface * Surface;
 };
 
@@ -171,7 +177,7 @@ struct RastPort
 
 struct ColorMap
 {
-    uint16_t colors[NUM_AMIGA_COLORS];        // 0x0RGB
+    SDL_Color colors[NUM_AMIGA_COLORS];
 };
 
 struct RasInfo /* used by callers to and InitDspC() */
@@ -222,7 +228,7 @@ void    ChangeSprite(struct ViewPort * vp, uint16_t width, uint16_t height, UBYT
 void    DisownBlitter(void);
 void    FreeColorMap(struct ColorMap * colorMap);
 struct ColorMap * GetColorMap(int32_t entries);
-void              InitBitMap(struct BitMap * bitMap, int32_t depth, int32_t width, int32_t height);
+void              InitBitMap(struct BitMap * bitMap, int32_t depth, int32_t width, int32_t height, const char *name);
 void              InitRastPort(struct RastPort * rp);
 void              InitVPort(struct ViewPort * vp);
 void              InitView(struct View * view);
@@ -249,10 +255,5 @@ void WaitBlit(void);
 // dos
 void Delay(int32_t timeout);
 LONG IoErr(void);
-
-// input
-#define IECODE_UP_PREFIX       0x80
-#define IEQUALIFIER_RBUTTON    0x2000
-#define IEQUALIFIER_LEFTBUTTON 0x4000
 
 #endif

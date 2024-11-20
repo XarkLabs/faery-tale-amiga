@@ -251,7 +251,7 @@ UBYTE titletext[] =
     "by"
     "\x80\x38\x65"        // XY, (160-12*4)/2,101
     "David Joiner"
-    "\x80\x2a\xa0"        // XY, (160-30*4)/2,160
+    "\x80\x14\xa0"        // XY, (160-30*4)/2,160
     "Copyright 1986 MicroIllusions ";
 
 //

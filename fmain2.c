@@ -1700,6 +1700,9 @@ BOOL copy_protect_junk(void)
         i  = 0;
         cursor(0, 4);
         RUNLOG("... [type your answer]");
+
+        sdl_endframe();        // Xark: render text
+
         while (TRUE)
         {
             key = getkey();
@@ -1719,10 +1722,15 @@ BOOL copy_protect_junk(void)
                 cursor(i, 4);
             }
             ft_rand();
+            if (key)
+            {
+                sdl_endframe();        // Xark: render text
+            }
         }
         answr[i++] = '\0';
         b          = answr;
         RUNLOGF("... Checking: answer \"%s\" vs expected \"%s\"", b, a);
+        sdl_endframe();        // Xark: render text
         while (*a)
         {
             if (*a++ != *b++)
@@ -1812,9 +1820,9 @@ char savename[64];
 // BOOL waitnewdisk(void)
 // {
 //     int16_t i;
-// 
+//
 //     RUNLOG("?= waitnewdisk()");
-// 
+//
 //     for (i = 0; i < 300; i++)
 //     {
 //         if (handler_data.newdisk)
@@ -1877,7 +1885,6 @@ void savegame(int16_t hit)
     {
         RUNLOGF(" ... savegame error: %s", strerror(errno));
         sverr = IoErr();
-        ASSERT(0);
     }
 
     if (sverr)

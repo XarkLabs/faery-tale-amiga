@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "amigaos.h"        // Xark: most AmigaOS includes (like "amiga39.pre")
-
 #include "ftale.h"
 
 #include <SDL.h>
@@ -30,6 +28,9 @@ int32_t              sdl_controllerIndex = -1;
 SDL_GameController * sdl_controller;
 struct SDL_Surface * sdl_cursor_image;
 struct SDL_Cursor *  sdl_cursor;
+
+float sdl_window_scale = 2.0f;
+uint32_t frame_counter;
 
 // TODO: Check if already big-endian
 uint32_t swap_endian(uint32_t v)
@@ -199,42 +200,17 @@ int sdl_init(void)
     sdl_window = SDL_CreateWindow("Faery Tale Adventure",
                                   SDL_WINDOWPOS_CENTERED,
                                   SDL_WINDOWPOS_CENTERED,
-                                  640,
-                                  480,
+                                  640 * sdl_window_scale,
+                                  480 * sdl_window_scale,
                                   SDL_WINDOW_SHOWN);
     sdl_renderer =
         SDL_CreateRenderer(sdl_window, -1, /* SDL_RENDERER_SOFTWARE | */ SDL_RENDERER_PRESENTVSYNC);
-    SDL_RenderSetScale(sdl_renderer, 640.0 / 640, 480.0 / 400);
+    SDL_RenderSetScale(
+        sdl_renderer, (640.0 / 640) * sdl_window_scale, (480.0 / 400) * sdl_window_scale);
     SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x40, 0x90, 255);        // Amiga blue
     SDL_RenderClear(sdl_renderer);
     SDL_RenderPresent(sdl_renderer);
-    // SDL_StartTextInput();
 
-#if 0
-    // open controller
-    for (int index = 0; index < SDL_NumJoysticks(); index++)
-    {
-        if (SDL_IsGameController(index))
-        {
-            sdl_controller = SDL_SDLGameControllerOpen(index);
-
-            if (sdl_controller == NULL)
-            {
-                sdl_controllerIndex = -1;
-                RUNLOGF("WARN: Controller %d error : %s\n", index, SDL_GetError());
-            }
-            else
-            {
-                sdl_controllerIndex = index;
-                RUNLOGF("NOTE: Controller %d ADDED : %s\n", index, SDL_GameControllerName(sdl_controller));
-            }
-        }
-    }
-    if (sdl_controllerIndex < 0)
-    {
-        RUNLOGF("WARN: No SDL game controllers detected.\n");
-    }
-#endif
     return 0;
 }
 
@@ -257,25 +233,19 @@ uint16_t hack_cursor[] = {0x0000,
 
 void sdl_update_cursor(struct ViewPort * vp)
 {
-    (void)vp;
-    SDL_Color t                                  = {0, 0, 0, 0};
-    sdl_cursor_image->format->palette->colors[0] = t;
+    // use colors from VP
+    SDL_Color sp_pal[4] = {{0, 0, 0, 0}};        // 0 transparent
     for (int i = 1; i < 4; i++)
     {
-        uint16_t  ac = hack_cursor[i];
-        SDL_Color sc = amiga_color(ac);        // 16 is offset due to sprite 0
-        sdl_cursor_image->format->palette->colors[i] = sc;
-
-        // spammy        RUNLOGF("... [sprite #%2d %02x%02x%02x%02x = %04x", i, sc.r, sc.g, sc.b,
-        // sc.a, ac);
+        sp_pal[i] = vp->ColorMap->colors[i];
     }
-
+    SDL_SetPaletteColors(sdl_cursor_image->format->palette, sp_pal, 0, 4);
     sdl_cursor = SDL_CreateColorCursor(sdl_cursor_image, 0, 0);
     SDL_SetCursor(sdl_cursor);
     SDL_ShowCursor(SDL_ENABLE);
 }
 
-#define FLIPSPAM 1
+#define FLIPSPAM 0
 
 void sdl_endframe(void)
 {
@@ -287,7 +257,7 @@ void sdl_endframe(void)
 
     struct ViewPort * curvp = v.ViewPort;
 
-    sdl_update_cursor(&vp_page);
+    sdl_update_cursor(curvp);
 
     int vnum = 0;
     (void)vnum;
@@ -303,14 +273,19 @@ void sdl_endframe(void)
 #endif
 
         SDL_Surface * s = curvp->RasInfo->BitMap->Surface;
-        // uint16_t *    ac = curvp->ColorMap->colors;
-        // SDL_Color *   sc = s->format->palette->colors;
-        // for (int i = 0; i < NUM_AMIGA_COLORS; i++)
-        // {
-        //     sc[i].r = ((ac[i] & 0xf00) >> 4) | ((ac[i] & 0xf00) >> 8);
-        //     sc[i].g = ((ac[i] & 0xf0) >> 0) | ((ac[i] & 0xf0) >> 4);
-        //     sc[i].b = ((ac[i] & 0xf) << 4) | ((ac[i] & 0xf) << 0);
-        // }
+        // use colors fromin VP
+        SDL_Color * ac = curvp->ColorMap->colors;
+        SDL_Color * sc = s->format->palette->colors;
+        for (int i = 0; i < NUM_AMIGA_COLORS; i++)
+        {
+            sc[i] = ac[i];
+            sc[i] = ac[i];
+            sc[i] = ac[i];
+            sc[i] = ac[i];
+        }
+
+        SDL_SetPaletteColors(s->format->palette, sc, 0, NUM_AMIGA_COLORS);
+
 #if FLIPSPAM
         print_bitmap_info("RasInfo.BitMap", curvp->RasInfo->BitMap);
 #endif
@@ -326,13 +301,16 @@ void sdl_endframe(void)
         // ignore if height <= 0
         if (curvp->DHeight > 0)
         {
-            DPRINTF("... [render surface to %d,%d - %d,%d, xy_scale %.02f, %.02f]\n",
+            DPRINTF("... [render VP #%d \"%s\" to %d,%d - %dx%d, xy_scale %.02f, %.02f]%s\n",
+                    vnum,
+                    curvp->RasInfo->BitMap->Name,
                     curvp->DxOffset,
                     curvp->DyOffset,
                     curvp->DWidth,
                     curvp->DHeight,
                     x_window_scale,
-                    y_window_scale);
+                    y_window_scale,
+                    curvp->Modes & HIRES ? " HIRES" : "");
             SDL_Texture * texture = SDL_CreateTextureFromSurface(sdl_renderer, s);
             SDL_Rect      sr      = {0, 0, curvp->DWidth, curvp->DHeight};
             SDL_Rect      dr      = {curvp->DxOffset * x_window_scale,
@@ -358,7 +336,9 @@ void sdl_endframe(void)
     SDL_RenderCopy(sdl_renderer, texture, NULL, NULL);
 #endif
     SDL_RenderPresent(sdl_renderer);
-    DPRINT("=== SDL_RenderPresent(sdl_renderer)\n\n");
+    
+    DPRINTF("=== SDL_RenderPresent(sdl_renderer) [frame %8d] ===\n\n", frame_counter);
+    frame_counter++;
 }
 
 void ft_mouse_pos(int16_t x, int16_t y)
@@ -385,12 +365,12 @@ void ft_mouse_pos(int16_t x, int16_t y)
 
 // Original AmigaCode -> FT_KEY table
 // See https://wiki.amigaos.net/wiki/Keymap_Library#Keyboard_Layout
-// keytrans	dc.b	"`1234567890-=\?0"
-// 			dc.b	"QWERTYUIOP{}?",26,25,24
-// 			dc.b	"ASDFGHJKL:???",27,29,23
-// 			dc.b	"?ZXCVBNM,.??.",20,21,22
-// 			dc.b	$20,$08,$09,$0D,$0D,$1B,$7F,0,0,0,$2D,0,1,2,3,4
-// 			dc.b	10,11,12,13,14,15,16,17,18,19,0,0,0,0,0,0
+// keytrans        dc.b        "`1234567890-=\?0"
+//                         dc.b        "QWERTYUIOP{}?",26,25,24
+//                         dc.b        "ASDFGHJKL:???",27,29,23
+//                         dc.b        "?ZXCVBNM,.??.",20,21,22
+//                         dc.b        $20,$08,$09,$0D,$0D,$1B,$7F,0,0,0,$2D,0,1,2,3,4
+//                         dc.b        10,11,12,13,14,15,16,17,18,19,0,0,0,0,0,0
 //
 struct
 {
@@ -497,6 +477,18 @@ void sdl_pump(void)
     {
         switch (e.type)
         {
+            case SDL_WINDOWEVENT:
+                switch (e.window.event)
+                {
+                    case SDL_WINDOWEVENT_CLOSE:
+                        sdl_quit = TRUE;
+                        break;
+
+                    default:
+                        break;
+                }
+                break;
+
             case SDL_QUIT:
                 sdl_quit = TRUE;
                 break;
@@ -684,7 +676,7 @@ BOOL unpack_png(char * filename, struct BitMap * bitmap, int16_t wx, int16_t y)
         h <<= 1;
     }
     SDL_SetWindowSize(sdl_debug_window, w, h * (480.0 / 400));
-    SDL_RenderSetScale(sdl_renderer, (float)w / img->w, (480.0 / 400));
+    SDL_RenderSetScale(sdl_debug_renderer, (float)w / img->w, (480.0 / 400));
     SDL_RenderClear(sdl_debug_renderer);
     SDL_RenderCopy(sdl_debug_renderer, ttex, NULL, NULL);
     SDL_SetRenderDrawColor(sdl_debug_renderer, 0x20, 0x00, 0x00, 255);

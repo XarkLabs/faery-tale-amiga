@@ -1,6 +1,3 @@
-// amigaos_graphics.c
-#include "amigaos.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -33,17 +30,14 @@ void FreeMem(APTR memoryBlock, uint32_t byteSize)
 // Delay -- Delay a process for a specified time (1/50th sec)
 void Delay(int32_t timeout)
 {
-    (void)timeout;
-    // spammy    RUNLOGF("<= dos.Delay(%d)", timeout);
-
-    if (timeout > 50 && timeout < 0x8000)        // FIXME: fast time
+    if (timeout > 50)        // TODO: hack delay time
         timeout = 50;
-
-    timeout &= 0x7fff;
 
     while (timeout-- > 0)
     {
         sdl_pump();
+        if (cheat1)
+            break;
         SDL_Delay(20);        // convert to milliseconds
     }
 }
@@ -124,17 +118,18 @@ void ChangeSprite(struct ViewPort * vp, uint16_t width, uint16_t height, UBYTE *
 {
     RUNLOGF("<= graphics.ChangeSprite(%p, %d, %d, %p)", vp, width, height, newData);
     ASSERT(width == 16);
-    if (!sdl_cursor_image)
-    {
-        sdl_cursor_image =
-            SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
-    }
 
+    if (sdl_cursor_image)
+    {
+        SDL_FreeSurface(sdl_cursor_image);
+        sdl_cursor_image = NULL;
+    }
+    sdl_cursor_image = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
     if (!SDL_LockSurface(sdl_cursor_image))
     {
         uint16_t * sb = (uint16_t *)newData;
         UBYTE *    pb = sdl_cursor_image->pixels;
-        DPRINT("cursor sprite:\n");
+        //            DPRINT("cursor sprite:\n");
         for (int y = 0; y < 16; y++)
         {
             UBYTE *  pl = pb + (sdl_cursor_image->pitch * y);
@@ -142,11 +137,11 @@ void ChangeSprite(struct ViewPort * vp, uint16_t width, uint16_t height, UBYTE *
             for (int x = 0; x < 16; x++)
             {
                 pl[x] = ((sb[0] & m) ? 1 : 0) + ((sb[1] & m) ? 2 : 0);
-                DPRINTF("%c", '0' + pl[x]);
+                //                    DPRINTF("%c", '0' + pl[x]);
                 m >>= 1;
             }
             sb += 2;
-            DPRINT("\n");
+            //                DPRINT("\n");
         }
         SDL_UnlockSurface(sdl_cursor_image);
     }
@@ -229,13 +224,19 @@ struct ColorMap * GetColorMap(int32_t entries)
 // }
 
 // TODO: InitBitMap -- Initialize bit map structure with input values.
-void InitBitMap(struct BitMap * bitMap, int32_t depth, int32_t width, int32_t height)
+void InitBitMap(struct BitMap * bitMap,
+                int32_t         depth,
+                int32_t         width,
+                int32_t         height,
+                const char *    name)
 {
-    (void)bitMap;
-    (void)depth;
-    (void)width;
-    (void)height;
-    // spammy    RUNLOGF("<= graphics.InitBitMap(%p, %d, %d, %d)", bitMap, depth, width, height);
+    RUNLOGF("<= graphics.InitBitMap(%p, %d, %d, %d, \"%s\")", bitMap, depth, width, height, name);
+    
+    if (bitMap->Depth && bitMap->Surface)
+    {
+        RUNLOGF("InitBitMap: NOTE: freeing existing Surface %s", bitMap->Name);
+        SDL_FreeSurface(bitMap->Surface);
+    }
     memset(bitMap, 0, sizeof(struct BitMap));
 
     bitMap->Surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
@@ -245,6 +246,7 @@ void InitBitMap(struct BitMap * bitMap, int32_t depth, int32_t width, int32_t he
         bitMap->Rows        = height;
         bitMap->Flags       = 0;
         bitMap->Depth       = depth;
+        bitMap->Name        = name;
     }
 }
 
@@ -289,23 +291,14 @@ void InitView(struct View * view)
 // TODO: LoadRGB4 -- Load RGB color values from table.
 void LoadRGB4(struct ViewPort * vp, UWORD * colors, int32_t count)
 {
-    (void)vp;
-    (void)colors;
-    (void)count;
     RUNLOGF("<= graphics.LoadRGB4(%p, %p, %d)", vp, colors, count);
-    static SDL_Color sdl_colors[256];
+    DPRINT("... [");
     for (int i = 0; i < count && i < 256; i++)
     {
-        sdl_colors[i] = amiga_color(colors[i]);
-        RUNLOGF("... [#%2d %02x%02x%02x%02x = %04x",
-                i,
-                sdl_colors[i].r,
-                sdl_colors[i].g,
-                sdl_colors[i].b,
-                sdl_colors[i].a,
-                colors[i]);
+        vp->ColorMap->colors[i] = amiga_color(colors[i]);
+        DPRINTF(" %04x", colors[i]);
     }
-    SDL_SetPaletteColors(vp->RasInfo->BitMap->Surface->format->palette, sdl_colors, 0, count);
+    DPRINT(" ]\n");
 }
 
 // // TODO: LoadView -- Use a (possibly freshly created) coprocessor instruction list to create the
@@ -439,26 +432,10 @@ void SetRast(struct RastPort * rp, uint32_t pen)
 // TODO: SetRGB4 -- Set one color register for this viewport.
 void SetRGB4(struct ViewPort * vp, int32_t index, uint32_t red, uint32_t green, uint32_t blue)
 {
-    (void)index;
-    (void)red;
-    (void)green;
-    (void)blue;
-
-    static SDL_Color sdl_color;
-    sdl_color.r = ((red & 0xf00) >> 4) | ((red & 0xf00) >> 8);
-    sdl_color.g = ((green & 0xf0) >> 0) | ((green & 0xf0) >> 4);
-    sdl_color.b = ((blue & 0xf) << 4) | ((blue & 0xf) << 0);
-    sdl_color.a = 0xff;
-    RUNLOGF("SetRGB4 -> [#%2d %02x%02x%02x%02x = %1x%1x%1x]",
-            index,
-            sdl_color.r,
-            sdl_color.g,
-            sdl_color.b,
-            sdl_color.a,
-            red,
-            green,
-            blue);
-    SDL_SetPaletteColors(vp->RasInfo->BitMap->Surface->format->palette, &sdl_color, index, 1);
+    uint16_t ac = ((red & 0xf) << 8) | ((green & 0xf) << 4) | (blue & 0xf);
+    RUNLOGF("SetRGB4 -> [#%2d 0x%04x]", index, ac);
+    vp->ColorMap->colors[index] = amiga_color(ac);
+    ;
 }
 
 // Text -- Write text characters (no formatting).
@@ -475,12 +452,17 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
     {
         len = count;
     }
-    RUNLOGF("... [text rect %d,%d - %d,%d, pen=%d]", rp->cp_x, rp->cp_y, len * 9, 11, rp->FgPen);
-    for (uint32_t x = 0; x < len; x++)
+    RUNLOGF("... [text rect %d,%d - %d,%d, pen=%d]", rp->cp_x, rp->cp_y, len * 9, 11, rp->BgPen);
+    for (uint32_t x = 0; x < len && string[x]; x++)
     {
-        SDL_Rect dr = {rp->cp_x, rp->cp_y, 8, 9};
-        SDL_FillRect(rp->BitMap->Surface, &dr, rp->FgPen);        // TODO: Real Text render
-        rp->cp_x += 9;
+        SDL_Rect dr = {rp->cp_x, rp->cp_y, 8, 8};
+        SDL_FillRect(rp->BitMap->Surface, &dr, rp->BgPen);        // TODO: Real Text render
+        if (string[x] != ' ')
+        {
+            SDL_Rect dr2 = {rp->cp_x + 2, rp->cp_y + 2, 2, 2};
+            SDL_FillRect(rp->BitMap->Surface, &dr2, rp->FgPen);        // TODO: Real Text render
+        }
+        rp->cp_x += 8;
     }
 
     return res;

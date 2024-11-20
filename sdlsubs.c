@@ -18,7 +18,7 @@ char raw_asset_fname[128];
 
 BOOL sdl_quit;
 
-uint8_t sdl_key;
+uint8_t sdl_key;        // TODO: add keyboard queue
 
 struct SDL_Renderer * sdl_renderer;
 struct SDL_Window *   sdl_window;
@@ -26,7 +26,8 @@ struct SDL_Window *   sdl_window;
 struct SDL_Renderer * sdl_debug_renderer;
 struct SDL_Window *   sdl_debug_window;
 #endif
-SDL_Joystick *       sdl_controller;
+int32_t              sdl_controllerIndex = -1;
+SDL_GameController * sdl_controller;
 struct SDL_Surface * sdl_cursor_image;
 struct SDL_Cursor *  sdl_cursor;
 
@@ -106,7 +107,7 @@ const char * c_string(const char * s, int maxlen)
     int l;
     for (l = 0; l < maxlen; l++)
     {
-        char c = *s;
+        uint8_t c = *s;
         if (c == 0)
         {
             break;
@@ -123,10 +124,10 @@ const char * c_string(const char * s, int maxlen)
         {
             p += sprintf(p, "\\b");
         }
-        // else if (c < ' ' || c > '~')
-        // {
-        //     p += sprintf(p, "\\x%02x", c & 0xff);
-        // }
+        else if (c < ' ' || c > '~')
+        {
+            p += sprintf(p, "\\x%02x", c);
+        }
         else
         {
             *p++ = c;
@@ -178,7 +179,8 @@ int sdl_init(void)
 
     RUNLOGF("*** FTA/SDL2 FTA-gamerun.log - %s", time_stamp);
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) != 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) !=
+        0)
     {
         fprintf(stderr, "SDL_Init() failed: %s\n", SDL_GetError());
         return EXIT_FAILURE;
@@ -208,32 +210,39 @@ int sdl_init(void)
     SDL_RenderPresent(sdl_renderer);
     // SDL_StartTextInput();
 
-    if (SDL_NumJoysticks() < 1)
+#if 0
+    // open controller
+    for (int index = 0; index < SDL_NumJoysticks(); index++)
     {
-        RUNLOGF("WARN: No SDL joysticks detected.\n");
-    }
-    else
-    {
-        // Load joystick
-        sdl_controller = SDL_JoystickOpen(0);
-        if (sdl_controller == NULL)
+        if (SDL_IsGameController(index))
         {
-            RUNLOGF("WARN: Joystick error : %s\n", SDL_GetError());
-        }
-        else
-        {
-            RUNLOGF("NOTE: Using joystick 0 : %s\n", SDL_JoystickName(sdl_controller));
-        }
-    }
+            sdl_controller = SDL_SDLGameControllerOpen(index);
 
+            if (sdl_controller == NULL)
+            {
+                sdl_controllerIndex = -1;
+                RUNLOGF("WARN: Controller %d error : %s\n", index, SDL_GetError());
+            }
+            else
+            {
+                sdl_controllerIndex = index;
+                RUNLOGF("NOTE: Controller %d ADDED : %s\n", index, SDL_GameControllerName(sdl_controller));
+            }
+        }
+    }
+    if (sdl_controllerIndex < 0)
+    {
+        RUNLOGF("WARN: No SDL game controllers detected.\n");
+    }
+#endif
     return 0;
 }
 
 void sdl_exit(int retval)
 {
-    RUNLOGF("QUIT: exiting, code %d...", retval);
+    RUNLOGF("\nQUIT: exiting, exit code %d", retval);
 
-    SDL_JoystickClose(sdl_controller);
+    SDL_GameControllerClose(sdl_controller);
     SDL_DestroyWindow(sdl_window);
     SDL_DestroyRenderer(sdl_renderer);
     SDL_Quit();
@@ -352,6 +361,28 @@ void sdl_endframe(void)
     DPRINT("=== SDL_RenderPresent(sdl_renderer)\n\n");
 }
 
+void ft_mouse_pos(int16_t x, int16_t y)
+{
+    if (x < FTMOUSE_MIN_X)
+    {
+        x = FTMOUSE_MIN_X;
+    }
+    if (x > FTMOUSE_MAX_X)
+    {
+        x = FTMOUSE_MAX_X;
+    }
+    if (y < FTMOUSE_MIN_Y)
+    {
+        y = FTMOUSE_MIN_Y;
+    }
+    if (y > FTMOUSE_MAX_Y)
+    {
+        y = FTMOUSE_MAX_Y;
+    }
+    handler_data.xsprite = x;
+    handler_data.ysprite = y;
+}
+
 // Original AmigaCode -> FT_KEY table
 // See https://wiki.amigaos.net/wiki/Keymap_Library#Keyboard_Layout
 // keytrans	dc.b	"`1234567890-=\?0"
@@ -363,8 +394,8 @@ void sdl_endframe(void)
 //
 struct
 {
-    int32_t sdl_key;
-    int32_t ft_key;
+    int32_t sdl_keycode;
+    int32_t ft_keycode;
 } sdl_to_ft_key[] = {
     // SDL_KEY, FT_KEY             // Amiga KeyCode
     {SDLK_BACKQUOTE, '`'},           // 00
@@ -467,9 +498,6 @@ void sdl_pump(void)
         switch (e.type)
         {
             case SDL_QUIT:
-                /* Quit */
-                RUNLOG("... SDL_QUIT event");
-
                 sdl_quit = TRUE;
                 break;
 
@@ -478,51 +506,151 @@ void sdl_pump(void)
                 if (e.key.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL) &&
                     ((e.key.keysym.sym == SDLK_c) || (e.key.keysym.sym == SDLK_ESCAPE)))
                 {
-                    if ((e.key.keysym.sym == SDLK_c) || (e.key.keysym.sym == SDLK_ESCAPE))
-                    {
-                        RUNLOG("... QUIT key pressed");
-                        sdl_quit = TRUE;
-                    }
+                    sdl_quit = TRUE;
                 }
-                else
+                else if (e.key.repeat == 0)        // ignore autorepeat
                 {
+                    if (e.key.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL))
+                    {
+                        cheat1 = TRUE;
+                    }
+                    else
+                    {
+                        cheat1 = FALSE;
+                    }
+
                     for (uint32_t ki = 0; ki < NUM_ELEMENTS(sdl_to_ft_key); ki++)
                     {
-                        if (e.key.keysym.sym == sdl_to_ft_key[ki].sdl_key)
+                        if (e.key.keysym.sym == sdl_to_ft_key[ki].sdl_keycode)
                         {
-                            sdl_key = sdl_to_ft_key[ki].ft_key;
+                            sdl_key = sdl_to_ft_key[ki].ft_keycode;
                             break;
                         }
                     }
                 }
                 break;
+
             case SDL_KEYUP:
+                cheat1 = FALSE;
                 for (uint32_t ki = 0; ki < NUM_ELEMENTS(sdl_to_ft_key); ki++)
                 {
-                    if (e.key.keysym.sym == sdl_to_ft_key[ki].sdl_key)
+                    if (e.key.keysym.sym == sdl_to_ft_key[ki].sdl_keycode)
                     {
-                        sdl_key = sdl_to_ft_key[ki].ft_key | IECODE_UP_PREFIX;
+                        sdl_key = sdl_to_ft_key[ki].ft_keycode | IECODE_UP_PREFIX;
                         break;
                     }
                 }
                 break;
+
             case SDL_MOUSEMOTION:
-                handler_data.xsprite = e.motion.x;
-                handler_data.ysprite = e.motion.y;
+                ft_mouse_pos(e.motion.x, e.motion.y);
                 break;
+
             case SDL_MOUSEBUTTONDOWN:
-                handler_data.xsprite = e.motion.x;
-                handler_data.ysprite = e.motion.y;
-                RUNLOGF("*SDL* mousedown: %d,%d", handler_data.xsprite, handler_data.ysprite);
+                ft_mouse_pos(e.motion.x, e.motion.y);
+                switch (e.button.button)
+                {
+                    case SDL_BUTTON_LEFT:
+                        RUNLOGF("*SDL* SDL_MOUSEBUTTONDOWN: %d,%d LEFT",
+                                handler_data.xsprite,
+                                handler_data.ysprite);
+                        break;
+
+                    case SDL_BUTTON_RIGHT:
+                        RUNLOGF("*SDL* SDL_MOUSEBUTTONDOWN: %d,%d RIGHT",
+                                handler_data.xsprite,
+                                handler_data.ysprite);
+                        break;
+
+                    case SDL_BUTTON_MIDDLE:
+                        RUNLOGF("*SDL* SDL_MOUSEBUTTONDOWN: %d,%d MIDDLE",
+                                handler_data.xsprite,
+                                handler_data.ysprite);
+                        break;
+                }
                 break;
+
             case SDL_MOUSEBUTTONUP:
-                RUNLOGF("*SDL* mouseup: %d,%d", handler_data.xsprite, handler_data.ysprite);
+                switch (e.button.button)
+                {
+                    case SDL_BUTTON_LEFT:
+                        RUNLOGF("*SDL* SDL_MOUSEBUTTONUP: %d,%d LEFT",
+                                handler_data.xsprite,
+                                handler_data.ysprite);
+                        break;
+
+                    case SDL_BUTTON_RIGHT:
+                        RUNLOGF("*SDL* SDL_MOUSEBUTTONUP: %d,%d RIGHT",
+                                handler_data.xsprite,
+                                handler_data.ysprite);
+                        break;
+
+                    case SDL_BUTTON_MIDDLE:
+                        RUNLOGF("*SDL* SDL_MOUSEBUTTONUP: %d,%d MIDDLE",
+                                handler_data.xsprite,
+                                handler_data.ysprite);
+                        break;
+                }
+                break;
+
+            case SDL_CONTROLLERBUTTONDOWN:
+                RUNLOGF("*SDL* SDL_CONTROLLERBUTTONDOWN: #%d button[%d] DOWN",
+                        e.cdevice.which,
+                        e.cbutton.button);
+                break;
+
+            case SDL_CONTROLLERBUTTONUP:
+                RUNLOGF("*SDL* SDL_CONTROLLERBUTTONUP: #%d button[%d] UP",
+                        e.cdevice.which,
+                        e.cbutton.button);
+                break;
+
+            case SDL_CONTROLLERAXISMOTION:
+                RUNLOGF("*SDL* SDL_CONTROLLERAXISMOTION: #%d, axis[%d]=%d",
+                        e.cdevice.which,
+                        e.caxis.axis,
+                        e.caxis.value);
+                break;
+
+            case SDL_CONTROLLERDEVICEADDED:
+                RUNLOGF("*SDL* SDL_CONTROLLERDEVICEADDED: #%d", e.cdevice.which);
+                if (sdl_controller == NULL)
+                {
+                    sdl_controller = SDL_GameControllerOpen(e.cdevice.which);
+
+                    if (sdl_controller)
+                    {
+                        sdl_controllerIndex = e.cdevice.which;
+                        RUNLOGF("*SDL* Controller %d ADDED : %s\n",
+                                e.cdevice.which,
+                                SDL_GameControllerName(sdl_controller));
+                    }
+                    else
+                    {
+                        RUNLOGF(
+                            "*SDL* Controller #%d ERROR : %s\n", e.cdevice.which, SDL_GetError());
+                    }
+                }
+                break;
+
+            case SDL_CONTROLLERDEVICEREMOVED:
+                RUNLOGF("*SDL* SDL_CONTROLLERDEVICEREMOVED: #%d", e.cdevice.which);
+
+                if (sdl_controllerIndex == e.cdevice.which)
+                {
+                    SDL_GameControllerClose(sdl_controller);
+                    sdl_controller      = NULL;
+                    sdl_controllerIndex = -1;
+
+                    RUNLOGF("*SDL* Controller #%d REMOVED\n", e.cdevice.which);
+                }
                 break;
         }
     }
 
     if (sdl_quit)
     {
+        RUNLOG("*SDL* SDL_QUIT requested");
         sdl_exit(0);
     }
 }

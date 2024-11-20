@@ -16,7 +16,6 @@ void screen_size(int32_t x);
 void setmood(char now);
 void gen_mini(void);
 void pagechange(void);
-BOOL add_device(void);
 void wrap_device(void);
 void print_options(void);
 void propt(int16_t j, int16_t pena);

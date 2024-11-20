@@ -561,6 +561,9 @@ enum cmodes
     FILEMENU
 };        // Xark: FILE -> FILEMENU globally
 
+char * cmode_names[] =
+    {"ITEMS", "MAGIC", "TALK", "BUY", "GAME", "SAVEX", "KEYS", "GIVE", "USE", "FILEMENU"};
+
 char label1[] = "ItemsMagicTalk Buy  Game ";
 char label2[] = "List Take Look Use  Give ";
 char label3[] = "Yell Say  Ask  ";
@@ -676,8 +679,8 @@ char * datanames[] = {
 
 uint16_t xreg, yreg; /* where the region is */
 
-#define MAP_STABLE  (new_region >= NO_REGION)
-#define MAP_FLUX    (new_region < NO_REGION)
+#define MAP_STABLE (new_region >= NO_REGION)
+#define MAP_FLUX   (new_region < NO_REGION)
 
 UWORD new_region;
 UWORD lregion;
@@ -846,7 +849,7 @@ int open_all(void)
 
     // thistask                      = (struct Process *)FindTask(0);
     // thistask->pr_WindowPtr        = (APTR)-1;
-    // thistask->pr_Task.tc_TrapCode = (APTR)NULL;        // Xark: trapper;
+    // thistask->pr_Task.tc_TrapCode = (APTR)trapper;
     /* set trap handler */
 
     SETFN(AL_HANDLE);
@@ -1322,7 +1325,7 @@ int main(int argc, char ** argv)
 
     RUNLOG("... [display legals]");
 
-    screen_size(156);   // this does pagechange
+    screen_size(156);        // this does pagechange
 
 
     SetRGB4(&vp_page, 0, 0, 0, 6);
@@ -1458,7 +1461,8 @@ no_intro:
     /* main program loop */
     RUNLOG("*** FTA main loop ***");
 
-    cheat1 = quitflag = FALSE;
+    cheat1   = FALSE;
+    quitflag = FALSE;
     while (!quitflag)
     {
         int16_t cycle = 0, atype, inum = 0, notpause;
@@ -1482,20 +1486,29 @@ no_intro:
                     viewstatus = 99;
             }
             else if (anim_list[0].state == DEAD)
+            {
                 ; /* MAYBE */
+            }
             else if (key >= 20 && key <= 29)
             {
                 keydir = key;
             }
             else if ((key & 0x7f) == keydir)
+            {
                 keydir = 0;
+            }
             else if (key == '0')
+            {
                 keyfight = TRUE;
+            }
             else if ((key & 0x7f) == '0')
+            {
                 keyfight = FALSE;
-
+            }
             else if (key == 'B' && cheat1)
             {
+                RUNLOG("... CHEAT CODE 'B' activated (not sure?)\n");
+
                 if (active_carrier == 11)
                     stuff[5] = 1;
                 move_extent(0, hero_x + 20, hero_y + 20);
@@ -1503,6 +1516,7 @@ no_intro:
             }
             else if (key == '.' && cheat1)
             {
+                RUNLOG("... CHEAT CODE '.' activated (random inventory?)\n");
                 stuff[rnd(GOLDBASE)] += 3;
                 set_options();
                 stuff[22] = 0;
@@ -1559,30 +1573,46 @@ no_intro:
             }
 
             else if (key == 'R' && cheat1)
+            {
+                RUNLOG("... CHEAT CODE 'R' activated (rescue?)\n");
                 rescue();
+            }
             else if (key == '=' && cheat1)
+            {
+                RUNLOG("... CHEAT CODE '=' activated (show coords)\n");
                 prq(2);
+            }
             else if (key == 19 && cheat1)
+            {
+                RUNLOG("... CHEAT CODE 'F9' activated (map coords)\n");
                 prq(3);
+            }
             else if (key == 18 && cheat1)
+            {
+                RUNLOG("... CHEAT CODE 'F8' activated (advance day/night)\n");
                 daynight += 1000;
+            }
             else if (key == 1 && cheat1)
             {
+                RUNLOG("... CHEAT CODE 'UP' activated (up fast)\n");
                 anim_list[0].abs_y -= 150;
                 map_y -= 150;
             }
             else if (key == 2 && cheat1)
             {
+                RUNLOG("... CHEAT CODE 'DOWN' activated (down fast)\n");
                 anim_list[0].abs_y += 150;
                 map_y += 150;
             }
             else if (key == 3 && cheat1)
             {
+                RUNLOG("... CHEAT CODE 'RIGHT' activated (right fast)\n");
                 anim_list[0].abs_x += 280;
                 map_x += 280;
             }
             else if (key == 4 && cheat1)
             {
+                RUNLOG("... CHEAT CODE 'LEFT' activated (left fast)\n");
                 anim_list[0].abs_x -= 280;
                 map_x -= 280;
             }
@@ -4271,7 +4301,7 @@ void do_option(int16_t hit)
     register struct shape *  an;
     register struct BitMap * bm;
 
-    RUNLOGF("<= do_option(%d)", hit);
+    RUNLOGF("<= do_option(%d) [cmode %s]", hit, cmode_names[cmode]);
 
     switch (cmode)
     {
@@ -4578,6 +4608,8 @@ void do_option(int16_t hit)
                 case 9:
                     if (cheat1 == 0 && region_num > 7)
                         return;
+
+                    RUNLOG("... CHEAT CODE activated (region > 7)\n");
                     bm_draw = fp_drawing->ri_page->BitMap;
                     // planes  = bm_draw->Planes;   // Xark: Used by asm code
                     bigdraw(map_x, map_y);
@@ -4943,6 +4975,7 @@ void gomenu(int16_t mode)
 
     if (menus[GAME].enabled[5] & 1)
         return;
+    RUNLOGF("... [enter menu %s]", cmode_names[mode]);
     cmode                 = mode;
     handler_data.lastmenu = 0;
     print_options();

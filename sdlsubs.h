@@ -10,5 +10,7 @@ int       sdl_init(void);
 void      sdl_exit(int retval) __attribute__((noreturn));
 void      sdl_update_cursor(struct ViewPort * vp);
 void      sdl_endframe(void);
-void      sdl_pump(void);
-BOOL      unpack_png(char * filename, struct BitMap * bitmap, int16_t wx, int16_t y);
+void      ft_mouse_pos(int16_t x, int16_t y);
+
+void sdl_pump(void);
+BOOL unpack_png(char * filename, struct BitMap * bitmap, int16_t wx, int16_t y);

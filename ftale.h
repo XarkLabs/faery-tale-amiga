@@ -9,7 +9,7 @@
 
 // FTA defines and sizes
 
-/* playing map is 6 * 19 = 114 */ // Xark: Or 120? 
+/* playing map is 6 * 19 = 114 */ // Xark: Or 120?
 
 #define TERRA_BLOCK 149
 #define NO_REGION   10
@@ -152,8 +152,9 @@ struct need
     char * debug_name;
 };
 
+ /* input handler data */
 struct in_work
-{ /* input handler data area */
+{
     int16_t               xsprite, ysprite;
     int16_t               qualifier; /* input qualifier */
     UBYTE                 laydown, pickup;
@@ -254,6 +255,11 @@ extern struct fpage *  fp_drawing;
 extern struct fpage *  fp_viewing;
 
 extern char viewstatus;
+
+#define FTMOUSE_MIN_X    5
+#define FTMOUSE_MAX_X    315
+#define FTMOUSE_MIN_Y    147
+#define FTMOUSE_MAX_Y    195
 
 // Xark: moved here
 #define SETFN(n) openflags |= n

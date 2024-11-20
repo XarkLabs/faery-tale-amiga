@@ -9,5 +9,7 @@
     "editor.comments.ignoreEmptyLines": false,
     "cSpell.words": [
         "blitter"
-    ]
+    ],
+    "cSpell.diagnosticLevel": "Hint"
+
 }

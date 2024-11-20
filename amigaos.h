@@ -202,13 +202,19 @@ struct View
     struct ViewPort * ViewPort;
 };
 
+struct GlyphInfo
+{
+    uint16_t LocationStart;
+    uint8_t  BitLength;
+    uint8_t  Spacing;
+};
+
 struct TextFont
 {
-    int16_t       NumGlyphs;
-    int16_t       Height;
-    int16_t       Width;
-    SDL_Surface * fontbitmap;
-    int16_t *     GlyphKern;
+    uint8_t            LoChar;
+    uint8_t            NumGlyphs;
+    SDL_Surface *      Bitmap;
+    struct GlyphInfo * Glyphs;
 };
 
 UBYTE * AllocRaster(uint32_t width, uint32_t height);
@@ -228,7 +234,13 @@ void    ChangeSprite(struct ViewPort * vp, uint16_t width, uint16_t height, UBYT
 void    DisownBlitter(void);
 void    FreeColorMap(struct ColorMap * colorMap);
 struct ColorMap * GetColorMap(int32_t entries);
-void              InitBitMap(struct BitMap * bitMap, int32_t depth, int32_t width, int32_t height, const char *name);
+void              InitBitMap(struct BitMap * bitMap,
+                             int32_t         depth,
+                             int32_t         width,
+                             int32_t         height,
+                             const char *    name);
+struct TextFont * OpenFont(const char * fntPath, const char * pngPath);
+void              FreeFont(struct TextFont * font);
 void              InitRastPort(struct RastPort * rp);
 void              InitVPort(struct ViewPort * vp);
 void              InitView(struct View * view);
@@ -246,7 +258,7 @@ void ScrollRaster(struct RastPort * rp,
 void SetAPen(struct RastPort * rp, uint32_t pen);
 void SetBPen(struct RastPort * rp, uint32_t pen);
 void SetDrMd(struct RastPort * rp, uint32_t drawMode);
-LONG SetFont(struct RastPort * rp, struct TextFont * textFont);
+void SetFont(struct RastPort * rp, struct TextFont * textFont);
 void SetRast(struct RastPort * rp, uint32_t pen);
 void SetRGB4(struct ViewPort * vp, int32_t index, uint32_t red, uint32_t green, uint32_t blue);
 LONG Text(struct RastPort * rp, STRPTR string, uint32_t count);

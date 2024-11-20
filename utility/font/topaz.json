@@ -1,0 +1,58 @@
+{
+  "fontContentsFormat": "FontContents",
+  "numberOfEntries": 2,
+  "entries": {
+    "8": {
+      "fontName": "topaz",
+      "pointSize": "8",
+      "ySize": 8,
+      "flags": {
+        "value": 66,
+        "disk": true,
+        "proportional": false,
+        "designed": true,
+        "rom": false,
+        "reversed": false,
+        "tallDot": false,
+        "wideDot": false,
+        "removed": false
+      },
+      "style": {
+        "value": 0,
+        "normal": true,
+        "underlined": false,
+        "bold": false,
+        "italic": false,
+        "extended": false,
+        "colorFont": false,
+        "tagged": false
+      }
+    },
+    "9e": {
+      "fontName": "topaz",
+      "pointSize": "9e",
+      "ySize": 9,
+      "flags": {
+        "value": 74,
+        "disk": true,
+        "proportional": false,
+        "designed": true,
+        "rom": false,
+        "reversed": false,
+        "tallDot": true,
+        "wideDot": false,
+        "removed": false
+      },
+      "style": {
+        "value": 8,
+        "normal": false,
+        "underlined": false,
+        "bold": false,
+        "italic": false,
+        "extended": true,
+        "colorFont": false,
+        "tagged": false
+      }
+    }
+  }
+}

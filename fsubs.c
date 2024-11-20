@@ -642,12 +642,11 @@ void placard(void)
 //             movem.l    (sp)+,a0-a2/d0-d1
 //             rts
 
-// TODO: move - move rastport "rp" pen position
+// move rastport "rp" pen position
 void move(int32_t x, int32_t y)
 {
-    (void)x;
-    (void)y;
-    RUNLOGF("<= move(%d, %d) STUB", x, y);
+    rp->cp_x = x;
+    rp->cp_y = y;
 }
 
 //

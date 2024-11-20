@@ -231,7 +231,7 @@ void InitBitMap(struct BitMap * bitMap,
                 const char *    name)
 {
     RUNLOGF("<= graphics.InitBitMap(%p, %d, %d, %d, \"%s\")", bitMap, depth, width, height, name);
-    
+
     if (bitMap->Depth && bitMap->Surface)
     {
         RUNLOGF("InitBitMap: NOTE: freeing existing Surface %s", bitMap->Name);
@@ -248,6 +248,57 @@ void InitBitMap(struct BitMap * bitMap,
         bitMap->Depth       = depth;
         bitMap->Name        = name;
     }
+}
+
+// Allocate and initialize a font.
+struct TextFont * OpenFont(const char * fntPath, const char * pngPath)
+{
+    struct TextFont * font;
+
+    FILE * f = fopen(fntPath, "rb");
+    if (!f)
+    {
+        RUNLOGF("Unable to open: %s", fntPath);
+        return NULL;
+    }
+
+    font = calloc(1, sizeof(struct TextFont));
+
+    fread(&(font->LoChar), sizeof(font->LoChar), 1, f);
+    fread(&(font->NumGlyphs), sizeof(font->NumGlyphs), 1, f);
+
+    font->Glyphs = calloc(font->NumGlyphs, sizeof(struct GlyphInfo));
+    for (uint8_t i = 0; i < font->NumGlyphs; ++i)
+    {
+        struct GlyphInfo * glyphInfo = &(font->Glyphs[i]);
+        fread(&(glyphInfo->LocationStart), sizeof(glyphInfo->LocationStart), 1, f);
+        fread(&(glyphInfo->BitLength), sizeof(glyphInfo->BitLength), 1, f);
+        fread(&(glyphInfo->Spacing), sizeof(glyphInfo->Spacing), 1, f);
+    }
+
+    fclose(f);
+
+    font->Bitmap = IMG_Load(pngPath);
+    if (!font->Bitmap)
+    {
+        RUNLOGF("... failed: %s", SDL_GetError());
+        return NULL;
+    }
+    SDL_SetSurfaceBlendMode(font->Bitmap, SDL_BLENDMODE_BLEND);
+
+    return font;
+}
+
+// Deallocate a font.
+void FreeFont(struct TextFont * font)
+{
+    if (font->Bitmap)
+        SDL_FreeSurface(font->Bitmap);
+
+    if (font->Glyphs)
+        free(font->Glyphs);
+
+    free(font);
 }
 
 // TODO: InitRastPort -- Initialize raster port structure
@@ -410,14 +461,10 @@ void SetDrMd(struct RastPort * rp, uint32_t drawMode)
     rp->DrawMode = drawMode;
 }
 
-// TODO: SetFont -- Set the text font and attributes in a RastPort.
-LONG SetFont(struct RastPort * rp, struct TextFont * textFont)
+// Set the text font and attributes in a RastPort.
+void SetFont(struct RastPort * rp, struct TextFont * textFont)
 {
-    ULONG res = 0;
-    (void)rp;
-    (void)textFont;
-    RUNLOGF("%d <= graphics.SetFont(%p, %p) TEMP", res, rp, textFont);
-    return res;
+    rp->Font = textFont;
 }
 
 // TODO: SetRast - Set an entire drawing area to a specified color.
@@ -442,10 +489,6 @@ void SetRGB4(struct ViewPort * vp, int32_t index, uint32_t red, uint32_t green, 
 LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
 {
     ULONG res = 0;
-    (void)rp;
-    (void)string;
-    (void)count;
-    RUNLOGF("%d <= graphics.Text(%p, %s, %d) STUB", res, rp, c_string(string, count), count);
 
     uint32_t len = strlen(string);
     if (len > count)
@@ -455,14 +498,17 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
     RUNLOGF("... [text rect %d,%d - %d,%d, pen=%d]", rp->cp_x, rp->cp_y, len * 9, 11, rp->BgPen);
     for (uint32_t x = 0; x < len && string[x]; x++)
     {
-        SDL_Rect dr = {rp->cp_x, rp->cp_y, 8, 8};
-        SDL_FillRect(rp->BitMap->Surface, &dr, rp->BgPen);        // TODO: Real Text render
-        if (string[x] != ' ')
+        if (string[x] >= rp->Font->LoChar && string[x] <= rp->Font->LoChar + rp->Font->NumGlyphs)
         {
-            SDL_Rect dr2 = {rp->cp_x + 2, rp->cp_y + 2, 2, 2};
-            SDL_FillRect(rp->BitMap->Surface, &dr2, rp->FgPen);        // TODO: Real Text render
+            uint8_t            glyphIndex = string[x] - rp->Font->LoChar;
+            struct GlyphInfo * glyph      = &(rp->Font->Glyphs[glyphIndex]);
+            SDL_Rect           dr = {rp->cp_x, rp->cp_y, glyph->BitLength, rp->Font->Bitmap->h};
+            SDL_Rect sr = {glyph->LocationStart, 0, glyph->BitLength, rp->Font->Bitmap->h};
+            SDL_FillRect(rp->BitMap->Surface, &dr, rp->BgPen);
+            // TODO: Modulate the color with rp->FgPen
+            SDL_BlitSurface(rp->Font->Bitmap, &sr, rp->BitMap->Surface, &dr);
+            rp->cp_x += glyph->Spacing;
         }
-        rp->cp_x += 8;
     }
 
     return res;

@@ -492,13 +492,13 @@ struct fpage   fp_page2;
 struct fpage * fp_drawing;
 struct fpage * fp_viewing;
 
-struct RasInfo    ri_page1;
-struct RasInfo    ri_page2;
-struct RasInfo    ri_text;
-struct RasInfo    ri_title;
-struct BitMap *   bm_page1;
-struct BitMap *   bm_page2;
-struct BitMap *   bm_text;
+struct RasInfo  ri_page1;
+struct RasInfo  ri_page2;
+struct RasInfo  ri_text;
+struct RasInfo  ri_title;
+struct BitMap * bm_page1;
+struct BitMap * bm_page2;
+struct BitMap * bm_text;
 // struct BitMap *   bm_lim;
 struct BitMap *   bm_draw;
 struct BitMap *   bm_source;
@@ -700,11 +700,8 @@ struct need file_index[10] = {
     {{680, 760, 800, 840}, 10, 9, 96, 192, 0, "Dungeons-Caves"}     /* F10 - dungeons and caves */
 };
 
-int32_t /* Xark: LoadSeg(), */ seg;
-struct DiskFontHeader *        font;
-struct TextFont *              tfont;        // topaz font
-struct TextFont *              afont;        // amber font
-// struct TextAttr                topaz_ta = {"topaz.font", 8, 0, FPF_ROMFONT};
+struct TextFont * tfont;        // topaz font
+struct TextFont * afont;        // amber font
 
 uint8_t * image_mem;
 uint8_t * sector_mem;
@@ -824,17 +821,13 @@ int open_all(void)
     // {        diskreqs[i] = *diskreq1;
     // }
 
-    //     if ((seg = LoadSeg("game/fonts/Amber/9")) == 0)
-    //         return 15;        // Xark: NULL -> 0 (since BPTR)
-    //                           // Xark:        font = (struct DiskFontHeader *) ((seg<<2)+8);
-    //     font = BPTR_OFFSET_ADDR(seg, 8, struct DiskFontHeader);
-    //     SETFN(AL_FONT); /* opened the font */
-    //
-    //     tfont = OpenFont(&topaz_ta);
-    //     SetFont(&rp_text, tfont);
-    //     SetFont(&rp_text2, tfont);
-    //     SetFont(&rp_map, tfont);
-    //     afont = &(font->dfh_TF);
+    /* init font */
+
+    tfont = OpenFont("assets/topaz_8.fnt", "assets/topaz_8.png");
+    afont = OpenFont("assets/amber_9.fnt", "assets/amber_9.png");
+    SetFont(&rp_text, tfont);
+    SetFont(&rp_text2, tfont);
+    SetFont(&rp_map, tfont);
 
     /* add the input handler */
     // handler_data.xsprite = handler_data.ysprite = 320;
@@ -1048,6 +1041,11 @@ int close_all(void)
     // FreeCprList(fp_page1.savecop);
     // FreeCprList(fp_page2.savecop);
     // FreeCprList(v.SHFCprList);
+
+    if (afont)
+        FreeFont(afont);
+    if (tfont)
+        FreeFont(tfont);
 
     if (vp_page.ColorMap)
         FreeColorMap(vp_page.ColorMap);
@@ -1334,7 +1332,7 @@ int main(int argc, char ** argv)
     ssp(titletext);
     SetAPen(rp, i);
 
-    sdl_endframe(); // Xark: render legals
+    sdl_endframe();        // Xark: render legals
 
     RUNLOG("... [legals delay]");
     Delay(50);
@@ -3957,7 +3955,7 @@ void revive(int16_t is_new)        // Xark: renamed new -> is_new
             placard_text(5);
 
         placard();
-        sdl_endframe(); // Xark: show placard
+        sdl_endframe();        // Xark: show placard
         Delay(120);
 
         if (brother > 3)
@@ -4140,9 +4138,9 @@ void gen_mini(void)
     genmini(img_x, img_y);
 }
 
-void     pagechange(void)
+void pagechange(void)
 {
-    register struct fpage * temp; 
+    register struct fpage * temp;
 
     RUNLOGF("<= pagechange()");
 

@@ -1,0 +1,32 @@
+{
+  "fontContentsFormat": "FontContents",
+  "numberOfEntries": 3,
+  "entries": {
+    "9": {
+      "fontName": "amber",
+      "pointSize": "9",
+      "ySize": 9,
+      "flags": {
+        "value": 98,
+        "disk": true,
+        "proportional": true,
+        "designed": true,
+        "rom": false,
+        "reversed": false,
+        "tallDot": false,
+        "wideDot": false,
+        "removed": false
+      },
+      "style": {
+        "value": 0,
+        "normal": true,
+        "underlined": false,
+        "bold": false,
+        "italic": false,
+        "extended": false,
+        "colorFont": false,
+        "tagged": false
+      }
+    }
+  }
+}

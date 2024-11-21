@@ -10,7 +10,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#define DEBUG_WINDOW 1
+#define DEBUG_WINDOW 0
 
 char raw_asset_fname[128];
 

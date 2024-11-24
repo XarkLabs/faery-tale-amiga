@@ -238,6 +238,9 @@ extern char  jtrans[];
 
 extern int16_t s1, s2;
 
+extern int16_t  secret_timer, light_timer, freeze_timer;
+extern UWORD    region_num, new_region;
+
 extern USHORT pagecolors[];
 
 extern char skipp;

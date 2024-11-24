@@ -51,6 +51,14 @@ extern FILE * logfilep;
         fprintf(stdout, fmtmsg, ##__VA_ARGS__);                                                    \
     } while (0)
 
+#if __has_builtin(__builtin_debugtrap)
+#define DEBUGBREAK() __builtin_debugtrap()
+#else
+#define DEBUGBREAK() __asm__ __volatile__ ("int3")
+#endif
+
+#define __debugbreak() DEBUGBREAK()
+
 // only for debug assertions (debug only)
 #ifndef NDEBUG
 #define ASSERT(e)                                                                                  \
@@ -71,14 +79,12 @@ extern FILE * logfilep;
                     __FUNCTION__,                                                                  \
                     #e);                                                                           \
             fflush(logfilep);                                                                      \
-            __builtin_debugtrap();                                                                 \
+            __debugbreak();                                                                 \
         }                                                                                          \
     } while (0)
 #else
 #define ASSERT() (void)
 #endif
-
-#define __debugbreak() __builtin_debugtrap()
 
 // cheesy error result checking (always performed)
 #define CHECK(chk)                                                                                 \

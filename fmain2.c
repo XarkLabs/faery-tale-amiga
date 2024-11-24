@@ -427,10 +427,6 @@ USHORT pagecolors[] = {0x0000, 0x0FFF, 0x0E96, 0x0B63, 0x0631, 0x07BF, 0x0333, 0
                        0x0040, 0x0070, 0x00B0, 0x06F6, 0x0005, 0x0009, 0x000D, 0x037F,
                        0x0C00, 0x0F50, 0x0FA0, 0x0FF6, 0x0EB6, 0x0EA5, 0x000F, 0x0BDF};
 
-extern int16_t  secret_timer, light_timer, freeze_timer;
-struct ViewPort vp_page;
-extern UWORD    region_num, new_region;
-
 void fade_page(int16_t r, int16_t g, int16_t b, int16_t limit, USHORT * colors)
 {
     register int32_t r1, b1, g1, g2;
@@ -965,7 +961,7 @@ motor_off()
 {    diskreqs[9] = *diskreq1;
     diskreqs[9].iotd_Req.io_Length = 0;
     diskreqs[9].iotd_Req.io_Command = TD_MOTOR;
-    DoIO((struct IORequest *)&diskreqs[9]); 
+    DoIO((struct IORequest *)&diskreqs[9]);
 }
 #endif
 
@@ -1671,7 +1667,7 @@ void set_objects(struct object * list, int16_t length, int32_t f)
     }
 }
 
-char    answr[10], i;
+char    answr[10]; //, i;
 int16_t xx, yy;
 char *  answers[] = {"LIGHT", "HEED", "DEED", "SIGHT", "FLIGHT", "CREED", "BLIGHT", "NIGHT"};
 

@@ -126,16 +126,16 @@ char fiery_death;
 
 struct transition
 {
-    char newstate[4];             /* transition table */
-} trans_list[9] = {{1, 8, 0, 1},  /* 0 - arm down, weapon low */
-                   {2, 0, 1, 0},  /* 1 - arm down, weapon diagonal down */
-                   {3, 1, 2, 8},  /* 2 - arm swing1, weapon horizontal */
-                   {4, 2, 3, 7},  /* 3 - arm swing2, weapon raised */
-                   {5, 3, 4, 6},  /* 4 - arm swing2, weapon diag up */
-                   {6, 4, 5, 5},  /* 5 - arm swing2, weapon high */
-                   {8, 5, 6, 4},  /* 6 - arm high, weapon up */
-                   {8, 6, 7, 3},  /* 7 - arm high, weapon horizontal */
-                   {0, 6, 8, 2}}; /* 8 - arm middle, weapon raise fwd */
+    char newstate[4];               /* transition table */
+} trans_list[9] = {{{1, 8, 0, 1}},  /* 0 - arm down, weapon low */
+                   {{2, 0, 1, 0}},  /* 1 - arm down, weapon diagonal down */
+                   {{3, 1, 2, 8}},  /* 2 - arm swing1, weapon horizontal */
+                   {{4, 2, 3, 7}},  /* 3 - arm swing2, weapon raised */
+                   {{5, 3, 4, 6}},  /* 4 - arm swing2, weapon diag up */
+                   {{6, 4, 5, 5}},  /* 5 - arm swing2, weapon high */
+                   {{8, 5, 6, 4}},  /* 6 - arm high, weapon up */
+                   {{8, 6, 7, 3}},  /* 7 - arm high, weapon horizontal */
+                   {{0, 6, 8, 2}}}; /* 8 - arm middle, weapon raise fwd */
 
 struct state
 {
@@ -1770,9 +1770,9 @@ no_intro:
                 if (hunger > 120 && !(rand4()))
                 {
                     if (rand2())
-                        oldir = (oldir + 1 & 7);
+                        oldir = ((oldir + 1) & 7);
                     else
-                        oldir = (oldir - 1 & 7);
+                        oldir = ((oldir - 1) & 7);
                 }
                 anim_list[0].facing = oldir;
                 if (handler_data.qualifier & IEQUALIFIER_LEFTBUTTON || keydir)
@@ -4655,8 +4655,9 @@ void do_option(int16_t hit)
                             return;
                     }
                     else
-                        return; /* didn't work so don't decrement use count */
-                case 7:         /* HEAL */
+                        return;   /* didn't work so don't decrement use count */
+                    break;        // Xark: Added
+                case 7:           /* HEAL */
                     anim_list[0].vitality += rand8() + 4;
                     if (anim_list[0].vitality > (15 + brave / 4))
                         anim_list[0].vitality = (15 + brave / 4);

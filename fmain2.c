@@ -1678,6 +1678,13 @@ BOOL copy_protect_junk(void)
     register char *  a, *b;
     int32_t          h;
 
+    if (cheat1)
+    {
+        RUNLOG("1 <= copy_protect_junk() [SKIPPED]");
+          
+        return TRUE;
+    }
+
     RUNLOG("1 <= copy_protect_junk()");
 
     (void)b;        // Xark: might be used

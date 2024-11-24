@@ -495,7 +495,13 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
     {
         len = count;
     }
-    RUNLOGF("... [text rect %d,%d - %d,%d, pen=%d]", rp->cp_x, rp->cp_y, len * 9, 11, rp->BgPen);
+    RUNLOGF("... Text(%d,%d, len=%d, pen=%d/%d %s]",
+            rp->cp_x,
+            rp->cp_y,
+            len,
+            rp->FgPen,
+            rp->BgPen,
+            c_string(string, count < 80 ? count : 80));
     for (uint32_t x = 0; x < len && string[x]; x++)
     {
         if (string[x] >= rp->Font->LoChar && string[x] <= rp->Font->LoChar + rp->Font->NumGlyphs)

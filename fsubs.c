@@ -518,13 +518,12 @@ int32_t rnd(int32_t m)
 
 char numbuf[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ' '};
 
-// TODO: prdec - print val in decimat. length len to rasport "rp"
 void prdec(int32_t val, int32_t len)
 {
-    (void)val;
-    (void)len;
-    RUNLOGF("<= prdec(%d, %d) STUB", val, len);
-    // snprintf(numbuf, 10, "%010d", len, len, val);
+    RUNLOGF("<= prdec(%d, %d)", val, len);
+    char numbuf[12] = {0};
+    snprintf(numbuf, 10, "%10d", val);
+    Text(rp, numbuf - len, len);
 }
 
 //
@@ -625,10 +624,156 @@ void prdec(int32_t val, int32_t len)
 //         movem.l    (sp)+,d0-d7/a0-a6
 //         rts
 
-// TODO: placard - draw placard
+// DISASSEMBLED version
+//  LAB_0402:
+//          MOVEM.L D0-D7/A0-A6,-(A7)       ;000085f6: 48e7fffe
+//          LEA     -16492(A4),A1           ;000085fa: 43ecbf94
+//          MOVEA.L -17570(A4),A6           ;000085fe: 2c6cbb5e
+//          MOVEQ   #12,D6                  ;00008602: 7c0c
+//          MOVEQ   #0,D7                   ;00008604: 7e00
+//          MOVEQ   #16,D4                  ;00008606: 7810
+//  LAB_0403:
+//          MOVE.L  D4,-(A7)                ;00008608: 2f04
+//          MOVEQ   #15,D5                  ;0000860a: 7a0f
+//          LEA     LAB_0401(PC),A2         ;0000860c: 45faffc8
+//  LAB_0404:
+//          CLR.L   D0                      ;00008610: 4280
+//          MOVE.L  D7,D3                   ;00008612: 2607
+//          MOVE.B  16(A2),D0               ;00008614: 102a0010
+//          EXT.W   D0                      ;00008618: 4880
+//          EXT.L   D0                      ;0000861a: 48c0
+//          ADD.W   D0,D3                   ;0000861c: d640
+//          MOVE.L  D6,D2                   ;0000861e: 2406
+//          MOVE.B  (A2)+,D0                ;00008620: 101a
+//          EXT.W   D0                      ;00008622: 4880
+//          EXT.L   D0                      ;00008624: 48c0
+//          ADD.W   D0,D2                   ;00008626: d440
+//          MOVEQ   #4,D4                   ;00008628: 7804
+//  LAB_0405:
+//          MOVEQ   #1,D0                   ;0000862a: 7001
+//          TST.W   D4                      ;0000862c: 4a44
+//          BNE.S   LAB_0406                ;0000862e: 6604
+//          ADD.W   #$0017,D0               ;00008630: d07c0017
+//  LAB_0406:
+//          JSR     -342(A6)                ;00008634: 4eaefeaa
+//          MOVE.L  (A7),D0                 ;00008638: 2017
+//          CMP.L   #$00000009,D0           ;0000863a: b0bc00000009
+//          BLS.S   LAB_0407                ;00008640: 6330
+//          MOVE.L  D6,D0                   ;00008642: 2006
+//          MOVE.L  D7,D1                   ;00008644: 2207
+//          JSR     -240(A6)                ;00008646: 4eaeff10
+//          MOVE.L  D2,D0                   ;0000864a: 2002
+//          MOVE.L  D3,D1                   ;0000864c: 2203
+//          JSR     -246(A6)                ;0000864e: 4eaeff0a
+//          MOVE.W  #$011c,D0               ;00008652: 303c011c
+//          SUB.L   D6,D0                   ;00008656: 9086
+//          MOVE.W  #$007c,D1               ;00008658: 323c007c
+//          SUB.L   D7,D1                   ;0000865c: 9287
+//          JSR     -240(A6)                ;0000865e: 4eaeff10
+//          MOVE.W  #$011c,D0               ;00008662: 303c011c
+//          SUB.L   D2,D0                   ;00008666: 9082
+//          MOVE.W  #$007c,D1               ;00008668: 323c007c
+//          SUB.L   D3,D1                   ;0000866c: 9283
+//          JSR     -246(A6)                ;0000866e: 4eaeff0a
+//  LAB_0407:
+//          MOVEQ   #16,D0                  ;00008672: 7010
+//          ADD.L   D7,D0                   ;00008674: d087
+//          MOVEQ   #12,D1                  ;00008676: 720c
+//          SUB.L   D6,D1                   ;00008678: 9286
+//          JSR     -240(A6)                ;0000867a: 4eaeff10
+//          MOVEQ   #16,D0                  ;0000867e: 7010
+//          ADD.L   D3,D0                   ;00008680: d083
+//          MOVEQ   #12,D1                  ;00008682: 720c
+//          SUB.L   D2,D1                   ;00008684: 9282
+//          JSR     -246(A6)                ;00008686: 4eaeff0a
+//          MOVE.W  #$010c,D0               ;0000868a: 303c010c
+//          SUB.L   D7,D0                   ;0000868e: 9087
+//          MOVEQ   #112,D1                 ;00008690: 7270
+//          ADD.L   D6,D1                   ;00008692: d286
+//          JSR     -240(A6)                ;00008694: 4eaeff10
+//          MOVE.W  #$010c,D0               ;00008698: 303c010c
+//          SUB.L   D3,D0                   ;0000869c: 9083
+//          MOVEQ   #112,D1                 ;0000869e: 7270
+//          ADD.L   D2,D1                   ;000086a0: d282
+//          JSR     -246(A6)                ;000086a2: 4eaeff0a
+//          DBF     D4,LAB_0405             ;000086a6: 51ccff82
+//          MOVE.L  D2,D6                   ;000086aa: 2c02
+//          MOVE.L  D3,D7                   ;000086ac: 2e03
+//          DBF     D5,LAB_0404             ;000086ae: 51cdff60
+//          MOVE.L  (A7)+,D4                ;000086b2: 281f
+//          DBF     D4,LAB_0403             ;000086b4: 51ccff52
+//          MOVEM.L (A7)+,D0-D7/A0-A6       ;000086b8: 4cdf7fff
+//          RTS                             ;000086bc: 4e75
+
+
+void HVLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1)
+{
+    int16_t w = x1 - x0;
+    if (w < 0)
+    {
+        w = -w;
+    }
+    int16_t h = y1 - y0;
+    if (h < 0)
+    {
+        h = -h;
+    }
+
+    SDL_Rect dr = {x0, y0, w + 1, h + 1};
+
+    // spammy    RUNLOGF("HVLine(#%d, %d,%d   %d x %d)", rp_map.FgPen, dr.x, dr.y, dr.w, dr.h);
+
+    SDL_FillRect(rp_map.BitMap->Surface, &dr, rp_map.FgPen);
+}
+
+// TODO: This is "close", but still has some bug I haven't spotted...
 void placard(void)
 {
-    RUNLOG("<= placard() STUB");
+    const int8_t  M           = 4;
+    static int8_t mod_tbl[32] = {-M, -M, -M, 0, 0, 0, M, M, 0,  -M, 0,  M, M, 0, 0, 0,
+                                 0,  0,  0,  M, M, M, 0, 0, -M, 0,  -M, 0, 0, M, M, M};
+
+    RUNLOG("<= placard()");
+
+    int dx, dy;
+    int xorg = 12;
+    int yorg = 0;
+
+    int i = 16;
+    do
+    {
+        int8_t * tbl = mod_tbl;
+        int      j   = 15;
+        do
+        {
+            dy = yorg;
+            dy += tbl[16];
+
+            dx = xorg;
+            dx += *tbl++;
+
+            int k = 4;
+            do
+            {
+                SetAPen(&rp_map, k == 0 ? 24 : 1);
+
+                if (i > 9)
+                {
+                    HVLine(xorg, yorg, dx, dy);
+                    HVLine(284 - xorg, 124 - yorg, 284 - dx, 124 - dy);
+                }
+                HVLine(16 + yorg, 12 - xorg, 16 + dy, 12 - dx);
+                HVLine(268 - yorg, 112 + xorg, 268 - dy, 112 + dx);
+            } while (--k != -1);
+
+            sdl_endframe();        // Xark: show placard drawing
+
+            xorg = dx;
+            yorg = dy;
+
+        } while (--j != -1);
+
+    } while (--i != -1);
 }
 
 //
@@ -660,7 +805,7 @@ void move(int32_t x, int32_t y)
 //             movem.l    (sp)+,a0-a6/d0-d7
 //             rts
 
-// TODO: text - print text into rastport "rp"
+// text - print text into rastport "rp"
 void text(char * tptr, int32_t len)
 {
     Text(rp, tptr, len);
@@ -708,7 +853,7 @@ void text(char * tptr, int32_t len)
 //             movem.l    (sp)+,a0-a2/d0-d1
 //             rts
 
-// TODO: ssp - screen space print (with positioning code)
+// ssp - screen space print (with positioning code)
 void ssp(UBYTE * mp)
 {
     RUNLOGF("<= ssp(%p)", mp);

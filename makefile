@@ -12,12 +12,11 @@ SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 .ONESHELL:
 .DELETE_ON_ERROR:
-#MAKEFLAGS += --no-builtin-rules
 
 CC=gcc
 LD=gcc
 
-CFLAGS  = -g -O0 -Wall -Wextra -Werror -I AmigaOS_NDK_3.1/Includes_Libs/include_h $(shell sdl2-config --cflags)
+CFLAGS  = -g -O0 -Wall -Wextra -Werror $(shell sdl2-config --cflags)
 LDFLAGS =  $(shell sdl2-config --libs) -lSDL2_image
 
 INCS = $(wildcard *.h)
@@ -35,8 +34,5 @@ debug: all
 
 clean:
 	rm -f $(OBJS) fta
-
-#%.o : %.c $(INCLUDE) $(MAKEFILE_LIST)
-#	$(CC) $(CFLAGS) -o $@ $<
 
 .PHONY: all debug clean

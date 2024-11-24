@@ -29,7 +29,8 @@ SDL_GameController * sdl_controller;
 struct SDL_Surface * sdl_cursor_image;
 struct SDL_Cursor *  sdl_cursor;
 
-float sdl_window_scale = 2.0f;
+float sdl_window_scale = 1.0f;
+#define Y_ASPECT() (1.0) // (480.0 / 400)
 uint32_t frame_counter;
 
 // TODO: Check if already big-endian
@@ -189,9 +190,9 @@ int sdl_init(void)
 
 #if DEBUG_WINDOW
     sdl_debug_window = SDL_CreateWindow(
-        "FTA Debug", SDL_WINDOWPOS_CENTERED_DISPLAY(1), 10, 320, 240, SDL_WINDOW_SHOWN);
+        "FTA Debug", SDL_WINDOWPOS_CENTERED_DISPLAY(1), 10, 320, 200, SDL_WINDOW_SHOWN);
     sdl_debug_renderer = SDL_CreateRenderer(sdl_debug_window, -1, 0);
-    SDL_RenderSetScale(sdl_renderer, 640.0 / 640, 480.0 / 400);
+    SDL_RenderSetScale(sdl_renderer, 640.0 / 640, Y_ASPECT());
     SDL_SetRenderDrawColor(sdl_debug_renderer, 0x20, 0x00, 0x00, 255);
     SDL_RenderClear(sdl_debug_renderer);
     SDL_RenderPresent(sdl_debug_renderer);
@@ -201,12 +202,12 @@ int sdl_init(void)
                                   SDL_WINDOWPOS_CENTERED,
                                   SDL_WINDOWPOS_CENTERED,
                                   640 * sdl_window_scale,
-                                  480 * sdl_window_scale,
+                                  400 * sdl_window_scale,
                                   SDL_WINDOW_SHOWN);
     sdl_renderer =
         SDL_CreateRenderer(sdl_window, -1, /* SDL_RENDERER_SOFTWARE | */ SDL_RENDERER_PRESENTVSYNC);
     SDL_RenderSetScale(
-        sdl_renderer, (640.0 / 640) * sdl_window_scale, (480.0 / 400) * sdl_window_scale);
+        sdl_renderer, (640.0 / 640) * sdl_window_scale, Y_ASPECT() * sdl_window_scale);
     SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x40, 0x90, 255);        // Amiga blue
     SDL_RenderClear(sdl_renderer);
     SDL_RenderPresent(sdl_renderer);
@@ -245,7 +246,7 @@ void sdl_update_cursor(struct ViewPort * vp)
     SDL_ShowCursor(SDL_ENABLE);
 }
 
-#define FLIPSPAM 0
+#define FLIPSPAM 1
 
 void sdl_endframe(void)
 {
@@ -336,7 +337,7 @@ void sdl_endframe(void)
     SDL_RenderCopy(sdl_renderer, texture, NULL, NULL);
 #endif
     SDL_RenderPresent(sdl_renderer);
-    
+
     DPRINTF("=== SDL_RenderPresent(sdl_renderer) [frame %8d] ===\n\n", frame_counter);
     frame_counter++;
 }

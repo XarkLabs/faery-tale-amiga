@@ -220,6 +220,7 @@ struct TextFont
 {
     uint8_t            LoChar;
     uint8_t            NumGlyphs;
+    uint8_t            BaseLine;        // Xark: needs this, since draws at baseline for origin
     SDL_Surface *      Bitmap;
     struct GlyphInfo * Glyphs;
 };

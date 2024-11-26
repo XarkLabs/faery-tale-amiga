@@ -230,6 +230,9 @@ struct TextFont * OpenFont(const char * fntPath, const char * pngPath)
         }
     }
 
+    // Xark: Hack until baseline added to font data
+    font->BaseLine = font->Bitmap->h - 2;
+
     return font;
 }
 
@@ -415,7 +418,7 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
         {
             uint8_t            glyphIndex = string[x] - rp->Font->LoChar;
             struct GlyphInfo * glyph      = &(rp->Font->Glyphs[glyphIndex]);
-            SDL_Rect           dr = {rp->cp_x, rp->cp_y, glyph->BitLength, rp->Font->Bitmap->h};
+            SDL_Rect           dr = {rp->cp_x, rp->cp_y - rp->Font->BaseLine , glyph->BitLength, rp->Font->Bitmap->h};  // Xark: Draw using y+baseline as origin
             SDL_Rect sr = {glyph->LocationStart, 0, glyph->BitLength, rp->Font->Bitmap->h};
             SDL_FillRect(rp->BitMap->Surface, &dr, rp->BgPen);
             sdl_blitsurface8_mask(rp->Font->Bitmap, &sr, rp->BitMap->Surface, &dr, rp->FgPen);

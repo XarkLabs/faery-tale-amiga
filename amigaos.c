@@ -19,7 +19,7 @@ APTR AllocMem(uint32_t bytesize, uint32_t attributes)
     return ptr;
 }
 
-// TODO: FreeMem -- deallocate with knowledge
+// FreeMem -- deallocate with knowledge
 void FreeMem(APTR memoryBlock, uint32_t byteSize)
 {
     (void)byteSize;
@@ -66,7 +66,7 @@ UBYTE * AllocRaster(uint32_t width, uint32_t height)
     return res;
 }
 
-// TODO: BltBitMap -- Move a rectangular region of bits in a BitMap.
+// BltBitMap -- Move a rectangular region of bits in a BitMap.
 LONG BltBitMap(struct BitMap * srcBitMap,
                int32_t         xSrc,
                int32_t         ySrc,
@@ -82,21 +82,7 @@ LONG BltBitMap(struct BitMap * srcBitMap,
     (void)minterm;
     (void)mask;
     (void)tempA;
-
     LONG res = 0;
-    // RUNLOGF("%d <= graphics.BltBitMap(%p, %d, %d, %p, %d, %d, %d, %d, 0x%x, 0x%x, %p) STUB",
-    //         res,
-    //         srcBitMap,
-    //         xSrc,
-    //         ySrc,
-    //         destBitMap,
-    //         xDest,
-    //         yDest,
-    //         xSize,
-    //         ySize,
-    //         minterm,
-    //         mask,
-    //         tempA);
 
     SDL_Rect sr = {xSrc, ySrc, xSize, ySize};
     SDL_Rect dr = {xDest, yDest, xDest + xSize, yDest + ySize};
@@ -105,7 +91,7 @@ LONG BltBitMap(struct BitMap * srcBitMap,
     return res;
 }
 
-// TODO: ChangeSprite( vp, s, newdata)
+// ChangeSprite( vp, s, newdata)
 void ChangeSprite(struct ViewPort * vp, uint16_t width, uint16_t height, UBYTE * newData)
 {
     RUNLOGF("<= graphics.ChangeSprite(%p, %d, %d, %p)", vp, width, height, newData);
@@ -141,20 +127,19 @@ void ChangeSprite(struct ViewPort * vp, uint16_t width, uint16_t height, UBYTE *
     sdl_update_cursor(vp);
 }
 
-// TODO: DisownBlitter -- return blitter to free state.
+// DisownBlitter -- return blitter to free state.
 void DisownBlitter(void)
 {
-    // spammy    RUNLOG("<= graphics.DisownBlitter()");
 }
 
-// TODO: FreeColorMap -- Free the ColorMap structure and return memory
+// FreeColorMap -- Free the ColorMap structure and return memory
 void FreeColorMap(struct ColorMap * colorMap)
 {
     RUNLOGF("<= graphics.FreeColorMap(%p)", colorMap);
     free(colorMap);
 }
 
-// TODO: GetColorMap -- allocate and initialize Colormap
+// GetColorMap -- allocate and initialize Colormap
 struct ColorMap * GetColorMap(int32_t entries)
 {
     struct ColorMap * res = NULL;
@@ -228,14 +213,14 @@ struct TextFont * OpenFont(const char * fntPath, const char * pngPath)
     }
 
     ASSERT(font->Bitmap->format->format == SDL_PIXELFORMAT_INDEX8);
-//    SDL_SetSurfaceBlendMode(font->Bitmap, SDL_BLENDMODE_BLEND);
+    //    SDL_SetSurfaceBlendMode(font->Bitmap, SDL_BLENDMODE_BLEND);
     if (!SDL_LockSurface(font->Bitmap))
     {
-        UBYTE *sp = font->Bitmap->pixels;
+        UBYTE * sp = font->Bitmap->pixels;
         for (int v = 0; v < font->Bitmap->h; v++)
         {
-            int w = font->Bitmap->w;
-            UBYTE *scp = sp;
+            int     w   = font->Bitmap->w;
+            UBYTE * scp = sp;
             while (w--)
             {
                 *scp = *scp ? 0xFF : 0x00;
@@ -270,17 +255,6 @@ void InitRastPort(struct RastPort * rp)
     rp->DrawMode = JAM2;
 }
 
-// // TODO: InitTmpRas -- Initialize area of local memory for usage by
-// struct TmpRas * InitTmpRas(struct TmpRas * tmpRas, UBYTE * buffer, int32_t size)
-// {
-//     struct TmpRas * res = NULL;
-//     (void)tmpRas;
-//     (void)buffer;
-//     (void)size;
-//     RUNLOGF("%p <= graphics.InitTmpRas(%p, %p, %d) STUB", res, tmpRas, buffer, size);
-//     return res;
-// }
-
 void InitVPort(struct ViewPort * vp)
 {
     (void)vp;
@@ -295,7 +269,7 @@ void InitView(struct View * view)
     memset(view, 0, sizeof(struct View));
 }
 
-// TODO: LoadRGB4 -- Load RGB color values from table.
+// LoadRGB4 -- Load RGB color values from table.
 void LoadRGB4(struct ViewPort * vp, UWORD * colors, int32_t count)
 {
     RUNLOGF("<= graphics.LoadRGB4(%p, %p, %d)", vp, colors, count);
@@ -308,25 +282,7 @@ void LoadRGB4(struct ViewPort * vp, UWORD * colors, int32_t count)
     DPRINT(" ]\n");
 }
 
-// // TODO: LoadView -- Use a (possibly freshly created) coprocessor instruction list to create the
-// // current display.
-// void LoadView(struct View * view)
-// {
-//     (void)view;
-//     //    RUNLOGF("<= graphics.LoadView(%p) STUB", view);
-// }
-
-// // TODO: MakeVPort -- generate display copper list for a viewport.
-// ULONG MakeVPort(struct View * view, struct ViewPort * vp)
-// {
-//     ULONG res = 0;
-//     (void)view;
-//     (void)vp;
-//     //    RUNLOGF("%d <= graphics.MakeVPort(%p, %p) STUB", res, view, vp);
-//     return res;
-// }
-
-// TODO: BltBitMap -- Move a rectangular region of bits in a BitMap.
+// BltBitMap -- Move a rectangular region of bits in a BitMap.
 void Move(struct RastPort * rp, int32_t x, int32_t y)
 {
     (void)rp;
@@ -337,39 +293,20 @@ void Move(struct RastPort * rp, int32_t x, int32_t y)
     rp->cp_y = y;
 }
 
-// // TODO: MrgCop -- Merge together coprocessor instructions.
-// ULONG MrgCop(struct View * view)
-// {
-//     ULONG res = 0;
-//     (void)view;
-//     //    RUNLOGF("%d <= graphics.MrgCop(%p) STUB", res, view);
-//     return res;
-// }
-
-// // TODO; OpenFont -- Get a pointer to a system font.
-// struct TextFont * OpenFont(struct TextAttr * textAttr)
-// {
-//     struct TextFont * res = NULL;
-//     (void)textAttr;
-//     RUNLOGF("%p <= graphics.OpenFont(%p) STUB", res, textAttr);
-//     return res;
-// }
-
-// TODO: OwnBlitter -- get the blitter for private usage
+// OwnBlitter -- get the blitter for private usage
 void OwnBlitter(void)
 {
-    // spammy    RUNLOG("<= graphics.OwnBlitter() STUB");
 }
 
-// TODO: RectFill -- Fill a rectangular region in a RastPort.
+// RectFill -- Fill a rectangular region in a RastPort.
 void RectFill(struct RastPort * rp, int32_t xMin, int32_t yMin, int32_t xMax, int32_t yMax)
 {
     RUNLOGF("<= graphics.RectFill(%p, %d, %d, %d, %d)", rp, xMin, yMin, xMax, yMax);
-    SDL_Rect dr = {xMin, yMin, xMax - xMin, yMax - yMin};
+    SDL_Rect dr = {xMin, yMin, xMax - xMin + 1, yMax - yMin + 1};
     SDL_FillRect(rp->BitMap->Surface, &dr, rp->FgPen);
 }
 
-// TODO: ScrollRaster -- Push bits in rectangle in raster around by dx,dy towards 0,0 inside
+// ScrollRaster -- Push bits in rectangle in raster around by dx,dy towards 0,0 inside
 // rectangle.
 void ScrollRaster(struct RastPort * rp,
                   int32_t           dx,
@@ -379,41 +316,58 @@ void ScrollRaster(struct RastPort * rp,
                   int32_t           xMax,
                   int32_t           yMax)
 {
-    (void)rp;
-    (void)dx;
-    (void)dy;
-    (void)xMin;
-    (void)yMin;
-    (void)xMax;
-    (void)yMax;
-    RUNLOGF("<= graphics.ScrollRaster(%p, %d, %d, %d, %d, %d, %d) STUB",
-            rp,
-            dx,
-            dy,
-            xMin,
-            yMin,
-            xMax,
-            yMax);
+    RUNLOGF(
+        "<= graphics.ScrollRaster(%p, %d, %d, %d, %d, %d, %d)", rp, dx, dy, xMin, yMin, xMax, yMax);
+
+    ASSERT(dy > 0);
+
+    SDL_Surface * s = rp->BitMap->Surface;
+    if (xMax >= s->w)
+    {
+        xMax = s->w - 1;
+    }
+    if (yMax >= s->h)
+    {
+        yMax = s->h - 1;
+    }
+
+    if (!SDL_LockSurface(s))
+    {
+        int16_t w  = xMax - xMin + 1;
+        UBYTE * dp = (UBYTE *)s->pixels + (yMin * s->pitch) + xMin;
+        UBYTE * sp = dp + (dy * s->pitch) + dx;
+        for (int16_t v = yMin; v <= yMax; v++)
+        {
+            if ((v + dy) <= yMax)
+            {
+                memmove(dp, sp, w);
+            }
+            else
+            {
+                memset(dp, rp->BgPen, w);
+            }
+            dp += s->pitch;
+            sp += s->pitch;
+        }
+    }
+    SDL_UnlockSurface(s);
 }
 
-// TODO: SetAPen -- Set the primary pen for a RastPort.
+// SetAPen -- Set the primary pen for a RastPort.
 void SetAPen(struct RastPort * rp, uint32_t pen)
 {
-    // spammy    RUNLOGF("<= graphics.SetAPen(%p, %d)", rp, pen);
     rp->FgPen = pen;
 }
 
-// TODO: SetBPen -- Set the secondary pen for a RastPort.
+// SetBPen -- Set the secondary pen for a RastPort.
 void SetBPen(struct RastPort * rp, uint32_t pen)
 {
-    // spammy    RUNLOGF("<= graphics.SetBPen(%p, %d)", rp, pen);
     rp->BgPen = pen;
 }
 
-// TODO: SetDrMd -- Set drawing mode for a RastPort
+// SetDrMd -- Set drawing mode for a RastPort
 void SetDrMd(struct RastPort * rp, uint32_t drawMode)
 {
-    // spammy    RUNLOGF("<= graphics.SetDrMd(%p, %d)", rp, drawMode);
     rp->DrawMode = drawMode;
 }
 
@@ -423,22 +377,19 @@ void SetFont(struct RastPort * rp, struct TextFont * textFont)
     rp->Font = textFont;
 }
 
-// TODO: SetRast - Set an entire drawing area to a specified color.
+// SetRast - Set an entire drawing area to a specified color.
 void SetRast(struct RastPort * rp, uint32_t pen)
 {
     (void)rp;
     (void)pen;
-    RUNLOGF("<= graphics.SetRast(%p, %d)", rp, pen);
     SDL_FillRect(rp->BitMap->Surface, NULL, pen);
 }
 
 // TODO: SetRGB4 -- Set one color register for this viewport.
 void SetRGB4(struct ViewPort * vp, int32_t index, uint32_t red, uint32_t green, uint32_t blue)
 {
-    uint16_t ac = ((red & 0xf) << 8) | ((green & 0xf) << 4) | (blue & 0xf);
-    RUNLOGF("SetRGB4 -> [#%2d 0x%04x]", index, ac);
+    uint16_t ac                 = ((red & 0xf) << 8) | ((green & 0xf) << 4) | (blue & 0xf);
     vp->ColorMap->colors[index] = amiga_color(ac);
-    ;
 }
 
 // Text -- Write text characters (no formatting).
@@ -478,7 +429,6 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
 // TODO: WaitBlit -- Wait for the blitter to be finished before proceeding
 void WaitBlit(void)
 {
-    // spammy    RUNLOG("<= graphics.WaitBlit()");
 }
 
 // EOF

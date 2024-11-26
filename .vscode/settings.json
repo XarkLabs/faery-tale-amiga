@@ -1,11 +1,7 @@
 {
     "files.associations": {
-        "*.sv": "systemverilog",
-        "*.asm": "vasmmot",
-        "*.s": "ca65",
-        "*.c": "cpp",
-        "*.h": "c",
-        "vector": "cpp"
+        "*.c": "c",
+        "*.h": "c"
     },
     "makefile.configureOnOpen": true,
     "[m68k]": {

@@ -330,7 +330,7 @@ void sdl_drawframe(void)
                     x_window_scale,
                     y_window_scale,
                     curvp->Modes & HIRES ? " HIRES" : "");
-#if 1        // show colormap
+#if 0        // show colormap
             for (int c = 1; c < 32; c++)
             {
                 SDL_Rect cr = {c * 4, 1, 3, 3};

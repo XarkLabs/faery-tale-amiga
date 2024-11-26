@@ -337,7 +337,7 @@ UBYTE nhivar[] = {
 // getkeyx        movem.l    (sp)+,a1/d1
 //             rts
 
-// TODO: getkey - get key from keyboard buffer
+// getkey - get key from keyboard buffer
 int32_t getkey(void)
 {
     sdl_pump();
@@ -634,7 +634,6 @@ void HVLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1)
     SDL_FillRect(rp_map.BitMap->Surface, &dr, rp_map.FgPen);
 }
 
-// TODO: This is "close", but still has some bug I haven't spotted...
 void placard(void)
 {
     const int8_t  M           = 4;
@@ -1550,53 +1549,6 @@ void genmini(int32_t img_x, int32_t img_y)
 }
 
 //
-//         public    _unpack_line,_compress,_bytecount,_packdata
-//
-// _unpack_line
-//         move.l    d2,-(sp)
-//         tst.b    _compress
-//         bne.s    unpack_line2
-// ;_unpack_line1
-//         move.l    4+4(sp),a0    ; a0 = dest
-//         move.l    _bytecount,d1
-//         move.l    _packdata,a1
-//
-//         subq    #1,d1        ; bytecount -1
-//         bmi.s    upl20
-// upl10    move.b    (a1)+,(a0)+
-//         dbra    d1,upl10
-// upl20    move.l    a1,_packdata
-//         move.l    (sp)+,d2
-//         rts
-//
-// unpack_line2
-//         move.l    4+4(sp),a0        ; a0 = dest
-//         move.l    _packdata,a1
-//
-//         clr.l    d2                ; j=0
-//
-// upl30    clr.w    d0                ; clear upper half
-//         move.b    (a1)+,d0        ; d0 = upc
-//         bmi.s    upl35            ; if j < 0 repeat else lit
-// upl32    addq.l    #1,d2            ; add 1 to j
-//         move.b    (a1)+,(a0)+        ; *des++ = *packdata++
-//         dbra    d0,upl32
-//
-//         bra.s    upl39
-//
-// upl35    neg.b    d0                ; upc = -upc /* branch overflow?? */
-//         move.b    (a1)+,d3        ; d3 = byte run byte
-// upl36    addq.l    #1,d2            ; j++
-//         move.b    d3,(a0)+        ; *dest++ = byte
-//         dbra    d0,upl36        ; while (upc >= 0) loop
-//
-// upl39    cmp.l    _bytecount,d2    ; if (j<bytecount) continue;
-//         blo.s    upl30
-// upl40
-//         move.l    a1,_packdata
-//         move.l    (sp)+,d2
-//         rts
-//
 // ; newx(x,dir,speed)
 // ; newy(y,dir,speed)
 //
@@ -1622,14 +1574,16 @@ void genmini(int32_t img_x, int32_t img_y)
 // newxx    movem.l    (sp)+,d2/d3
 //         rts
 
-// TODO: newx - compute new x based on speed and direction
-int32_t newx(int32_t x, int32_t dir, int32_t speed)
+// newx - compute new x based on speed and direction
+int16_t newx(int16_t x, int16_t dir, int16_t speed)
 {
-    int32_t res = x;
-    (void)x;
-    (void)dir;
-    (void)speed;
-    RUNLOGF("%d <= newx(%d, %d, %d) STUB", res, x, dir, speed);
+    static int16_t xdir[] = {-2, 0, 2, 3, 2, 0, -2, -3, 0, 0};
+    int32_t        res    = x;
+    if (dir < 8)
+    {
+        res = (x + ((xdir[dir] * speed) >> 1)) & 0x7fff;
+    }
+    RUNLOGF("%d <= newx(%d, %d, %d)", res, x, dir, speed);
     return res;
 }
 
@@ -1656,14 +1610,18 @@ int32_t newx(int32_t x, int32_t dir, int32_t speed)
 // newyy    movem.l    (sp)+,d2/d3
 //         rts
 
-// TODO: newy - compute new y based on speed and direction
-int32_t newy(int32_t y, int32_t dir, int32_t speed)
+// newy - compute new y based on speed and direction
+int16_t newy(int16_t y, int16_t dir, int16_t speed)
 {
-    int32_t res = y;
-    (void)y;
-    (void)dir;
-    (void)speed;
-    RUNLOGF("%d <= newy(%d, %d, %d) STUB", res, y, dir, speed);
+    static int16_t ydir[] = {-2,-3,-2,0,2,3,2,0,0,0};
+    int32_t        res    = y;
+    if (dir < 8)
+    {
+        int16_t signbit = y & 0x8000;
+        res = (y + ((ydir[dir] * speed) >> 1)) & 0x7fff;
+        res |= signbit;
+    }
+    RUNLOGF("%d <= newy(%d, %d, %d)", res, y, dir, speed);
     return res;
 }
 
@@ -1820,7 +1778,8 @@ void map_adjust(int32_t x, int32_t y)
 void do_error(int32_t e)
 {
     RUNLOGF("<= do_error(%d)", e);
-    fprintf(stderr, "FATAL ERROR %d\n", e);
+    fprintf(stderr, "Init error=%d encountered.\n", e);
+    fprintf(stderr, "Exiting...\n");
 }
 
 //         public    _page_det

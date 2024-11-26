@@ -30,9 +30,6 @@ void FreeMem(APTR memoryBlock, uint32_t byteSize)
 // Delay -- Delay a process for a specified time (1/50th sec)
 void Delay(int32_t timeout)
 {
-    if (timeout > 50)        // TODO: hack delay time
-        timeout = 50;
-
     while (timeout-- > 0)
     {
         sdl_pump();
@@ -150,7 +147,7 @@ struct ColorMap * GetColorMap(int32_t entries)
 }
 
 
-// TODO: InitBitMap -- Initialize bit map structure with input values.
+// InitBitMap -- Initialize bit map structure with input values.
 void InitBitMap(struct BitMap * bitMap,
                 int32_t         depth,
                 int32_t         width,
@@ -169,7 +166,7 @@ void InitBitMap(struct BitMap * bitMap,
     bitMap->Surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
     if (bitMap->Surface)
     {
-        bitMap->BytesPerRow = bitMap->Surface->pitch;        //(((width + 15) >> 4) << 1);
+        bitMap->BytesPerRow = bitMap->Surface->pitch;
         bitMap->Rows        = height;
         bitMap->Flags       = 0;
         bitMap->Depth       = depth;
@@ -245,7 +242,7 @@ void FreeFont(struct TextFont * font)
     free(font);
 }
 
-// TODO: InitRastPort -- Initialize raster port structure
+// InitRastPort -- Initialize raster port structure
 void InitRastPort(struct RastPort * rp)
 {
     (void)rp;
@@ -385,7 +382,7 @@ void SetRast(struct RastPort * rp, uint32_t pen)
     SDL_FillRect(rp->BitMap->Surface, NULL, pen);
 }
 
-// TODO: SetRGB4 -- Set one color register for this viewport.
+// SetRGB4 -- Set one color register for this viewport.
 void SetRGB4(struct ViewPort * vp, int32_t index, uint32_t red, uint32_t green, uint32_t blue)
 {
     uint16_t ac                 = ((red & 0xf) << 8) | ((green & 0xf) << 4) | (blue & 0xf);
@@ -415,7 +412,8 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
         {
             uint8_t            glyphIndex = string[x] - rp->Font->LoChar;
             struct GlyphInfo * glyph      = &(rp->Font->Glyphs[glyphIndex]);
-            SDL_Rect           dr = {rp->cp_x, rp->cp_y - rp->Font->BaseLine , glyph->BitLength, rp->Font->Bitmap->h};  // Xark: Draw using y+baseline as origin
+            SDL_Rect           dr         = {
+                rp->cp_x, rp->cp_y - rp->Font->BaseLine, glyph->BitLength, rp->Font->Bitmap->h};
             SDL_Rect sr = {glyph->LocationStart, 0, glyph->BitLength, rp->Font->Bitmap->h};
             SDL_FillRect(rp->BitMap->Surface, &dr, rp->BgPen);
             sdl_blitsurface8_mask(rp->Font->Bitmap, &sr, rp->BitMap->Surface, &dr, rp->FgPen);
@@ -426,7 +424,7 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
     return res;
 }
 
-// TODO: WaitBlit -- Wait for the blitter to be finished before proceeding
+// WaitBlit -- Wait for the blitter to be finished before proceeding
 void WaitBlit(void)
 {
 }

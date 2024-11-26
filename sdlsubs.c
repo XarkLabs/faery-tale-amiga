@@ -14,6 +14,7 @@
 
 char raw_asset_fname[128];
 
+BOOL    big_endian;
 BOOL    sdl_quit;
 BOOL    sdl_screenshot;
 int16_t sdl_qualifier;
@@ -33,18 +34,24 @@ float sdl_window_scale = 2.0f;
 #define Y_ASPECT() (1.0)        // (480.0 / 400)
 uint32_t frame_counter;
 
-// TODO: Check if already big-endian
 uint32_t swap_endian(uint32_t v)
 {
+    if (big_endian)
+    {
+        return v;
+    }
     return ((v >> 24) & 0xff) |             // move byte 3 to byte 0
            ((v << 8) & 0xff0000) |          // move byte 1 to byte 2
            ((v >> 8) & 0xff00) |            // move byte 2 to byte 1
            ((v << 24) & 0xff000000);        // byte 0 to byte 3
 }
 
-// TODO: Check if already big-endian
 uint16_t swap_endian16(uint16_t v)
 {
+    if (big_endian)
+    {
+        return v;
+    }
     return ((v << 8) & 0xff00) |        // move byte 1 to byte 2
            ((v >> 8) & 0x00ff);
 }
@@ -168,6 +175,11 @@ void save_raw_asset(const char * fname, void * ptr, int32_t len, int appendflag)
 
 int sdl_init(void)
 {
+    union
+    {
+        uint8_t  byte[2];
+        uint16_t word;
+    } endian;
     char        time_stamp[64];
     time_t      now        = time(NULL);
     struct tm * local_time = localtime(&now);
@@ -180,6 +192,11 @@ int sdl_init(void)
     }
 
     RUNLOGF("*** FTA/SDL2 logs/FTA-gamerun.log - %s", time_stamp);
+
+    endian.word = 0x0001;
+    big_endian  = endian.byte[1];
+
+    RUNLOGF("CPU is %s endian", big_endian ? "BIG" : "LITTLE");
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) !=
         0)
@@ -209,9 +226,10 @@ int sdl_init(void)
     SDL_RenderSetScale(
         sdl_renderer, (640.0 / 640) * sdl_window_scale, Y_ASPECT() * sdl_window_scale);
 
-    for (int s = 0; s < 2; s++)
+    // This small loop lets SDL2 process some initial events (like controllers)
+    for (float f = 0.0; f <= 1.0; f += 0.05)
     {
-        SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x40, 0x90, 255);        // Amiga blue
+        SDL_SetRenderDrawColor(sdl_renderer, 0x00 * f, 0x00 * f, 0x66 * f, 255);        // Amiga blue
         SDL_RenderClear(sdl_renderer);
         SDL_RenderPresent(sdl_renderer);
         sdl_pump();
@@ -232,11 +250,7 @@ void sdl_exit(int retval)
     exit(retval);
 }
 
-uint16_t hack_cursor[] = {0x0000,
-                          0x0c74,
-                          0x0d96,
-                          0x0fca};        // TODO: get colors from proper place
-
+// TODO: I think a software rendered cursor may be desirable
 void sdl_update_cursor(struct ViewPort * vp)
 {
     // use colors from VP

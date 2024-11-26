@@ -333,8 +333,8 @@ const char * c_string(const char * s, int maxlen);
 void         map_draw(void);
 void         scrollmap(int32_t dir);
 int32_t      px_to_im(USHORT x, USHORT y);
-int32_t      newx(int32_t x, int32_t dir, int32_t speed);
-int32_t      newy(int32_t y, int32_t dir, int32_t speed);
+int16_t      newx(int16_t x, int16_t dir, int16_t speed);
+int16_t      newy(int16_t y, int16_t dir, int16_t speed);
 UBYTE *      mapxy(int32_t x, int32_t y);
 void         map_adjust(int32_t x, int32_t y);
 void         bigdraw(int32_t x, int32_t y);
@@ -403,6 +403,7 @@ BOOL MakeBitMap(struct BitMap * b, int32_t depth, int32_t width, int32_t height,
 void UnMakeBitMap(struct BitMap * b);
 
 // sdlsubs.c
+extern BOOL  big_endian;
 extern char  raw_asset_fname[128];
 extern float sdl_window_scale;
 extern BOOL  sdl_quit;
@@ -428,10 +429,10 @@ void      ft_mouse_button(int16_t qual);
 void      ft_mouse_pos(int16_t x, int16_t y);
 void      sdl_blitsurface8(SDL_Surface * src, SDL_Rect * sr, SDL_Surface * dest, SDL_Rect * dr);
 void      sdl_blitsurface8_mask(SDL_Surface * src,
-                               SDL_Rect *    sr,
-                               SDL_Surface * dest,
-                               SDL_Rect *    dr,
-                               UBYTE         maskbyte);
+                                SDL_Rect *    sr,
+                                SDL_Surface * dest,
+                                SDL_Rect *    dr,
+                                UBYTE         maskbyte);
 
 void sdl_pump(void);
 BOOL unpack_png(char * filename, struct BitMap * bitmap, int16_t wx, int16_t y);

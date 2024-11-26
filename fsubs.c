@@ -533,193 +533,103 @@ void prdec(int32_t val, int32_t len)
 // ymod    dc.b    0,0,0,MOD,MOD,MOD,0,0,-MOD,0,-MOD,0,0,MOD,MOD,MOD
 //
 // _placard
-//         movem.l    d0-d7/a0-a6,-(sp)
-//         lea        _rp_map,a1
-//         move.l    _GfxBase,a6
-//
+//         movem.l  d0-d7/a0-a6,-(sp)
+//         lea      _rp_map,a1
+//         move.l   _GfxBase,a6
 //         moveq    #12,d6            ; xorg
 //         moveq    #0,d7            ; yorg
-//
 //         moveq    #16,d4            ; i
-// iiloop    move.l    d4,-(sp)
+// iiloop
+//         move.l   d4,-(sp)
 //         moveq    #15,d5            ; j
-//         lea        xmod(pc),a2        ; table of adders
+//         lea      xmod(pc),a2        ; table of adders
 // jloop
 //         clr.l    d0
-//         move.l    d7,d3            ; dy
-//         move.b    16(a2),d0        ; dy + ymod[j]
+//         move.l   d7,d3            ; dy
+//         move.b   16(a2),d0        ; dy + ymod[j]
 //         ext.w    d0
 //         ext.l    d0
 //         add.w    d0,d3
-//
-//         move.l    d6,d2            ; dx
-//         move.b    (a2)+,d0        ; dx + xmod[j]
+//         move.l   d6,d2            ; dx
+//         move.b   (a2)+,d0        ; dx + xmod[j]
 //         ext.w    d0
 //         ext.l    d0
 //         add.w    d0,d2
-//
 //         moveq    #4,d4            ; k loop
-// kloop    moveq    #1,d0            ; color
+// kloop
+//         moveq    #1,d0            ; color
 //         tst.w    d4
 //         bne.s    kloop2
 //         add.w    #23,d0
-// kloop2    jsr        SetAPen(a6)
-//
-//         move.l    (sp),d0
+// kloop2
+//         jsr      SetAPen(a6)
+//         move.l   (sp),d0
 //         cmp.l    #9,d0
 //         bls.s    kloop3
-//
-//         move.l    d6,d0            ; xorg
-//         move.l    d7,d1            ; yorg
-//         jsr        Move(a6)
-//         move.l    d2,d0            ; dx
-//         move.l    d3,d1            ; dy
-//         jsr        Draw(a6)
-//
-//         move.w    #284,d0
+//         move.l   d6,d0            ; xorg
+//         move.l   d7,d1            ; yorg
+//         jsr      Move(a6)
+//         move.l   d2,d0            ; dx
+//         move.l   d3,d1            ; dy
+//         jsr      Draw(a6)
+//         move.w   #284,d0
 //         sub.l    d6,d0            ; 287-xorg
-//         move.w    #124,d1
+//         move.w   #124,d1
 //         sub.l    d7,d1            ; 124-yorg
-//         jsr        Move(a6)
-//         move.w    #284,d0
+//         jsr      Move(a6)
+//         move.w   #284,d0
 //         sub.l    d2,d0            ; 287-dx
-//         move.w    #124,d1
+//         move.w   #124,d1
 //         sub.l    d3,d1            ; 124-dy
-//         jsr        Draw(a6)
+//         jsr      Draw(a6)
 // kloop3
 //         moveq    #16,d0
 //         add.l    d7,d0            ; 16+yorg
 //         moveq    #12,d1
 //         sub.l    d6,d1            ; 12-xorg
-//         jsr        Move(a6)
+//         jsr      Move(a6)
 //         moveq    #16,d0
 //         add.l    d3,d0            ; 16+dy
 //         moveq    #12,d1
 //         sub.l    d2,d1            ; 12-dx
-//         jsr        Draw(a6)
-//
+//         jsr      Draw(a6)
 //         move.w    #268,d0
 //         sub.l    d7,d0            ; 268-yorg
 //         moveq    #112,d1
 //         add.l    d6,d1            ; 112+xorg
-//         jsr        Move(a6)
-//         move.w    #268,d0
+//         jsr      Move(a6)
+//         move.w   #268,d0
 //         sub.l    d3,d0            ; 268-dy
 //         moveq    #112,d1
 //         add.l    d2,d1            ; 112+dx
-//         jsr        Draw(a6)
-//
+//         jsr      Draw(a6)
 //         dbra    d4,kloop
-//
-//         move.l    d2,d6            ; xorg = dx
-//         move.l    d3,d7            ; yorg = dy
-//
+//         move.l   d2,d6            ; xorg = dx
+//         move.l   d3,d7            ; yorg = dy
 //         dbra    d5,jloop
-//
-//         move.l    (sp)+,d4
-//         dbra    d4,iiloop
-//
-//         movem.l    (sp)+,d0-d7/a0-a6
+//         move.l   (sp)+,d4
+//         dbra     d4,iiloop
+//         movem.l  (sp)+,d0-d7/a0-a6
 //         rts
-
-// DISASSEMBLED version
-//  LAB_0402:
-//          MOVEM.L D0-D7/A0-A6,-(A7)       ;000085f6: 48e7fffe
-//          LEA     -16492(A4),A1           ;000085fa: 43ecbf94
-//          MOVEA.L -17570(A4),A6           ;000085fe: 2c6cbb5e
-//          MOVEQ   #12,D6                  ;00008602: 7c0c
-//          MOVEQ   #0,D7                   ;00008604: 7e00
-//          MOVEQ   #16,D4                  ;00008606: 7810
-//  LAB_0403:
-//          MOVE.L  D4,-(A7)                ;00008608: 2f04
-//          MOVEQ   #15,D5                  ;0000860a: 7a0f
-//          LEA     LAB_0401(PC),A2         ;0000860c: 45faffc8
-//  LAB_0404:
-//          CLR.L   D0                      ;00008610: 4280
-//          MOVE.L  D7,D3                   ;00008612: 2607
-//          MOVE.B  16(A2),D0               ;00008614: 102a0010
-//          EXT.W   D0                      ;00008618: 4880
-//          EXT.L   D0                      ;0000861a: 48c0
-//          ADD.W   D0,D3                   ;0000861c: d640
-//          MOVE.L  D6,D2                   ;0000861e: 2406
-//          MOVE.B  (A2)+,D0                ;00008620: 101a
-//          EXT.W   D0                      ;00008622: 4880
-//          EXT.L   D0                      ;00008624: 48c0
-//          ADD.W   D0,D2                   ;00008626: d440
-//          MOVEQ   #4,D4                   ;00008628: 7804
-//  LAB_0405:
-//          MOVEQ   #1,D0                   ;0000862a: 7001
-//          TST.W   D4                      ;0000862c: 4a44
-//          BNE.S   LAB_0406                ;0000862e: 6604
-//          ADD.W   #$0017,D0               ;00008630: d07c0017
-//  LAB_0406:
-//          JSR     -342(A6)                ;00008634: 4eaefeaa
-//          MOVE.L  (A7),D0                 ;00008638: 2017
-//          CMP.L   #$00000009,D0           ;0000863a: b0bc00000009
-//          BLS.S   LAB_0407                ;00008640: 6330
-//          MOVE.L  D6,D0                   ;00008642: 2006
-//          MOVE.L  D7,D1                   ;00008644: 2207
-//          JSR     -240(A6)                ;00008646: 4eaeff10
-//          MOVE.L  D2,D0                   ;0000864a: 2002
-//          MOVE.L  D3,D1                   ;0000864c: 2203
-//          JSR     -246(A6)                ;0000864e: 4eaeff0a
-//          MOVE.W  #$011c,D0               ;00008652: 303c011c
-//          SUB.L   D6,D0                   ;00008656: 9086
-//          MOVE.W  #$007c,D1               ;00008658: 323c007c
-//          SUB.L   D7,D1                   ;0000865c: 9287
-//          JSR     -240(A6)                ;0000865e: 4eaeff10
-//          MOVE.W  #$011c,D0               ;00008662: 303c011c
-//          SUB.L   D2,D0                   ;00008666: 9082
-//          MOVE.W  #$007c,D1               ;00008668: 323c007c
-//          SUB.L   D3,D1                   ;0000866c: 9283
-//          JSR     -246(A6)                ;0000866e: 4eaeff0a
-//  LAB_0407:
-//          MOVEQ   #16,D0                  ;00008672: 7010
-//          ADD.L   D7,D0                   ;00008674: d087
-//          MOVEQ   #12,D1                  ;00008676: 720c
-//          SUB.L   D6,D1                   ;00008678: 9286
-//          JSR     -240(A6)                ;0000867a: 4eaeff10
-//          MOVEQ   #16,D0                  ;0000867e: 7010
-//          ADD.L   D3,D0                   ;00008680: d083
-//          MOVEQ   #12,D1                  ;00008682: 720c
-//          SUB.L   D2,D1                   ;00008684: 9282
-//          JSR     -246(A6)                ;00008686: 4eaeff0a
-//          MOVE.W  #$010c,D0               ;0000868a: 303c010c
-//          SUB.L   D7,D0                   ;0000868e: 9087
-//          MOVEQ   #112,D1                 ;00008690: 7270
-//          ADD.L   D6,D1                   ;00008692: d286
-//          JSR     -240(A6)                ;00008694: 4eaeff10
-//          MOVE.W  #$010c,D0               ;00008698: 303c010c
-//          SUB.L   D3,D0                   ;0000869c: 9083
-//          MOVEQ   #112,D1                 ;0000869e: 7270
-//          ADD.L   D2,D1                   ;000086a0: d282
-//          JSR     -246(A6)                ;000086a2: 4eaeff0a
-//          DBF     D4,LAB_0405             ;000086a6: 51ccff82
-//          MOVE.L  D2,D6                   ;000086aa: 2c02
-//          MOVE.L  D3,D7                   ;000086ac: 2e03
-//          DBF     D5,LAB_0404             ;000086ae: 51cdff60
-//          MOVE.L  (A7)+,D4                ;000086b2: 281f
-//          DBF     D4,LAB_0403             ;000086b4: 51ccff52
-//          MOVEM.L (A7)+,D0-D7/A0-A6       ;000086b8: 4cdf7fff
-//          RTS                             ;000086bc: 4e75
 
 
 void HVLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1)
 {
-    int16_t w = x1 - x0;
-    if (w < 0)
+    if (x0 > x1)
     {
-        w = -w;
+        int16_t t = x0;
+        x0        = x1;
+        x1        = t;
     }
-    int16_t h = y1 - y0;
-    if (h < 0)
+    if (y0 > y1)
     {
-        h = -h;
+        int16_t t = y0;
+        y0        = y1;
+        y1        = t;
     }
-
-    SDL_Rect dr = {x0, y0, w + 1, h + 1};
-
-    // spammy    RUNLOGF("HVLine(#%d, %d,%d   %d x %d)", rp_map.FgPen, dr.x, dr.y, dr.w, dr.h);
+    int16_t  w  = x1 - x0 + 1;
+    int16_t  h  = y1 - y0 + 1;
+    SDL_Rect dr = {x0, y0, w, h};
 
     SDL_FillRect(rp_map.BitMap->Surface, &dr, rp_map.FgPen);
 }
@@ -740,8 +650,8 @@ void placard(void)
     int i = 16;
     do
     {
-        int8_t * tbl = mod_tbl;
         int      j   = 15;
+        int8_t * tbl = mod_tbl;
         do
         {
             dy = yorg;
@@ -762,9 +672,13 @@ void placard(void)
                 }
                 HVLine(16 + yorg, 12 - xorg, 16 + dy, 12 - dx);
                 HVLine(268 - yorg, 112 + xorg, 268 - dy, 112 + dx);
-            } while (--k != -1);
 
-            sdl_endframe();        // Xark: show placard drawing
+                if (k == 4 && (j & 3) == 0)        // TODO: hack to make it 4x faster
+                {
+                    sdl_endframe();
+                }
+
+            } while (--k != -1);
 
             xorg = dx;
             yorg = dy;
@@ -1084,6 +998,7 @@ int32_t px_to_im(USHORT x, USHORT y)
 void map_draw(void)
 {
     RUNLOG("<= map_draw() STUB");
+    SetRast(&rp_map, 24);    // TEMP
 }
 
 //

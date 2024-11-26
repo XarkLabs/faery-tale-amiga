@@ -3945,7 +3945,9 @@ void revive(int16_t is_new)        // Xark: renamed new -> is_new
         else
             placard_text(5);
 
+        sdl_endframe();        // Xark: show placard
         placard();
+        sdl_screenshot = TRUE;  // TODO: temp 
         sdl_endframe();        // Xark: show placard
         Delay(120);
 

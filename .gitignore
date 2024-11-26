@@ -1,7 +1,6 @@
 **/.DS_Store
 **/*.o
-**/*.doc
-**/*.log
+logs/**/*
 raw_assets/*
-fta-screenshot*.png
 fta
+.faery_tale*.save

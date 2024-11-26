@@ -1667,7 +1667,7 @@ void set_objects(struct object * list, int16_t length, int32_t f)
     }
 }
 
-char    answr[10]; //, i;
+char    answr[10];        //, i;
 int16_t xx, yy;
 char *  answers[] = {"LIGHT", "HEED", "DEED", "SIGHT", "FLIGHT", "CREED", "BLIGHT", "NIGHT"};
 
@@ -1681,7 +1681,7 @@ BOOL copy_protect_junk(void)
     if (cheat2)
     {
         RUNLOG("1 <= copy_protect_junk() [SKIPPED]");
-          
+
         return TRUE;
     }
 
@@ -1844,7 +1844,7 @@ void savegame(int16_t hit)
     // char *  name;
     // BOOL    hdrive = FALSE;
 
-    RUNLOGF("<= savegame(%d)", hit);
+    RUNLOGF("<= savegame(%d) [%s]", hit, svflag ? "SAVE" : "LOAD");
 
     sverr = 0;
 
@@ -1897,6 +1897,15 @@ void savegame(int16_t hit)
         else
             print("ERROR: Couldn't load game.");
     }
+#if 1        // Xark: ADDITION
+    else
+    {
+        if (svflag)
+            print("Game saved.");
+        else
+            print("Game loaded.");
+    }
+#endif
 
     if (svflag == 0)
     {
@@ -1922,7 +1931,7 @@ void saveload(uint8_t * buffer, int32_t length)
     int16_t err = 0;
     sverr       = 0;
 
-    RUNLOGF("<= saveload(%p, %d)", buffer, length);
+    RUNLOGF("<= saveload(%p, %d) [%s]", buffer, length, svflag ? "SAVE" : "LOAD");
 
     if (svflag)
     {

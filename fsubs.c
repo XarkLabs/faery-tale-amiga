@@ -518,10 +518,10 @@ char numbuf[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ' '};
 
 void prdec(int32_t val, int32_t len)
 {
-    RUNLOGF("<= prdec(%d, %d)", val, len);
-    char numbuf[12] = {0};
-    snprintf(numbuf, 10, "%10d", val);
-    Text(rp, numbuf - len, len);
+    char numbuf[10] = {0};
+    snprintf(numbuf, sizeof(numbuf), "%9d", val);
+    RUNLOGF("<= prdec(%d, %9d)", val, len);
+    Text(rp, numbuf + 9 - len, len);
 }
 
 //
@@ -998,7 +998,7 @@ int32_t px_to_im(USHORT x, USHORT y)
 void map_draw(void)
 {
     RUNLOG("<= map_draw() STUB");
-    SetRast(&rp_map, 24);    // TEMP
+    SetRast(&rp_map, 24);        // TEMP
 }
 
 //

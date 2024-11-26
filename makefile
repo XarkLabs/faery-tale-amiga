@@ -26,7 +26,8 @@ OBJS = $(addsuffix .o,$(basename $(SRCS)))
 all: fta
 
 fta: $(OBJS)
-	-$(LD) $(OBJS) $(LDFLAGS) -o $@
+	-mkdir -p logs
+	$(LD) $(OBJS) $(LDFLAGS) -o $@
 
 debug: all
 	-killall -9 fta

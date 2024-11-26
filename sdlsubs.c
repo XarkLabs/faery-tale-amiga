@@ -173,13 +173,13 @@ int sdl_init(void)
     struct tm * local_time = localtime(&now);
     strftime(time_stamp, sizeof(time_stamp), "%Y%m%d-%H:%M:%S", local_time);
 
-    if ((logfilep = fopen("FTA-gamerun.log", "w")) == NULL)
+    if ((logfilep = fopen("logs/FTA-gamerun.log", "w")) == NULL)
     {
-        printf("ERROR: Can't open log \"%s\": %s\n", "FTA-gamerun.log", strerror(errno));
+        printf("ERROR: Can't open log \"%s\": %s\n", "logs/FTA-gamerun.log", strerror(errno));
         return EXIT_FAILURE;
     }
 
-    RUNLOGF("*** FTA/SDL2 FTA-gamerun.log - %s", time_stamp);
+    RUNLOGF("*** FTA/SDL2 logs/FTA-gamerun.log - %s", time_stamp);
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) !=
         0)
@@ -208,9 +208,14 @@ int sdl_init(void)
         SDL_CreateRenderer(sdl_window, -1, /* SDL_RENDERER_SOFTWARE | */ SDL_RENDERER_PRESENTVSYNC);
     SDL_RenderSetScale(
         sdl_renderer, (640.0 / 640) * sdl_window_scale, Y_ASPECT() * sdl_window_scale);
-    SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x40, 0x90, 255);        // Amiga blue
-    SDL_RenderClear(sdl_renderer);
-    SDL_RenderPresent(sdl_renderer);
+
+    for (int s = 0; s < 2; s++)
+    {
+        SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x40, 0x90, 255);        // Amiga blue
+        SDL_RenderClear(sdl_renderer);
+        SDL_RenderPresent(sdl_renderer);
+        sdl_pump();
+    }
 
     return 0;
 }
@@ -356,12 +361,12 @@ void sdl_drawframe(void)
 
     if (sdl_screenshot)
     {
-        sdl_save_screenshot("fta-screenshot-f%06d.png");
+        sdl_save_screenshot("logs/fta-screenshot-f%06d.png");
         sdl_screenshot = FALSE;
     }
     else if (sdl_quit)
     {
-        sdl_save_screenshot("fta-screenshot-quit.png");
+        sdl_save_screenshot("logs/fta-screenshot-quit.png");
     }
 }
 

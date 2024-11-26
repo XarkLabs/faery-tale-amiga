@@ -426,6 +426,12 @@ void      add_to_keybuf(int key);
 int16_t   get_from_keybuf();
 void      ft_mouse_button(int16_t qual);
 void      ft_mouse_pos(int16_t x, int16_t y);
+void      sdl_blitsurface8(SDL_Surface * src, SDL_Rect * sr, SDL_Surface * dest, SDL_Rect * dr);
+void      sdl_blitsurface8_mask(SDL_Surface * src,
+                               SDL_Rect *    sr,
+                               SDL_Surface * dest,
+                               SDL_Rect *    dr,
+                               UBYTE         maskbyte);
 
 void sdl_pump(void);
 BOOL unpack_png(char * filename, struct BitMap * bitmap, int16_t wx, int16_t y);

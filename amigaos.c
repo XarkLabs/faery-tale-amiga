@@ -79,19 +79,11 @@ LONG BltBitMap(struct BitMap * srcBitMap,
                uint32_t        mask,
                UBYTE *         tempA)
 {
-    LONG res = 0;
-    (void)srcBitMap;
-    (void)xSrc;
-    (void)ySrc;
-    (void)destBitMap;
-    (void)xDest;
-    (void)yDest;
-    (void)xSize;
-    (void)ySize;
     (void)minterm;
     (void)mask;
     (void)tempA;
 
+    LONG res = 0;
     // RUNLOGF("%d <= graphics.BltBitMap(%p, %d, %d, %p, %d, %d, %d, %d, 0x%x, 0x%x, %p) STUB",
     //         res,
     //         srcBitMap,
@@ -107,8 +99,8 @@ LONG BltBitMap(struct BitMap * srcBitMap,
     //         tempA);
 
     SDL_Rect sr = {xSrc, ySrc, xSize, ySize};
-    SDL_Rect dr = {xDest, yDest, 0x7fff, 0x7fff};
-    SDL_BlitSurface(srcBitMap->Surface, &sr, destBitMap->Surface, &dr);
+    SDL_Rect dr = {xDest, yDest, xDest + xSize, yDest + ySize};
+    sdl_blitsurface8(srcBitMap->Surface, &sr, destBitMap->Surface, &dr);
 
     return res;
 }
@@ -234,7 +226,24 @@ struct TextFont * OpenFont(const char * fntPath, const char * pngPath)
         RUNLOGF("... failed: %s", SDL_GetError());
         return NULL;
     }
-    SDL_SetSurfaceBlendMode(font->Bitmap, SDL_BLENDMODE_BLEND);
+
+    ASSERT(font->Bitmap->format->format == SDL_PIXELFORMAT_INDEX8);
+//    SDL_SetSurfaceBlendMode(font->Bitmap, SDL_BLENDMODE_BLEND);
+    if (!SDL_LockSurface(font->Bitmap))
+    {
+        UBYTE *sp = font->Bitmap->pixels;
+        for (int v = 0; v < font->Bitmap->h; v++)
+        {
+            int w = font->Bitmap->w;
+            UBYTE *scp = sp;
+            while (w--)
+            {
+                *scp = *scp ? 0xFF : 0x00;
+                scp++;
+            }
+            sp += font->Bitmap->pitch;
+        }
+    }
 
     return font;
 }
@@ -458,8 +467,7 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
             SDL_Rect           dr = {rp->cp_x, rp->cp_y, glyph->BitLength, rp->Font->Bitmap->h};
             SDL_Rect sr = {glyph->LocationStart, 0, glyph->BitLength, rp->Font->Bitmap->h};
             SDL_FillRect(rp->BitMap->Surface, &dr, rp->BgPen);
-            // TODO: Modulate the color with rp->FgPen
-            SDL_BlitSurface(rp->Font->Bitmap, &sr, rp->BitMap->Surface, &dr);
+            sdl_blitsurface8_mask(rp->Font->Bitmap, &sr, rp->BitMap->Surface, &dr, rp->FgPen);
             rp->cp_x += glyph->Spacing;
         }
     }

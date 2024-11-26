@@ -11,8 +11,7 @@
                 "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
             ],
             "compilerPath": "/usr/bin/clang",
-            "cStandard": "c17",
-            "cppStandard": "c++17",
+            "cStandard": "c99",
             "intelliSenseMode": "macos-clang-arm64"
         },
         {
@@ -23,8 +22,7 @@
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
-            "cStandard": "c17",
-            "cppStandard": "c++17",
+            "cStandard": "c99",
             "intelliSenseMode": "linux-gcc-x64"
         }
     ],

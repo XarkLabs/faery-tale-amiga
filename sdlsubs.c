@@ -330,13 +330,20 @@ void sdl_drawframe(void)
                     x_window_scale,
                     y_window_scale,
                     curvp->Modes & HIRES ? " HIRES" : "");
+#if 1        // show colormap
+            for (int c = 1; c < 32; c++)
+            {
+                SDL_Rect cr = {c * 4, 1, 3, 3};
+                SDL_FillRect(s, &cr, c);
+            }
+#endif
             SDL_Texture * texture = SDL_CreateTextureFromSurface(sdl_renderer, s);
-            SDL_Rect      sr      = {0, 0, curvp->DWidth, curvp->DHeight};
-            SDL_Rect      dr      = {curvp->DxOffset * x_window_scale,
-                                     curvp->DyOffset * y_window_scale,
-                                     curvp->DWidth * x_window_scale,
-                                     curvp->DHeight * y_window_scale};
-            SDL_RenderCopy(sdl_renderer, texture, &sr, &dr);
+            //            SDL_Rect      sr      = {0, 0, curvp->DWidth, curvp->DHeight};
+            SDL_Rect dr = {curvp->DxOffset * x_window_scale,
+                           curvp->DyOffset * y_window_scale,
+                           curvp->DWidth * x_window_scale,
+                           curvp->DHeight * y_window_scale};
+            SDL_RenderCopy(sdl_renderer, texture, NULL, &dr);
         }
         else
         {
@@ -781,7 +788,7 @@ BOOL unpack_png(char * filename, struct BitMap * bitmap, int16_t wx, int16_t y)
     RUNLOGF("... [size %d x %d %s]", img->w, img->h, SDL_GetPixelFormatName(img->format->format));
 
     SDL_Rect dest = {wx * 8, y, 0x7fff, 0x7fff};
-    SDL_BlitSurface(img, NULL, bitmap->Surface, &dest);
+    sdl_blitsurface8(img, NULL, bitmap->Surface, &dest);
 
 #if DEBUG_WINDOW        // test code to see image
     SDL_Texture * ttex = SDL_CreateTextureFromSurface(sdl_debug_renderer, img);
@@ -808,3 +815,75 @@ BOOL unpack_png(char * filename, struct BitMap * bitmap, int16_t wx, int16_t y)
 
     return TRUE;
 }
+
+void sdl_blitsurface8_mask(SDL_Surface * src,
+                           SDL_Rect *    sr,
+                           SDL_Surface * dest,
+                           SDL_Rect *    dr,
+                           UBYTE         maskbyte)
+{
+    ASSERT(src->format->format == SDL_PIXELFORMAT_INDEX8 &&
+           dest->format->format == SDL_PIXELFORMAT_INDEX8);
+
+    if (!SDL_LockSurface(src))
+    {
+        if (!SDL_LockSurface(dest))
+        {
+            UBYTE * sp = src->pixels + (sr->y * src->pitch) + sr->x;
+            UBYTE * dp = dest->pixels + (dr->y * dest->pitch) + dr->x;
+            for (int16_t v = 0; v < sr->h; v++)
+            {
+                int16_t w   = sr->w;
+                UBYTE * scp = sp;
+                UBYTE * dcp = dp;
+                while (w--)
+                {
+                    if (*scp)
+                    {
+                        *dcp = *scp & maskbyte;
+                    }
+                    scp++;
+                    dcp++;
+                }
+                sp += src->pitch;
+                dp += dest->pitch;
+            }
+            SDL_UnlockSurface(dest);
+        }
+        SDL_UnlockSurface(src);
+    }
+}
+
+void sdl_blitsurface8(SDL_Surface * src, SDL_Rect * sr, SDL_Surface * dest, SDL_Rect * dr)
+{
+    ASSERT(src->format->format == SDL_PIXELFORMAT_INDEX8 &&
+           dest->format->format == SDL_PIXELFORMAT_INDEX8);
+    SDL_Rect ssr = {0, 0, src->w, src->h};
+    if (!sr)
+    {
+        sr = &ssr;
+    }
+    SDL_Rect sdr = {0, 0, dest->w, dest->h};
+    if (!dr)
+    {
+        dr = &sdr;
+    }
+    if (!SDL_LockSurface(src))
+    {
+        if (!SDL_LockSurface(dest))
+        {
+            UBYTE * sp = src->pixels + (sr->y * src->pitch) + sr->x;
+            UBYTE * dp = dest->pixels + (dr->y * dest->pitch) + dr->x;
+            for (int16_t v = 0; v < sr->h; v++)
+            {
+                memcpy(dp, sp, sr->w);
+                sp += src->pitch;
+                dp += dest->pitch;
+            }
+            SDL_UnlockSurface(dest);
+        }
+        SDL_UnlockSurface(src);
+    }
+}
+
+// EOF

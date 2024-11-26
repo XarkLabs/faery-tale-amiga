@@ -865,7 +865,7 @@ int open_all(void)
     // InitBitMap(bm_lim, 1, 320, 200, "bm_lim");
     InitBitMap(&pagea, 5, 320, 200, "bm_pagea");
     InitBitMap(&pageb, 5, 320, 200, "bm_pageb");
-    InitBitMap(&bm_scroll, 1, 640, TEXT_HEIGHT, "bm_scroll");
+    InitBitMap(&bm_scroll, 1, 640, TEXT_HEIGHT, "bm_scroll");   // Xark: Does not appear to be needed
     InitBitMap(bm_source, 3, 64, 24, "bm_source");
 
     rp_text2.BitMap = bm_text;
@@ -1329,7 +1329,7 @@ int main(int argc, char ** argv)
     Delay(50);
 
     rp             = &rp_text;
-    rp_text.BitMap = &bm_scroll;
+    rp_text.BitMap = bm_text;   // Xark: was bm_scroll...
     SetFont(rp, afont);
     SetAPen(rp, 10);
     SetBPen(rp, 11);

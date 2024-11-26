@@ -12,17 +12,24 @@ def convert_font_data(name):
     y_size = data['ySize']
     lo_char = data['loChar']
     hi_char = data['hiChar']
+    baseline = data['baseline']
+
     nb_chars = hi_char - lo_char + 1
 
     out.write(lo_char.to_bytes(1, "little"))
     out.write(nb_chars.to_bytes(1, "little"))
+    out.write(baseline.to_bytes(1, "little"))
 
     total_width = 0
     for i in range(nb_chars):
         glyph = data['glyphs'][str(i + lo_char)]
         total_width += glyph['bitLength']
 
-    im = Image.new(mode="RGBA", size=(total_width, y_size))
+    im = Image.new(mode="P", size=(total_width, y_size))
+    im.putpalette(
+        [0, 0, 0,
+         255, 255, 255]
+    )
     
     x = 0
     y = 0
@@ -33,9 +40,9 @@ def convert_font_data(name):
         for line in bitmap:
             xx = 0
             for p in line:
-                v = (0, 0, 0, 0)
+                v = (0)
                 if p == 1:
-                    v = (255, 255, 255, 255)
+                    v = (1)
                 im.putpixel((x + xx, y + yy), v)
                 xx += 1
             yy += 1

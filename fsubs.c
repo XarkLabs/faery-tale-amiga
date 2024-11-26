@@ -342,19 +342,17 @@ int32_t getkey(void)
 {
     sdl_pump();
 
-    int key = 0;
-    if (sdl_key != 0)
+    int key = get_from_keybuf();
+    if (key != 0)
     {
         char ukey[2] = {0};
-        ukey[0]      = sdl_key & 0x7f;
-        key          = sdl_key;
+        ukey[0]      = key & 0x7f;
         RUNLOGF("%d <= getkey() [0x%02x %s %s%s]",
                 key,
                 key,
                 c_string(ukey, 1),
-                sdl_key & IECODE_UP_PREFIX ? "KEY_UP" : "KEY_DOWN",
+                key & IECODE_UP_PREFIX ? "KEY_UP" : "KEY_DOWN",
                 cheat1 ? " *CHEATCODE*" : "");
-        sdl_key = 0;
     }
     return key;
 }

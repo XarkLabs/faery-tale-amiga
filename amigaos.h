@@ -54,7 +54,7 @@ extern FILE * logfilep;
 #if __has_builtin(__builtin_debugtrap)
 #define DEBUGBREAK() __builtin_debugtrap()
 #else
-#define DEBUGBREAK() __asm__ __volatile__ ("int3")
+#define DEBUGBREAK() __asm__ __volatile__("int3")
 #endif
 
 #define __debugbreak() DEBUGBREAK()
@@ -79,7 +79,7 @@ extern FILE * logfilep;
                     __FUNCTION__,                                                                  \
                     #e);                                                                           \
             fflush(logfilep);                                                                      \
-            __debugbreak();                                                                 \
+            __debugbreak();                                                                        \
         }                                                                                          \
     } while (0)
 #else
@@ -145,6 +145,7 @@ void FreeMem(APTR memoryBlock, uint32_t byteSize);
 
 // input
 #define IECODE_UP_PREFIX       0x80
+#define IEQUALIFIER_MIDBUTTON  0x1000
 #define IEQUALIFIER_RBUTTON    0x2000
 #define IEQUALIFIER_LEFTBUTTON 0x4000
 

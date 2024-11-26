@@ -21,8 +21,8 @@ My rough plan:
   * load all assets in Amiga (from disk image file)
   * Possibly setup 32-bit "arena" for assets (of 32-bit pointer issues)
   * Implement Amiga blitter draw routines
-  * Implement Amiga font drawing routines
-* Add some basic SDL2 controller or mouse hookup
+  * Implement Amiga font drawing routines [MOSTLY-DONE]
+* Add some basic SDL2 controller or mouse hookup [MOSTLY-DONE]
 * At that point my initial plan is to then add some SDL2 code that will "interpret" the Amiga screen data in memory and convert and draw it to an SDL2 window.
 * Same idea for audio using SDL2 audio output
 

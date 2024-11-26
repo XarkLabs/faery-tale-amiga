@@ -11,6 +11,16 @@
 
 /* playing map is 6 * 19 = 114 */        // Xark: Or 120?
 
+#define PAGE_DEPTH 5
+#define TEXT_DEPTH 4
+
+#define SCREEN_WIDTH 288
+#define PHANTA_WIDTH 320 /* two words added for horizontal scrolling */
+
+#define PAGE_HEIGHT 143
+#define RAST_HEIGHT 200
+#define TEXT_HEIGHT 57
+
 #define TERRA_BLOCK 149
 #define NO_REGION   10
 
@@ -152,6 +162,8 @@ struct need
     char * debug_name;
 };
 
+#define KEYBUFFER_SIZE 0x80        // NOTE: probably excessive (must be POT)
+
 /* input handler data */
 struct in_work
 {
@@ -162,7 +174,7 @@ struct in_work
     struct GfxBase *      gbase;
     struct SimpleSprite * pbase;
     struct ViewPort *     vbase;
-    uint8_t               keybuf[128];
+    uint8_t               keybuf[KEYBUFFER_SIZE];
     int16_t               ticker;
 };
 
@@ -219,6 +231,7 @@ extern char  inside_msg[];
 extern char    turtle_eggs;
 extern UBYTE   fallstates[];
 extern int16_t cheat1;
+extern int16_t cheat2;
 extern char    quitflag;
 
 extern uint16_t encounter_type;
@@ -238,8 +251,8 @@ extern char  jtrans[];
 
 extern int16_t s1, s2;
 
-extern int16_t  secret_timer, light_timer, freeze_timer;
-extern UWORD    region_num, new_region;
+extern int16_t secret_timer, light_timer, freeze_timer;
+extern UWORD   region_num, new_region;
 
 extern USHORT pagecolors[];
 
@@ -263,6 +276,12 @@ extern char viewstatus;
 #define FTMOUSE_MAX_X 315
 #define FTMOUSE_MIN_Y 147
 #define FTMOUSE_MAX_Y 195
+
+#define FTMOUSE_MENU_MIN_X  215        // X >= for menu
+#define FTMOUSE_MENU_MID_X  240        // X > for 2nd menu column
+#define FTMOUSE_MENU_MAX_X  265        // X <= for menu
+#define FTMOUSE_MENU_MIN_Y  144        // Y >= for menu
+#define FTMOUSE_MENU_HEIGHT 9          // height of menu item
 
 // Xark: moved here
 #define SETFN(n) openflags |= n
@@ -384,9 +403,13 @@ BOOL MakeBitMap(struct BitMap * b, int32_t depth, int32_t width, int32_t height,
 void UnMakeBitMap(struct BitMap * b);
 
 // sdlsubs.c
-extern uint8_t sdl_key;
-extern char    raw_asset_fname[128];
-extern float   sdl_window_scale;
+extern char  raw_asset_fname[128];
+extern float sdl_window_scale;
+extern BOOL  sdl_quit;
+extern BOOL  sdl_screenshot;
+
+extern struct BitMap * bm_text;
+
 
 uint32_t  swap_endian(uint32_t v);
 uint16_t  swap_endian16(uint16_t v);
@@ -396,7 +419,12 @@ void      save_raw_asset(const char * fname, void * ptr, int32_t len, int append
 int       sdl_init(void);
 void      sdl_exit(int retval) __attribute__((noreturn));
 void      sdl_update_cursor(struct ViewPort * vp);
+void      sdl_save_screenshot(char * name);
+void      sdl_drawframe(void);
 void      sdl_endframe(void);
+void      add_to_keybuf(int key);
+int16_t   get_from_keybuf();
+void      ft_mouse_button(int16_t qual);
 void      ft_mouse_pos(int16_t x, int16_t y);
 
 void sdl_pump(void);

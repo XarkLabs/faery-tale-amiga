@@ -22,9 +22,9 @@ APTR AllocMem(uint32_t bytesize, uint32_t attributes)
 // TODO: FreeMem -- deallocate with knowledge
 void FreeMem(APTR memoryBlock, uint32_t byteSize)
 {
-    (void)memoryBlock;
     (void)byteSize;
-    RUNLOGF("<= exec.FreeMem(%p, %d) STUB", memoryBlock, byteSize);
+    RUNLOGF("<= exec.FreeMem(%p, %d)", memoryBlock, byteSize);
+    free(memoryBlock);
 }
 
 // Delay -- Delay a process for a specified time (1/50th sec)
@@ -36,7 +36,7 @@ void Delay(int32_t timeout)
     while (timeout-- > 0)
     {
         sdl_pump();
-        if (cheat1)
+        if (cheat2 || sdl_quit || sdl_screenshot)
             break;
         SDL_Delay(20);        // convert to milliseconds
     }
@@ -152,7 +152,7 @@ void ChangeSprite(struct ViewPort * vp, uint16_t width, uint16_t height, UBYTE *
 // TODO: DisownBlitter -- return blitter to free state.
 void DisownBlitter(void)
 {
-    // spammy    RUNLOG("<= graphics.DisownBlitter() STUB");
+    // spammy    RUNLOG("<= graphics.DisownBlitter()");
 }
 
 // TODO: FreeColorMap -- Free the ColorMap structure and return memory
@@ -162,66 +162,16 @@ void FreeColorMap(struct ColorMap * colorMap)
     free(colorMap);
 }
 
-// // TODO: FreeCprList -- deallocate hardware copper list
-// void FreeCprList(struct cprlist * cprList)
-// {
-//     (void)cprList;
-//     RUNLOGF("<= graphics.FreeCprList(%p) STUB", cprList);
-// }
-//
-
-// TODO: FreeRaster -- Release an allocated area to the system free memory pool
-// void FreeRaster(UBYTE * p, uint32_t width, uint32_t height)
-// {
-//     (void)p;
-//     (void)width;
-//     (void)height;
-//     RUNLOGF("<= graphics.FreeRaster(%p, %d, %d) STUB", p, width, height);
-// }
-
-// TODO: FreeSprite -- Return sprite for use by others and virtual
-// void FreeSprite(int32_t num)
-// {
-//     (void)num;
-//     // spammy    RUNLOGF("<= graphics.FreeSprite(%d) STUB", num);
-// }
-
-// // TODO: FreeVPortCopLists -- deallocate all intermediate copper lists and their headers from a
-// // viewport
-// void FreeVPortCopLists(struct ViewPort * vp)
-// {
-//     (void)vp;
-//     RUNLOGF("<= graphics.FreeVPortCopLists(%p) STUB", vp);
-// }
-
 // TODO: GetColorMap -- allocate and initialize Colormap
 struct ColorMap * GetColorMap(int32_t entries)
 {
     struct ColorMap * res = NULL;
     (void)entries;
-    //    RUNLOGF("%p <= graphics.GetColorMap(%d) STUB", res, entries);
+    //    RUNLOGF("%p <= graphics.GetColorMap(%d)", res, entries);
     res = calloc(1, sizeof(struct ColorMap));
     return res;
 }
 
-// // TODO: GetSprite -- Attempt to get a sprite for the simple sprite manager.
-// WORD GetSprite(struct SimpleSprite * sprite, int32_t num)
-// {
-//     WORD res = -1;
-//     (void)sprite;
-//     (void)num;
-//     RUNLOGF("%d <= graphics.AreaEnd(%p, %d) STUB", res, sprite, num);
-//     return res;
-// }
-
-// // TODO: InitArea -- Initialize vector collection matrix
-// void InitArea(struct AreaInfo * areaInfo, APTR vectorBuffer, int32_t maxVectors)
-// {
-//     (void)areaInfo;
-//     (void)vectorBuffer;
-//     (void)maxVectors;
-//     RUNLOGF("<= graphics.InitArea(%p, %p, %d) STUB", areaInfo, vectorBuffer, maxVectors);
-// }
 
 // TODO: InitBitMap -- Initialize bit map structure with input values.
 void InitBitMap(struct BitMap * bitMap,
@@ -305,13 +255,10 @@ void FreeFont(struct TextFont * font)
 void InitRastPort(struct RastPort * rp)
 {
     (void)rp;
-    // spammy    RUNLOGF("<= graphics.InitRastPort(%p) STUB", rp);
+    // spammy    RUNLOGF("<= graphics.InitRastPort(%p)", rp);
     memset(rp, 0, sizeof(struct RastPort));
-    // rp->Mask     = -1;
-    rp->FgPen = -1;
-    // rp->LinePtrn = -1;
-    // rp->DrawMode = JAM2;
-    //    rp->Font = TOPAZ;
+    rp->FgPen    = -1;
+    rp->DrawMode = JAM2;
 }
 
 // // TODO: InitTmpRas -- Initialize area of local memory for usage by
@@ -328,14 +275,14 @@ void InitRastPort(struct RastPort * rp)
 void InitVPort(struct ViewPort * vp)
 {
     (void)vp;
-    RUNLOGF("<= graphics.InitVPort(%p) STUB", vp);
+    RUNLOGF("<= graphics.InitVPort(%p)", vp);
     memset(vp, 0, sizeof(struct ViewPort));
 }
 
 void InitView(struct View * view)
 {
     (void)view;
-    RUNLOGF("<= graphics.InitView(%p) STUB", view);
+    RUNLOGF("<= graphics.InitView(%p)", view);
     memset(view, 0, sizeof(struct View));
 }
 
@@ -443,21 +390,21 @@ void ScrollRaster(struct RastPort * rp,
 // TODO: SetAPen -- Set the primary pen for a RastPort.
 void SetAPen(struct RastPort * rp, uint32_t pen)
 {
-    // spammy    RUNLOGF("<= graphics.SetAPen(%p, %d) STUB", rp, pen);
+    // spammy    RUNLOGF("<= graphics.SetAPen(%p, %d)", rp, pen);
     rp->FgPen = pen;
 }
 
 // TODO: SetBPen -- Set the secondary pen for a RastPort.
 void SetBPen(struct RastPort * rp, uint32_t pen)
 {
-    // spammy    RUNLOGF("<= graphics.SetBPen(%p, %d) STUB", rp, pen);
+    // spammy    RUNLOGF("<= graphics.SetBPen(%p, %d)", rp, pen);
     rp->BgPen = pen;
 }
 
 // TODO: SetDrMd -- Set drawing mode for a RastPort
 void SetDrMd(struct RastPort * rp, uint32_t drawMode)
 {
-    // spammy    RUNLOGF("<= graphics.SetDrMd(%p, %d) STUB", rp, drawMode);
+    // spammy    RUNLOGF("<= graphics.SetDrMd(%p, %d)", rp, drawMode);
     rp->DrawMode = drawMode;
 }
 
@@ -520,17 +467,10 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
     return res;
 }
 
-// // TODO: WaitBOVP -- Wait till vertical beam reached bottom of this viewport.
-// void WaitBOVP(struct ViewPort * vp)
-// {
-//     (void)vp;
-//     //    RUNLOGF("<= graphics.WaitBOVP(%p) STUB", vp);
-// }
-
 // TODO: WaitBlit -- Wait for the blitter to be finished before proceeding
 void WaitBlit(void)
 {
-    // spammy    RUNLOG("<= graphics.WaitBlit() STUB");
+    // spammy    RUNLOG("<= graphics.WaitBlit()");
 }
 
 // EOF

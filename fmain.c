@@ -7,16 +7,6 @@
 /****** this section defines the variables used to communicate with the
         graphics routines */
 
-#define PAGE_DEPTH 5
-#define TEXT_DEPTH 4
-
-#define SCREEN_WIDTH 288
-#define PHANTA_WIDTH 320 /* two words added for horizontal scrolling */
-
-#define PAGE_HEIGHT 143
-#define RAST_HEIGHT 200
-#define TEXT_HEIGHT 57
-
 struct View     v;
 struct ViewPort vp_page;
 struct ViewPort vp_text;
@@ -626,7 +616,8 @@ uint16_t map_x, map_y,      /* absolute map coordinates in pixels */
     safe_x, safe_y, safe_r, /* last 'safe zone' visited */
     img_x, img_y;           /* absolute sector coordinates */
 /* 18 */
-int16_t cheat1;
+int16_t cheat1;        // original cheat codes (hold CTRL)
+int16_t cheat2;        // fast time (hold ALT/OPTION)
 int16_t riding, flying, wcarry;
 int16_t turtleprox, raftprox;
 int16_t brave, luck, kind, wealth, hunger, fatigue;
@@ -4043,7 +4034,8 @@ void screen_size(int32_t x)
     ri_page2.RyOffset = ri_page1.RyOffset = vp_page.DyOffset = 100 - y;
     vp_page.DHeight                                          = y + y;
 
-    vp_text.DxOffset = vp_text.DyOffset = 0;
+    vp_text.DxOffset = 0;
+    vp_text.DyOffset = 0;
     vp_text.DHeight                     = 95 - y;
 
     fade_page(y * 2 - 40, y * 2 - 70, y * 2 - 100, 0, introcolors);

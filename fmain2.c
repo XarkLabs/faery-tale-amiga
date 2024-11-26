@@ -1678,7 +1678,7 @@ BOOL copy_protect_junk(void)
     register char *  a, *b;
     int32_t          h;
 
-    if (cheat1)
+    if (cheat2)
     {
         RUNLOG("1 <= copy_protect_junk() [SKIPPED]");
           

@@ -29,7 +29,7 @@ SDL_GameController * sdl_controller;
 struct SDL_Surface * sdl_cursor_image;
 struct SDL_Cursor *  sdl_cursor;
 
-float sdl_window_scale = 1.0f;
+float sdl_window_scale = 2.0f;
 #define Y_ASPECT() (1.0)        // (480.0 / 400)
 uint32_t frame_counter;
 
@@ -452,8 +452,8 @@ void ft_mouse_button(int16_t qual)
 void ft_mouse_pos(int16_t x, int16_t y)
 {
     // Amiga mouse is ~320x200 resolution
-    x = x / 2;
-    y = y / 2;
+    x = ((x / sdl_window_scale) / 2);
+    y = ((y / sdl_window_scale) / 2);
     if (x < FTMOUSE_MIN_X)
     {
         x = FTMOUSE_MIN_X;

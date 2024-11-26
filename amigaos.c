@@ -193,6 +193,7 @@ struct TextFont * OpenFont(const char * fntPath, const char * pngPath)
 
     fread(&(font->LoChar), sizeof(font->LoChar), 1, f);
     fread(&(font->NumGlyphs), sizeof(font->NumGlyphs), 1, f);
+    fread(&(font->BaseLine), sizeof(font->BaseLine), 1, f);
 
     font->Glyphs = calloc(font->NumGlyphs, sizeof(struct GlyphInfo));
     for (uint8_t i = 0; i < font->NumGlyphs; ++i)
@@ -213,7 +214,6 @@ struct TextFont * OpenFont(const char * fntPath, const char * pngPath)
     }
 
     ASSERT(font->Bitmap->format->format == SDL_PIXELFORMAT_INDEX8);
-    //    SDL_SetSurfaceBlendMode(font->Bitmap, SDL_BLENDMODE_BLEND);
     if (!SDL_LockSurface(font->Bitmap))
     {
         UBYTE * sp = font->Bitmap->pixels;
@@ -229,9 +229,6 @@ struct TextFont * OpenFont(const char * fntPath, const char * pngPath)
             sp += font->Bitmap->pitch;
         }
     }
-
-    // Xark: Hack until baseline added to font data
-    font->BaseLine = font->Bitmap->h - 2;
 
     return font;
 }
@@ -414,7 +411,7 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
             c_string(string, count < 80 ? count : 80));
     for (uint32_t x = 0; x < len && string[x]; x++)
     {
-        if (string[x] >= rp->Font->LoChar && string[x] <= rp->Font->LoChar + rp->Font->NumGlyphs)
+        if (string[x] >= rp->Font->LoChar && string[x] < rp->Font->LoChar + rp->Font->NumGlyphs)
         {
             uint8_t            glyphIndex = string[x] - rp->Font->LoChar;
             struct GlyphInfo * glyph      = &(rp->Font->Glyphs[glyphIndex]);

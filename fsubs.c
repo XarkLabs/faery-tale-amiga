@@ -9,44 +9,10 @@
 //  ;        assembly language subroutines for faerie tale adventure
 //  ;        written august 86 by Talin
 //
-//  ;        AmigaDOS subroutine vectors
-//
-//  Write           EQU     $FFFFFFD0
-//  Read            EQU     $FFFFFFD6
-//  Close           EQU     $FFFFFFDC
-//  Open            EQU     $FFFFFFE2
-//  Move            EQU     $FFFFFF10
-//  Text            EQU     $FFFFFFC4
-//  SetAPen         EQU     $FFFFFEAA
-//  Draw            EQU     $FFFFFF0A
-//  BltBitMap       EQU     $FFFFFFE2
-//  SetRGB4         EQU     $FFFFFEE0
-//  WaitBlit        EQU     $FFFFFF1C
-//  OwnBlitter      EQU     $FFFFFE38
-//  DisownBlitter   EQU     $FFFFFE32
-//
 //
 //  ie_X            equ     10
 //  ie_Y            equ     12
 //  ie_NextEvent    equ     0
-//
-//  xwrap           macro
-//                  btst    #6,\1                   ; if 0-64, process normally
-//                  beq.s   98$
-//                  btst    #5,\1                   ; else wrap in various directions
-//                  seq     d2                      ; if zero, set to all 1's (mask 63)
-//                  and.w   #63,\1                  ; else set to all zero's
-//  98$
-//                  endm
-//
-//  ywrap           macro
-//                  btst    #5,\1
-//                  beq.s   99$
-//                  btst    #4,\1
-//                  seq     \1
-//                  and.w   #31,\1
-//  99$
-//                  endm
 //
 //                  public  _HandlerInterface,_ion,_numbuf,_getkey
 //
@@ -242,6 +208,7 @@
 //                  dc.b    XY,(160-30*4)/2,160,"Copyright 1986 MicroIllusions "
 //                  dc.b    ETX
 
+#if 0   // source code version
 UBYTE titletext[] =
     "\x80\x1c\x21"        // XY, (160-26*4)/2, 33
     "\x22The Faery Tale Adventure\x22"
@@ -253,6 +220,19 @@ UBYTE titletext[] =
     "David Joiner"
     "\x80\x14\xa0"        // XY, (160-30*4)/2,160
     "Copyright 1986 MicroIllusions ";
+#else   // from released binary
+UBYTE titletext[] =
+    "\x80\x54\x21"        // XY, (160-26*4)/2, 33
+    "\x22The Faery Tale Adventure\x22"
+    "\x80\x4c\x4a"        // XY, (160-30*4)/2, 79
+    "Animation, Programming and Music"
+    "\x80\x92\x5a"        // XY, (160-2*4)/2,  90
+    "by"
+    "\x80\x7d\x65"        // XY, (160-12*4)/2,101
+    "David Joiner"
+    "\x80\x54\xa0"        // XY, (160-30*4)/2,160
+    "Copyright (C) 1986 MicroIllusions ";
+#endif
 
 //
 //                  public  _hinor,_hivar
@@ -1992,10 +1972,14 @@ void decode_mouse(void)
     {
         // TODO: joystick/controllercode
 
-        int16_t kdir = keydir - 0x20;
+        int16_t kdir = keydir - 20;
         if (kdir >= 0 && kdir <= 9)
         {
             dir_d2 = kdir;
+        }
+        else
+        {
+            dir_d2 = 9;
         }
         keydir = 0;
     }

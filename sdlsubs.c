@@ -227,10 +227,10 @@ int sdl_init(void)
         sdl_renderer, (640.0 / 640) * sdl_window_scale, Y_ASPECT() * sdl_window_scale);
 
     // This small loop lets SDL2 process some initial events (like controllers)
-    for (float f = 0.0; f <= 1.0; f += 0.05)
+    for (int f = 0; f < 30; f++)
     {
         SDL_SetRenderDrawColor(
-            sdl_renderer, 0x00 * f, 0x00 * f, 0x66 * f, 255);        // Amiga blue
+            sdl_renderer, 0x00, 0x00, 0x00, 255);
         SDL_RenderClear(sdl_renderer);
         SDL_RenderPresent(sdl_renderer);
         sdl_pump();
@@ -856,10 +856,10 @@ void sdl_blitsurface8(SDL_Surface * src, SDL_Rect * sr, SDL_Surface * dest, SDL_
 }
 
 void sdl_blitsurface8_transmask(SDL_Surface * src,
-                           SDL_Rect *    sr,
-                           SDL_Surface * dest,
-                           SDL_Rect *    dr,
-                           UBYTE         maskbyte)
+                                SDL_Rect *    sr,
+                                SDL_Surface * dest,
+                                SDL_Rect *    dr,
+                                UBYTE         maskbyte)
 {
     ASSERT(src->format->format == SDL_PIXELFORMAT_INDEX8 &&
            dest->format->format == SDL_PIXELFORMAT_INDEX8);
@@ -894,10 +894,10 @@ void sdl_blitsurface8_transmask(SDL_Surface * src,
 }
 
 void sdl_blitsurface8_or_bitplane(SDL_Surface * src,
-                         SDL_Rect *    sr,
-                         SDL_Surface * dest,
-                         SDL_Rect *    dr,
-                         UBYTE         planebyte)
+                                  SDL_Rect *    sr,
+                                  SDL_Surface * dest,
+                                  SDL_Rect *    dr,
+                                  UBYTE         planebyte)
 {
     ASSERT(src->format->format == SDL_PIXELFORMAT_INDEX8 &&
            dest->format->format == SDL_PIXELFORMAT_INDEX8);

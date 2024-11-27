@@ -10,6 +10,7 @@
 struct View     v;
 struct ViewPort vp_page;
 struct ViewPort vp_text;
+struct ViewPort vp_title;
 
 /* add name of setfig for generic messages?? */
 struct setfig setfig_table[NUM_SETFIG_ENTRIES] = {
@@ -482,14 +483,13 @@ struct fpage   fp_page2;
 struct fpage * fp_drawing;
 struct fpage * fp_viewing;
 
-struct RasInfo  ri_page1;
-struct RasInfo  ri_page2;
-struct RasInfo  ri_text;
-struct RasInfo  ri_title;
-struct BitMap * bm_page1;
-struct BitMap * bm_page2;
-struct BitMap * bm_text;
-// struct BitMap *   bm_lim;
+struct RasInfo    ri_page1;
+struct RasInfo    ri_page2;
+struct RasInfo    ri_text;
+struct RasInfo    ri_title;
+struct BitMap *   bm_page1;
+struct BitMap *   bm_page2;
+struct BitMap *   bm_text;
 struct BitMap *   bm_draw;
 struct BitMap *   bm1_source;        // Xark: orignally one bm_source with plane pointer modified
 struct BitMap *   bm2_source;
@@ -798,8 +798,7 @@ int open_all(void)
     bm_page2   = bm_page1 + 1;
     bm_text    = bm_page1 + 2;
     bm1_source = bm_page1 + 3;
-    bm2_source = bm_page1 + 4;  // Xark: re-use for compass bitmap
-    // bm_lim    = bm_page1 + 4;
+    bm2_source = bm_page1 + 4;
 
     if ((i = AllocDiskIO()))
         return i;
@@ -840,10 +839,13 @@ int open_all(void)
 
     InitView(&v); /* initialize view */
 
-    InitVPort(&vp_page); /* init view ports */
-    InitVPort(&vp_text); /* text page */
+    InitVPort(&vp_page);  /* init view ports */
+    InitVPort(&vp_text);  /* text page */
+    InitVPort(&vp_title); /* text page */
 
-    v.ViewPort   = &vp_text; /* link view into viewport */
+    // Xark:    v.ViewPort   = &vp_text; /* link view into viewport */
+    v.ViewPort = &vp_title;
+
     vp_text.Next = &vp_page; /* make links to additional viewports */
     vp_page.Next = NULL;
 
@@ -858,6 +860,11 @@ int open_all(void)
     vp_text.DyOffset = PAGE_HEIGHT;
 
     vp_text.Modes = HIRES;        // | SPRITES | VP_HIDE;
+
+    vp_title.DWidth  = 640;
+    vp_title.DHeight = 200;
+    vp_title.Modes   = HIRES;
+    vp_title.RasInfo = &ri_title;
 
     /* init bit map (for rasinfo and rastport) */
 
@@ -886,6 +893,8 @@ int open_all(void)
     ri_text.RxOffset = ri_text.RyOffset = 0;
     ri_text.Next                        = NULL;
 
+    ri_title.BitMap = &work_bm;
+
     fp_page1.savecop = fp_page2.savecop = NULL;
     fp_page1.ri_page                    = &ri_page1;
     fp_page2.ri_page                    = &ri_page1;
@@ -894,8 +903,9 @@ int open_all(void)
 
     /* (init color table) */
 
-    vp_page.ColorMap = GetColorMap(NUM_AMIGA_COLORS);
-    vp_text.ColorMap = GetColorMap(NUM_AMIGA_COLORS);
+    vp_page.ColorMap  = GetColorMap(NUM_AMIGA_COLORS);
+    vp_text.ColorMap  = GetColorMap(NUM_AMIGA_COLORS);
+    vp_title.ColorMap = GetColorMap(NUM_AMIGA_COLORS);
 
     // NOTE: BitMap has a Surface, but no Planes
 
@@ -1299,8 +1309,38 @@ int main(int argc, char ** argv)
 
     stopscore();
 
+    /* showlegals */
+
     RUNLOG("... [draw legals]");
 
+    SetRGB4(&vp_title, 0, 0, 0, 0);
+    SetRGB4(&vp_title, 1, 0, 0, 0);
+
+    rp_map.BitMap = &work_bm;
+    SetFont(rp, afont);
+    rp = &rp_text;
+    SetAPen(rp, 1);
+    ssp(titletext);
+
+    // Xark: Added
+    for (int f = 0; f < 16; f++)
+    {
+        SetRGB4(&vp_title, 1, f, f, f);
+        sdl_endframe();
+    }
+
+    RUNLOG("... [legals delay]");
+    Delay(60);
+
+    // Xark: Added
+    for (int f = 15; f >= 0; f--)
+    {
+        SetRGB4(&vp_title, 1, f, f, f);
+        sdl_endframe();
+    }
+
+    v.ViewPort = &vp_text;
+    SetFont(rp, tfont);
     vp_page.RasInfo  = &ri_page1;
     fp_page2.ri_page = &ri_page2;
     rp_map.BitMap    = fp_viewing->ri_page->BitMap;
@@ -1309,23 +1349,10 @@ int main(int argc, char ** argv)
     SetRast(&rp_map, 0);
     rp = &rp_map;
 
-    RUNLOG("... [display legals]");
-
-    screen_size(156);        // this does pagechange
-
-
-    SetRGB4(&vp_page, 0, 0, 0, 6);
+    SetRGB4(&vp_page, 0, 0, 0, 0);
     SetRGB4(&vp_page, 1, 15, 15, 15);
 
-    /* showlegals */
-
-    i = rp->FgPen;
-    SetAPen(rp, 1);
-    ssp(titletext);
-    SetAPen(rp, i);
-
-    RUNLOG("... [legals delay]");
-    Delay(50);
+    screen_size(156);        // this does pagechange
 
     rp             = &rp_text;
     rp_text.BitMap = bm_text;        // Xark: was bm_scroll...
@@ -1397,14 +1424,13 @@ no_intro:
 
     LoadRGB4(&vp_text, blackcolors, 32);
     screen_size(156);
-    SetRGB4(&vp_page, 0, 0, 0, 3);
     load_track_range(896, 24, shadow_mem, 0);
     save_raw_asset("raw_assets/shadow_mem_gfx.raw", shadow_mem, 24 * 512, 0);
 
-    SetRGB4(&vp_page, 0, 0, 0, 6);
     // unpackbrush("game/hiscreen", bm_text, 0, 0);
     unpack_png("assets/hiscreen.png", bm_text, 0, 0);
 
+    SetRGB4(&vp_page, 0, 0, 0, 0);
     SetRGB4(&vp_page, 1, 15, 15, 15);
 
     rp            = &rp_map;
@@ -1415,6 +1441,7 @@ no_intro:
     SetAPen(rp, 1);
     if (!cheat2)
     {
+        SetRGB4(&vp_page, 0, 0, 0, 6);
         placard_text(19);
         if (copy_protect_junk() == 0)
             goto quit_all;
@@ -3953,8 +3980,7 @@ void revive(int16_t is_new)        // Xark: renamed new -> is_new
             placard_text(5);
 
         placard();
-        cheat2 = FALSE;
-        Delay(240);
+        Delay(120);
 
         if (brother > 3)
         {

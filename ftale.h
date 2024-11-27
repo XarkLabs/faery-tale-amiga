@@ -311,8 +311,13 @@ extern char viewstatus;
 extern struct RastPort * rp;
 
 // compass image data
-extern UBYTE nhinor[];
-extern UBYTE nhivar[];
+extern UBYTE           nhinor[];
+extern UBYTE           nhivar[];
+extern struct BitMap * bm1_source;
+extern struct BitMap * bm2_source;
+
+extern int16_t oldir;
+extern int16_t keydir;
 
 extern char event_msg[];
 extern char speeches[];
@@ -428,11 +433,18 @@ int16_t   get_from_keybuf();
 void      ft_mouse_button(int16_t qual);
 void      ft_mouse_pos(int16_t x, int16_t y);
 void      sdl_blitsurface8(SDL_Surface * src, SDL_Rect * sr, SDL_Surface * dest, SDL_Rect * dr);
-void      sdl_blitsurface8_mask(SDL_Surface * src,
-                                SDL_Rect *    sr,
-                                SDL_Surface * dest,
-                                SDL_Rect *    dr,
-                                UBYTE         maskbyte);
+void      sdl_blitsurface8_transmask(SDL_Surface * src,
+                                     SDL_Rect *    sr,
+                                     SDL_Surface * dest,
+                                     SDL_Rect *    dr,
+                                     UBYTE         maskbyte);
+void      sdl_blitsurface8_or_bitplane(SDL_Surface * src,
+                                       SDL_Rect *    sr,
+                                       SDL_Surface * dest,
+                                       SDL_Rect *    dr,
+                                       UBYTE         planebyte);
+void      sdl_extract_bitplane(SDL_Surface * dest, UBYTE * planedata, UBYTE planemask);
+
 
 void sdl_pump(void);
 BOOL unpack_png(char * filename, struct BitMap * bitmap, int16_t wx, int16_t y);

@@ -823,7 +823,39 @@ BOOL unpack_png(char * filename, struct BitMap * bitmap, int16_t wx, int16_t y)
     return TRUE;
 }
 
-void sdl_blitsurface8_mask(SDL_Surface * src,
+void sdl_blitsurface8(SDL_Surface * src, SDL_Rect * sr, SDL_Surface * dest, SDL_Rect * dr)
+{
+    ASSERT(src->format->format == SDL_PIXELFORMAT_INDEX8 &&
+           dest->format->format == SDL_PIXELFORMAT_INDEX8);
+    SDL_Rect ssr = {0, 0, src->w, src->h};
+    if (!sr)
+    {
+        sr = &ssr;
+    }
+    SDL_Rect sdr = {0, 0, dest->w, dest->h};
+    if (!dr)
+    {
+        dr = &sdr;
+    }
+    if (!SDL_LockSurface(src))
+    {
+        if (!SDL_LockSurface(dest))
+        {
+            UBYTE * sp = src->pixels + (sr->y * src->pitch) + sr->x;
+            UBYTE * dp = dest->pixels + (dr->y * dest->pitch) + dr->x;
+            for (int16_t v = 0; v < sr->h; v++)
+            {
+                memcpy(dp, sp, sr->w);
+                sp += src->pitch;
+                dp += dest->pitch;
+            }
+            SDL_UnlockSurface(dest);
+        }
+        SDL_UnlockSurface(src);
+    }
+}
+
+void sdl_blitsurface8_transmask(SDL_Surface * src,
                            SDL_Rect *    sr,
                            SDL_Surface * dest,
                            SDL_Rect *    dr,
@@ -861,20 +893,15 @@ void sdl_blitsurface8_mask(SDL_Surface * src,
     }
 }
 
-void sdl_blitsurface8(SDL_Surface * src, SDL_Rect * sr, SDL_Surface * dest, SDL_Rect * dr)
+void sdl_blitsurface8_or_bitplane(SDL_Surface * src,
+                         SDL_Rect *    sr,
+                         SDL_Surface * dest,
+                         SDL_Rect *    dr,
+                         UBYTE         planebyte)
 {
     ASSERT(src->format->format == SDL_PIXELFORMAT_INDEX8 &&
            dest->format->format == SDL_PIXELFORMAT_INDEX8);
-    SDL_Rect ssr = {0, 0, src->w, src->h};
-    if (!sr)
-    {
-        sr = &ssr;
-    }
-    SDL_Rect sdr = {0, 0, dest->w, dest->h};
-    if (!dr)
-    {
-        dr = &sdr;
-    }
+
     if (!SDL_LockSurface(src))
     {
         if (!SDL_LockSurface(dest))
@@ -883,7 +910,15 @@ void sdl_blitsurface8(SDL_Surface * src, SDL_Rect * sr, SDL_Surface * dest, SDL_
             UBYTE * dp = dest->pixels + (dr->y * dest->pitch) + dr->x;
             for (int16_t v = 0; v < sr->h; v++)
             {
-                memcpy(dp, sp, sr->w);
+                int16_t w   = sr->w;
+                UBYTE * scp = sp;
+                UBYTE * dcp = dp;
+                while (w--)
+                {
+                    *dcp = (*dcp & ~planebyte) | (*scp & planebyte);
+                    scp++;
+                    dcp++;
+                }
                 sp += src->pitch;
                 dp += dest->pitch;
             }
@@ -892,5 +927,34 @@ void sdl_blitsurface8(SDL_Surface * src, SDL_Rect * sr, SDL_Surface * dest, SDL_
         SDL_UnlockSurface(src);
     }
 }
+
+void sdl_extract_bitplane(SDL_Surface * dest, UBYTE * planedata, UBYTE planemask)
+{
+    if (!SDL_LockSurface(dest))
+    {
+        UBYTE * dp = dest->pixels;
+        for (int16_t v = 0; v < dest->h; v++)
+        {
+            UWORD bit = 0x80;
+            for (int16_t h = 0; h < dest->w; h++)
+            {
+                if (*planedata & bit)
+                {
+                    dp[h] |= planemask;
+                }
+
+                bit >>= 1;
+                if (!bit)
+                {
+                    bit = 0x80;
+                    planedata++;
+                }
+            }
+            dp += dest->pitch;
+        }
+        SDL_UnlockSurface(dest);
+    }
+}
+
 
 // EOF

@@ -287,7 +287,7 @@ UBYTE titletext[] =
 //
 
 // Xark: compass base image? NOTE: converted to byte due to big-endian
-UBYTE nhinor[] = {
+UBYTE nhinor[(64 / 8) * 25] = {
     0x01, 0xFF, 0xF8, 0xFF, 0xFC, 0x03, 0x80, 0x00, 0x01, 0xFF, 0x00, 0x07, 0xFC, 0x03, 0x80, 0x00,
     0x07, 0xE0, 0xF0, 0x78, 0x3F, 0x03, 0x80, 0x00, 0x19, 0x0F, 0xE0, 0x3F, 0xC4, 0xC3, 0x80, 0x00,
     0xFC, 0x7F, 0xC0, 0x1F, 0xF1, 0xFF, 0x80, 0x00, 0xF1, 0x9F, 0x80, 0x0F, 0xCC, 0x7F, 0x80, 0x00,
@@ -303,7 +303,7 @@ UBYTE nhinor[] = {
     0x03, 0xFF, 0xF8, 0xFF, 0xFF, 0xFF, 0x00, 0x00};
 
 // Xark: compass direction image? NOTE: converted to byte due to big-endian
-UBYTE nhivar[] = {
+UBYTE nhivar[(64 / 8) * 25] = {
     0x01, 0xFF, 0xF8, 0xFF, 0xFC, 0x03, 0x80, 0x00, 0x79, 0xFF, 0x02, 0x07, 0xFC, 0xF3, 0x80, 0x00,
     0x67, 0xE0, 0xF2, 0x78, 0x3F, 0x33, 0x80, 0x00, 0x19, 0x0F, 0xE7, 0x3F, 0xC4, 0xC3, 0x80, 0x00,
     0xFC, 0x7F, 0xCF, 0x9F, 0xF1, 0xFF, 0x80, 0x00, 0xF1, 0x9F, 0x9F, 0xCF, 0xCC, 0x7F, 0x80, 0x00,
@@ -1960,7 +1960,51 @@ int32_t page_det(int32_t v)
 // TODO: decode_mouse
 void decode_mouse(void)
 {
-    // spammy   RUNLOG("<= decode_mouse() STUB");
+    int16_t dir_d2 = 9;
+    if (handler_data.qualifier & (IEQUALIFIER_LEFTBUTTON | IEQUALIFIER_RBUTTON))
+    {
+        int16_t x_d0      = handler_data.xsprite;
+        int16_t y_d1      = handler_data.ysprite;
+        int16_t center_d3 = 7;
+        int16_t down_d4   = 6;
+        if (x_d0 > 265)
+        {
+            dir_d2 = 0;
+            if (x_d0 >= 292)
+            {
+                dir_d2 = 2, center_d3 = 3, down_d4 = 4;
+                if (x_d0 <= 300)
+                {
+                    dir_d2 = 1, center_d3 = 9, down_d4 = 5;
+                }
+            }
+        }
+        if (y_d1 >= 166)
+        {
+            dir_d2 = down_d4;
+            if (y_d1 <= 174)
+            {
+                dir_d2 = center_d3;
+            }
+        }
+    }
+    else        // joystick
+    {
+        // TODO: joystick/controllercode
+
+        int16_t kdir = keydir - 0x20;
+        if (kdir >= 0 && kdir <= 9)
+        {
+            dir_d2 = kdir;
+        }
+        keydir = 0;
+    }
+    // setcomp
+    if (oldir != dir_d2)
+    {
+        oldir = dir_d2;
+        drawcompass(dir_d2);
+    }
 }
 
 //

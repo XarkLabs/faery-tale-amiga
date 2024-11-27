@@ -82,13 +82,19 @@ LONG BltBitMap(struct BitMap * srcBitMap,
                UBYTE *         tempA)
 {
     (void)minterm;
-    (void)mask;
     (void)tempA;
     LONG res = 0;
-
+    ASSERT(minterm == 0xC0);
     SDL_Rect sr = {xSrc, ySrc, xSize, ySize};
     SDL_Rect dr = {xDest, yDest, xDest + xSize, yDest + ySize};
-    sdl_blitsurface8(srcBitMap->Surface, &sr, destBitMap->Surface, &dr);
+    if ((mask & 0x1f) == 0x1f)
+    {
+        sdl_blitsurface8(srcBitMap->Surface, &sr, destBitMap->Surface, &dr);
+    }
+    else
+    {
+        sdl_blitsurface8_or_bitplane(srcBitMap->Surface, &sr, destBitMap->Surface, &dr, mask);
+    }
 
     return res;
 }
@@ -421,7 +427,7 @@ LONG Text(struct RastPort * rp, STRPTR string, uint32_t count)
                 rp->cp_x, rp->cp_y - rp->Font->BaseLine, glyph->BitLength, rp->Font->Bitmap->h};
             SDL_Rect sr = {glyph->LocationStart, 0, glyph->BitLength, rp->Font->Bitmap->h};
             SDL_FillRect(rp->BitMap->Surface, &dr, rp->BgPen);
-            sdl_blitsurface8_mask(rp->Font->Bitmap, &sr, rp->BitMap->Surface, &dr, rp->FgPen);
+            sdl_blitsurface8_transmask(rp->Font->Bitmap, &sr, rp->BitMap->Surface, &dr, rp->FgPen);
             rp->cp_x += glyph->Spacing;
         }
     }

@@ -402,8 +402,6 @@ struct compvars
                    {0, 0, 1, 1},
                    {0, 0, 1, 1}};
 
-extern struct BitMap *bm_text, *bm_source;
-
 void drawcompass(int16_t dir)
 {
     register int32_t xr, yr, xs, ys;
@@ -412,11 +410,11 @@ void drawcompass(int16_t dir)
     xs = comptable[dir].xsize;
     ys = comptable[dir].ysize;
     // bm_source->Planes[2] = nhinor;
-    BltBitMap(bm_source, 0, 0, bm_text, 567, 15, 48, 24, 0xC0, 4, NULL);
+    BltBitMap(bm1_source, 0, 0, bm_text, 567, 15, 48, 24, 0xC0, 4, NULL);
     if (dir < 9)
     {
         // bm_source->Planes[2] = nhivar;
-        BltBitMap(bm_source, xr, yr, bm_text, 567 + xr, 15 + yr, xs, ys, 0xC0, 4, NULL);
+        BltBitMap(bm2_source, xr, yr, bm_text, 567 + xr, 15 + yr, xs, ys, 0xC0, 4, NULL);
     }
 }
 

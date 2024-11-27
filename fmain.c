@@ -491,7 +491,8 @@ struct BitMap * bm_page2;
 struct BitMap * bm_text;
 // struct BitMap *   bm_lim;
 struct BitMap *   bm_draw;
-struct BitMap *   bm_source;
+struct BitMap *   bm1_source;        // Xark: orignally one bm_source with plane pointer modified
+struct BitMap *   bm2_source;
 struct BitMap     bm_scroll;
 struct BitMap     pagea;
 struct BitMap     pageb;
@@ -794,9 +795,10 @@ int open_all(void)
         NULL)
         return 1;
     SETFN(AL_BMAP); /* allocated the bitmap structures */
-    bm_page2  = bm_page1 + 1;
-    bm_text   = bm_page1 + 2;
-    bm_source = bm_page1 + 3;
+    bm_page2   = bm_page1 + 1;
+    bm_text    = bm_page1 + 2;
+    bm1_source = bm_page1 + 3;
+    bm2_source = bm_page1 + 4;  // Xark: re-use for compass bitmap
     // bm_lim    = bm_page1 + 4;
 
     if ((i = AllocDiskIO()))
@@ -866,7 +868,10 @@ int open_all(void)
     InitBitMap(&pagea, 5, 320, 200, "bm_pagea");
     InitBitMap(&pageb, 5, 320, 200, "bm_pageb");
     //    InitBitMap(&bm_scroll, 1, 640, TEXT_HEIGHT, "bm_scroll");        // Xark: not needed?
-    InitBitMap(bm_source, 3, 64, 24, "bm_source");
+    InitBitMap(bm1_source, 3, 64, 24, "bm1_source");        // nhinor compass bitplane[2] data
+    sdl_extract_bitplane(bm1_source->Surface, nhinor, 0x04);
+    InitBitMap(bm2_source, 3, 64, 24, "bm2_source");        // nhivar compass bitplane[2] data
+    sdl_extract_bitplane(bm2_source->Surface, nhivar, 0x04);
 
     rp_text2.BitMap = bm_text;
 

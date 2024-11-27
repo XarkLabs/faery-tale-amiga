@@ -865,7 +865,7 @@ int open_all(void)
     // InitBitMap(bm_lim, 1, 320, 200, "bm_lim");
     InitBitMap(&pagea, 5, 320, 200, "bm_pagea");
     InitBitMap(&pageb, 5, 320, 200, "bm_pageb");
-    InitBitMap(&bm_scroll, 1, 640, TEXT_HEIGHT, "bm_scroll");   // Xark: Does not appear to be needed
+    //    InitBitMap(&bm_scroll, 1, 640, TEXT_HEIGHT, "bm_scroll");        // Xark: not needed?
     InitBitMap(bm_source, 3, 64, 24, "bm_source");
 
     rp_text2.BitMap = bm_text;
@@ -1085,10 +1085,6 @@ int close_all(void)
     // DisposeLayerInfo(li);
     // FreeSprite(0);
     openflags = 0;
-
-    // TODO: Xark needed?
-    // if (origDir)
-    //     CurrentDir(origDir);
 
     sdl_exit(0);
 }
@@ -1323,13 +1319,11 @@ int main(int argc, char ** argv)
     ssp(titletext);
     SetAPen(rp, i);
 
-    sdl_endframe();        // Xark: render legals
-
     RUNLOG("... [legals delay]");
     Delay(50);
 
     rp             = &rp_text;
-    rp_text.BitMap = bm_text;   // Xark: was bm_scroll...
+    rp_text.BitMap = bm_text;        // Xark: was bm_scroll...
     SetFont(rp, afont);
     SetAPen(rp, 10);
     SetBPen(rp, 11);
@@ -1411,17 +1405,25 @@ no_intro:
     rp            = &rp_map;
     rp_map.BitMap = fp_drawing->ri_page->BitMap;
     stillscreen();
-    SetAPen(rp, 1);
-    placard_text(19);
     handler_data.laydown = handler_data.pickup = 0;
     k                                          = TRUE;
-    if (copy_protect_junk() == 0)
-        goto quit_all;
-    Delay(20);
+    SetAPen(rp, 1);
+    if (!cheat2)
+    {
+        placard_text(19);
+        if (copy_protect_junk() == 0)
+            goto quit_all;
+        Delay(20);
+    }
 
     ri_page1.RxOffset = ri_page2.RxOffset = ri_page1.RyOffset = ri_page2.RyOffset = 0;
 
     stopscore();
+
+    // Xark: Added to center placard text
+    vp_page.DxOffset = 16;
+    vp_page.DyOffset = 24 + 12;
+
     revive(TRUE);
     rp_map.BitMap = fp_drawing->ri_page->BitMap;
 
@@ -3945,11 +3947,9 @@ void revive(int16_t is_new)        // Xark: renamed new -> is_new
         else
             placard_text(5);
 
-        sdl_endframe();        // Xark: show placard
         placard();
-        sdl_screenshot = TRUE;  // TODO: temp 
-        sdl_endframe();        // Xark: show placard
-        Delay(120);
+        cheat2 = FALSE;
+        Delay(240);
 
         if (brother > 3)
         {
@@ -3990,8 +3990,8 @@ void revive(int16_t is_new)        // Xark: renamed new -> is_new
                 event(11);
         }
     }
-    else
-        fade_down();
+    //    else      // Xark: original seems to always fade here...
+    fade_down();
 
     hero_x = an->abs_x = safe_x;
     hero_y = an->abs_y = safe_y;
@@ -4038,7 +4038,7 @@ void screen_size(int32_t x)
 
     vp_text.DxOffset = 0;
     vp_text.DyOffset = 0;
-    vp_text.DHeight                     = 95 - y;
+    vp_text.DHeight  = 95 - y;
 
     fade_page(y * 2 - 40, y * 2 - 70, y * 2 - 100, 0, introcolors);
 

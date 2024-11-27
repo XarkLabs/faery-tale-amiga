@@ -229,7 +229,8 @@ int sdl_init(void)
     // This small loop lets SDL2 process some initial events (like controllers)
     for (float f = 0.0; f <= 1.0; f += 0.05)
     {
-        SDL_SetRenderDrawColor(sdl_renderer, 0x00 * f, 0x00 * f, 0x66 * f, 255);        // Amiga blue
+        SDL_SetRenderDrawColor(
+            sdl_renderer, 0x00 * f, 0x00 * f, 0x66 * f, 255);        // Amiga blue
         SDL_RenderClear(sdl_renderer);
         SDL_RenderPresent(sdl_renderer);
         sdl_pump();
@@ -632,25 +633,10 @@ void sdl_pump(void)
                 }
                 else if (e.key.repeat == 0)        // ignore autorepeat
                 {
-                    if (e.key.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL))
-                    {
-                        cheat1 = TRUE;
-                    }
-                    else
-                    {
-                        cheat1 = FALSE;
-                    }
+                    cheat1 = (e.key.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) ? TRUE : FALSE;
+                    cheat2 = (e.key.keysym.mod & (KMOD_LALT | KMOD_RALT)) ? TRUE : FALSE;
 
-                    if (e.key.keysym.mod & (KMOD_LALT | KMOD_RALT))
-                    {
-                        cheat2 = TRUE;
-                    }
-                    else
-                    {
-                        cheat2 = FALSE;
-                    }
-
-                    if (cheat1 && e.key.keysym.sym == SDLK_BACKQUOTE)
+                    if (e.key.keysym.sym == SDLK_BACKQUOTE)
                     {
                         sdl_screenshot = TRUE;
                     }
@@ -667,7 +653,9 @@ void sdl_pump(void)
                 break;
 
             case SDL_KEYUP:
-                cheat1 = FALSE;
+                cheat1 = (e.key.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) ? TRUE : FALSE;
+                cheat2 = (e.key.keysym.mod & (KMOD_LALT | KMOD_RALT)) ? TRUE : FALSE;
+
                 for (uint32_t ki = 0; ki < NUM_ELEMENTS(sdl_to_ft_key); ki++)
                 {
                     if (e.key.keysym.sym == sdl_to_ft_key[ki].sdl_keycode)

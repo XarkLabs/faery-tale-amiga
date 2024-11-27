@@ -685,6 +685,7 @@ void placard(void)
         } while (--j != -1);
 
     } while (--i != -1);
+    sdl_endframe();
 }
 
 //
@@ -1613,12 +1614,12 @@ int16_t newx(int16_t x, int16_t dir, int16_t speed)
 // newy - compute new y based on speed and direction
 int16_t newy(int16_t y, int16_t dir, int16_t speed)
 {
-    static int16_t ydir[] = {-2,-3,-2,0,2,3,2,0,0,0};
+    static int16_t ydir[] = {-2, -3, -2, 0, 2, 3, 2, 0, 0, 0};
     int32_t        res    = y;
     if (dir < 8)
     {
         int16_t signbit = y & 0x8000;
-        res = (y + ((ydir[dir] * speed) >> 1)) & 0x7fff;
+        res             = (y + ((ydir[dir] * speed) >> 1)) & 0x7fff;
         res |= signbit;
     }
     RUNLOGF("%d <= newy(%d, %d, %d)", res, y, dir, speed);

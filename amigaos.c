@@ -30,10 +30,15 @@ void FreeMem(APTR memoryBlock, uint32_t byteSize)
 // Delay -- Delay a process for a specified time (1/50th sec)
 void Delay(int32_t timeout)
 {
+    if (timeout > 50 && !(cheat2 || sdl_quit || sdl_screenshot))
+    {
+        RUNLOGF("<= Delay(%d)", timeout);
+    }
+    sdl_endframe();        // make sure page visible
     while (timeout-- > 0)
     {
         sdl_pump();
-        if (cheat2 || sdl_quit || sdl_screenshot)
+        if (cheat2 || sdl_quit)
             break;
         SDL_Delay(20);        // convert to milliseconds
     }

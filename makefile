@@ -29,6 +29,8 @@ fta: $(OBJS)
 	-mkdir -p logs
 	$(LD) $(OBJS) $(LDFLAGS) -o $@
 
+$(OBJS): $(INCS)
+
 debug: all
 	-killall -9 fta
 	lldb -b -o run ./fta

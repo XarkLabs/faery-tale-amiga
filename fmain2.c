@@ -903,6 +903,11 @@ void save_object_png(int num)
                                                           SDL_PIXELFORMAT_INDEX8);
 
     SDL_SetPaletteColors(object->format->palette, vp_page.ColorMap->colors, 0, NUM_AMIGA_COLORS);
+    // color 0xff = transparent
+    object->format->palette->colors[255].r = 0xff;
+    object->format->palette->colors[255].g = 0x00;
+    object->format->palette->colors[255].b = 0xff;
+    object->format->palette->colors[255].a = 0x00;
 
     if (!SDL_LockSurface(object))
     {
@@ -936,6 +941,21 @@ void save_object_png(int num)
             }
             ob_st += cfiles[num].width * 16 * cfiles[num].height;
             sp_st += cfiles[num].height * cfiles[num].width * 2 * 5;        // skip mask area
+        }
+        // convert transparent color 31 to 255
+        {
+            UBYTE * dp = object->pixels;
+            for (int v = 0; v < cfiles[num].height * cfiles[num].count; v++)
+            {
+                for (int h = 0; h < cfiles[num].width * 16; h++)
+                {
+                    if (dp[h] >= 31)
+                    {
+                        dp[h] = 255;
+                    }
+                }
+                dp += object->pitch;
+            }
         }
 
         sprintf(raw_asset_fname,

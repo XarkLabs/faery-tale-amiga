@@ -10,7 +10,7 @@
 #define ORIGINAL_OBJECT_DATA 0        // read old data and save as PNG
 #if ORIGINAL_OBJECT_DATA
 #define SAVE_RAW_DATA 0        // save RAW game assets
-#define SAVE_PNG_DATA 0        // save PNGs
+#define SAVE_PNG_DATA 0        // save shape PNGs
 #endif
 
 #include "amigaos.h"        // Xark: most AmigaOS includes (like "amiga39.pre")

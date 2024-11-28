@@ -11,10 +11,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#define FTA_NEXGEN 1        // always defined
-
 #define FTA_LOG  1        // log messages
-#define SAVE_RAW 0        // save assets
 
 extern FILE * logfilep;
 

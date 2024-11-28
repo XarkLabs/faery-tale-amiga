@@ -5,6 +5,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define FTA_NEXGEN 1        // always defined
+
+#define ORIGINAL_OBJECT_DATA 0        // read old data and save as PNG
+#if ORIGINAL_OBJECT_DATA
+#define SAVE_RAW_DATA 0        // save RAW game assets
+#define SAVE_PNG_DATA 0        // save PNGs
+#endif
+
 #include "amigaos.h"        // Xark: most AmigaOS includes (like "amiga39.pre")
 
 // FTA defines and sizes
@@ -120,6 +128,8 @@ struct fpage
     int16_t          wflag; /* for erasure */
 };
 
+#if ORIGINAL_OBJECT_DATA
+// original
 struct seq_info
 {
     int16_t   width, height, count; /* this part loaded in */
@@ -128,6 +138,17 @@ struct seq_info
     int16_t   bytes; /* this part calculated */
     int16_t   current_file;
 };
+#else
+struct seq_info
+{
+    int16_t width, height, count; /* this part loaded in */
+                                  //    uint8_t * location;
+    SDL_Surface * surface;
+    //    uint8_t * maskloc;
+    int16_t bytes; /* this part calculated */
+    int16_t current_file;
+};
+#endif
 
 enum sequences
 {
@@ -288,6 +309,9 @@ extern char viewstatus;
 #define FTMOUSE_MENU_MIN_Y  144        // Y >= for menu
 #define FTMOUSE_MENU_HEIGHT 9          // height of menu item
 
+#define CBK_SIZE      16384        // Xark: was: CBK_SIZE (96 << 6) + 5
+#define BACKSAVE_SIZE 32768        // bytes for background save
+
 // Xark: moved here
 #define SETFN(n) openflags |= n
 #define TSTFN(n) openflags & n
@@ -421,6 +445,11 @@ extern BOOL  sdl_screenshot;
 
 extern struct BitMap * bm_text;
 
+
+#if ORIGINAL_OBJECT_DATA
+void save_objects(void);
+void save_object_png(int num);
+#endif
 
 uint32_t  swap_endian(uint32_t v);
 uint16_t  swap_endian16(uint16_t v);

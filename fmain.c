@@ -728,11 +728,16 @@ int16_t new_wave[] = {0x0000,
 UWORD    openflags;
 UBYTE ** planes;
 
+#if ORIGINAL_OBJECT_DATA
 uint8_t * mask_buffer;
 uint8_t * shapedata;
-int16_t   shift, aoff, boff, bmod, planesize, wmask;
+#else
+SDL_Surface * shape_surface;        // shape PNG
+int16_t       shape_offset;         // Y offset to frame
+int16_t       shape_height;         // height of shape
+#endif
 
-#define CBK_SIZE (96 << 6) + 5
+int16_t shift, aoff, boff, bmod, planesize, wmask;
 
 // int32_t seed1 = 19837325, seed2 = 23098324;
 
@@ -937,9 +942,9 @@ int open_all(void)
     // fp_page1.backsave = queue_mem + 962;
     // fp_page2.backsave = bmask_mem + 962;
     fp_page1.backsave =
-        AllocMem(TEXT_HEIGHT * 80, 0);        // TODO: this size need to account for chunky pixels
+        AllocMem(BACKSAVE_SIZE, 0);        // TODO: this size need to account for chunky pixels
     fp_page2.backsave =
-        AllocMem(TEXT_HEIGHT * 80, 0);        // TODO: this size need to account for chunky pixels
+        AllocMem(BACKSAVE_SIZE, 0);        // TODO: this size need to account for chunky pixels
 
     fp_page1.shape_queue = (struct sshape *)AllocMem(sizeof(struct sshape) * MAXSHAPES, 0);
     fp_page2.shape_queue = (struct sshape *)AllocMem(sizeof(struct sshape) * MAXSHAPES, 0);
@@ -1478,6 +1483,11 @@ no_intro:
 
     cmode = 0;
     print_options();
+
+#if SAVE_PNG_DATA
+    save_objects();
+    sdl_exit(0);
+#endif
 
     /* main program loop */
     RUNLOG("*** FTA main loop ***");
@@ -3248,8 +3258,10 @@ no_intro:
                 dohit(-1, 0, anim_list[2].facing, rand2() + 1);
         }
 
-        fp_drawing->obcount = crack = fp_drawing->saveused = 0;
-        backalloc                                          = fp_drawing->backsave;
+        fp_drawing->obcount  = 0;
+        fp_drawing->saveused = 0;
+        crack                = 0;
+        backalloc            = fp_drawing->backsave;
 
         for (j = 0; j < anix2; j++)
         {
@@ -3295,7 +3307,7 @@ no_intro:
             /* as good a place to do this as any? */
             OwnBlitter();
             WaitBlit();
-            clear_blit(bmask_mem, CBK_SIZE);
+            clear_blit(bmask_mem, CBK_SIZE);        // TODO: Probably clearning way too much
             DisownBlitter();
 
             if (passmode)
@@ -3489,8 +3501,14 @@ no_intro:
             shp->savesize = blitwide * blithigh * 2;
             shp->blitsize = (blithigh << 6) + blitwide;
 
+#if ORIGINAL_OBJECT_DATA
             shapedata   = seq_list[atype].location + (planesize * 5 * inum);
             mask_buffer = seq_list[atype].maskloc + (planesize * inum);
+#else
+            shape_surface = seq_list[atype].surface;
+            shape_offset  = inum * seq_list[atype].height;
+            shape_height  = seq_list[atype].height;
+#endif
             if (shp->savesize < 64 && crack < 5)
             {
                 shp->backsave = planes[crack++] + (192 * 40);
@@ -3767,7 +3785,9 @@ void load_actors(void)
     {
         actor_file = encounter_chart[encounter_type].file_id;
         anix       = 3;
-        nextshape  = seq_list[ENEMY].location;
+#if ORIGINAL_OBJECT_DATA
+        nextshape = seq_list[ENEMY].location;
+#endif
         read_shapes(actor_file);
         actors_loading = TRUE;
         active_carrier = 0;
@@ -3881,7 +3901,9 @@ void load_carrier(int16_t n)
         i = 0;
     if (actor_file != n)
     {
+#if ORIGINAL_OBJECT_DATA
         nextshape = seq_list[ENEMY].location;
+#endif
         read_shapes(n);
         prep(an->type);
         motor_off();
@@ -4337,7 +4359,10 @@ void do_option(int16_t hit)
                 SetRast(&rp_map, 0);
                 // TODO: object images
                 InitBitMap(&pagea, 5, 16, 8000, "pagea_objects");
+                // TODO: Sort out objet memory storage
+#if ORIGINAL_OBJECT_DATA
                 data = seq_list[OBJECTS].location;
+#endif
                 (void)data;        // TODO: object data Surface?
                 /* all objects are 32 (16 * 1 word) bytes per plane */
                 // pagea.Planes[0] = data;
@@ -5053,7 +5078,7 @@ void load_new_region(void)
     if (nd->sector != current_loads.sector)
     {
         load_track_range(nd->sector, 64, sector_mem, 0);
-#if SAVE_RAW
+#if SAVE_RAW_DATA
         sprintf(raw_asset_fname, "raw_assets/sector_%03d_%s.raw", nd->sector, nd->debug_name);
         save_raw_asset(raw_asset_fname, sector_mem, 64 * 512, 0);
 #endif
@@ -5062,7 +5087,7 @@ void load_new_region(void)
     if (nd->region != current_loads.region)
     {
         load_track_range(nd->region, 8, map_mem, 0);
-#if SAVE_RAW
+#if SAVE_RAW_DATA
         sprintf(raw_asset_fname, "raw_assets/map_%03d_%s.raw", nd->region, nd->debug_name);
         save_raw_asset(raw_asset_fname, map_mem, 8 * 512, 0);
 #endif
@@ -5071,7 +5096,7 @@ void load_new_region(void)
     if (nd->terra1 != current_loads.terra1)
     {
         load_track_range(TERRA_BLOCK + nd->terra1, 1, terra_mem, 1);
-#if SAVE_RAW
+#if SAVE_RAW_DATA
         sprintf(raw_asset_fname, "raw_assets/terrain_%03d_%s.raw", nd->terra1, nd->debug_name);
         save_raw_asset(raw_asset_fname, terra_mem, 1 * 512, 0);
 #endif
@@ -5080,7 +5105,7 @@ void load_new_region(void)
     if (nd->terra2 != current_loads.terra2)
     {
         load_track_range(TERRA_BLOCK + nd->terra2, 1, terra_mem + 512, 2);
-#if SAVE_RAW
+#if SAVE_RAW_DATA
         sprintf(raw_asset_fname, "raw_assets/terrain_%03d_%s.raw", nd->terra2, nd->debug_name);
         save_raw_asset(raw_asset_fname, terra_mem + 512, 1 * 512, 0);
 #endif
@@ -5093,28 +5118,28 @@ void load_new_region(void)
         {
             imem = imem0;
             load_track_range(nd->image[i] + 0, 8, imem, 3);
-#if SAVE_RAW
+#if SAVE_RAW_DATA
             sprintf(raw_asset_fname, "raw_assets/image_%03d_%s.raw", nd->image[i], nd->debug_name);
             save_raw_asset(raw_asset_fname, imem, 8 * 512, 0);
 #endif
             imem += IPLAN_SZ;
             load_track_range(nd->image[i] + 8, 8, imem, 4);
-#if SAVE_RAW
+#if SAVE_RAW_DATA
             save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
 #endif
             imem += IPLAN_SZ;
             load_track_range(nd->image[i] + 16, 8, imem, 5);
-#if SAVE_RAW
+#if SAVE_RAW_DATA
             save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
 #endif
             imem += IPLAN_SZ;
             load_track_range(nd->image[i] + 24, 8, imem, 6);
-#if SAVE_RAW
+#if SAVE_RAW_DATA
             save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
 #endif
             imem += IPLAN_SZ;
             load_track_range(nd->image[i] + 32, 8, imem, 7);
-#if SAVE_RAW
+#if SAVE_RAW_DATA
             save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
 #endif
             current_loads.image[i] = nd->image[i];

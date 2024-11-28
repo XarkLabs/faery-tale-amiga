@@ -874,6 +874,86 @@ extern uint16_t safe_r;
 
 extern int16_t actor_file, set_file;
 
+#if SAVE_PNG_DATA
+void save_objects(void)
+{
+    LoadRGB4(&vp_page, pagecolors, 32);
+
+    //    SetRGB4(&vp_page, 31, 16, 0, 16);
+    vp_page.ColorMap->colors[31].r = 0xff;
+    vp_page.ColorMap->colors[31].g = 0x00;
+    vp_page.ColorMap->colors[31].b = 0xff;
+    vp_page.ColorMap->colors[31].a = 0x00;
+    for (int o = 0; o < (int)NUM_ELEMENTS(cfiles); o++)
+    {
+        nextshape = shape_mem;
+        read_shapes(o);
+        prep(cfiles[o].seq_num);
+        nextshape = shape_mem;
+        save_object_png(o);
+    }
+}
+
+void save_object_png(int num)
+{
+    SDL_Surface * object = SDL_CreateRGBSurfaceWithFormat(0,
+                                                          cfiles[num].width * 16,
+                                                          cfiles[num].height * cfiles[num].count,
+                                                          8,
+                                                          SDL_PIXELFORMAT_INDEX8);
+
+    SDL_SetPaletteColors(object->format->palette, vp_page.ColorMap->colors, 0, NUM_AMIGA_COLORS);
+
+    if (!SDL_LockSurface(object))
+    {
+        UBYTE * sp_st = nextshape;
+        UBYTE * ob_st = object->pixels;
+        for (int c = 0; c < cfiles[num].count; c++)
+        {
+            UBYTE * sp = sp_st;
+            for (int p = 0; p < 5; p++)
+            {
+                UBYTE * dp = ob_st;
+                UBYTE   bp = 1 << p;
+                for (int v = 0; v < cfiles[num].height; v++)
+                {
+                    UBYTE bit = 0x80;
+                    for (int h = 0; h < cfiles[num].width * 16; h++)
+                    {
+                        if (*sp & bit)
+                        {
+                            dp[h] |= bp;
+                        }
+                        bit >>= 1;
+                        if (!bit)
+                        {
+                            bit = 0x80;
+                            sp++;
+                        }
+                    }
+                    dp += object->pitch;
+                }
+            }
+            ob_st += cfiles[num].width * 16 * cfiles[num].height;
+            sp_st += cfiles[num].height * cfiles[num].width * 2 * 5;        // skip mask area
+        }
+
+        sprintf(raw_asset_fname,
+                "raw_assets/shape_%d_%s_%dx%d_x%d.png",
+                num,
+                cfiles[num].debug_name,
+                cfiles[num].width * 16,
+                cfiles[num].height,
+                cfiles[num].count);
+        RUNLOGF("Saving \"%s\"...", raw_asset_fname);
+        IMG_SavePNG(object, raw_asset_fname);
+        SDL_UnlockSurface(object);
+        SDL_FreeSurface(object);
+    }
+}
+#endif
+
+#if ORIGINAL_OBJECT_DATA
 void shape_read(void)
 {
     RUNLOG("<= shape_read()");
@@ -913,68 +993,15 @@ void read_shapes(int32_t num)
     if ((nextshape + (size * 6)) <= (shape_mem + SHAPE_SZ))
     {
         load_track_range(cfiles[num].file_id, cfiles[num].numblocks, nextshape, 8);
-#define SAVE_OBJECT_PNG 1
-#if SAVE_OBJECT_PNG
-        if (TRUE)
-        {
-            SDL_Surface * object =
-                SDL_CreateRGBSurfaceWithFormat(0,
-                                               cfiles[num].width * 16,
-                                               cfiles[num].height* cfiles[num].count,
-                                               8,
-                                               SDL_PIXELFORMAT_INDEX8);
-
-            SDL_SetPaletteColors(
-                object->format->palette, vp_page.ColorMap->colors, 0, NUM_AMIGA_COLORS);
-
-            if (!SDL_LockSurface(object))
-            {
-                UBYTE * sp_st = nextshape;
-                UBYTE * ob_st = object->pixels;
-                for (int c = 0; c < cfiles[num].count; c++)
-                {
-                    UBYTE * sp = sp_st;
-                    for (int p = 0; p < 5; p++)
-                    {
-                        UBYTE * dp = ob_st;
-                        UBYTE   bp = 1 << p;
-                        for (int v = 0; v < cfiles[num].height; v++)
-                        {
-                            UBYTE bit = 0x80;
-                            for (int h = 0; h < cfiles[num].width * 16; h++)
-                            {
-                                if (*sp & bit)
-                                {
-                                    dp[h] |= bp;
-                                }
-                                bit >>= 1;
-                                if (!bit)
-                                {
-                                    bit = 0x80;
-                                    sp++;
-                                }
-                            }
-                            dp += object->pitch;
-                        }
-                    }
-                    ob_st += cfiles[num].width * 16 * cfiles[num].height;
-                    sp_st += seq_list[slot].bytes * 5;        // skip mask area
-                }
-
-
-                sprintf(raw_asset_fname,
-                        "raw_assets/shape_%d_%s_%dx%d_x%d.png",
-                        num,
-                        cfiles[num].debug_name,
-                        cfiles[num].width * 16,
-                        cfiles[num].height,
-                        cfiles[num].count);
-                RUNLOGF("Saving \"%s\"...", raw_asset_fname);
-                IMG_SavePNG(object, raw_asset_fname);
-                SDL_UnlockSurface(object);
-                SDL_FreeSurface(object);
-            }
-        }
+#if SAVE_RAW_DATA
+        sprintf(raw_asset_fname,
+                "raw_assets/shape_%d_%s_%dx%d_x%d.raw",
+                num,
+                cfiles[num].debug_name,
+                cfiles[num].width * 16,
+                cfiles[num].height,
+                cfiles[num].count);
+        save_raw_asset(raw_asset_fname, nextshape, size * 6, 1);
 #endif
         nextshape += size * 5;
         seq_list[slot].maskloc = nextshape;
@@ -985,6 +1012,70 @@ void read_shapes(int32_t num)
         RUNLOG("!!! out of shape mem for shape");
     }
 }
+#else
+// read from assets PNG files
+
+void shape_read(void)
+{
+    RUNLOG("<= shape_read() PNG");
+
+    // Xark:    nextshape = shape_mem;
+    read_shapes(3);
+    prep(OBJECTS);
+    read_shapes(brother - 1);
+    prep(PHIL);
+    read_shapes(4);
+    prep(RAFT);
+    // Xark:    seq_list[ENEMY].location = nextshape;
+    read_shapes(actor_file);
+    prep(cfiles[actor_file].seq_num);
+    read_shapes(set_file);
+    prep(SETFIG);
+    new_region = region_num;
+    load_all();
+    motor_off();
+}
+
+void read_shapes(int32_t num)
+{
+    register int32_t slot;
+    char             png_name[256];
+
+    RUNLOGF("<= read_shapes(%d) [%s] PNG", num, cfiles[num].debug_name);
+
+    slot = cfiles[num].seq_num;
+
+    seq_list[slot].bytes =
+        cfiles[num].height * cfiles[num].width * 16;        // Xark: chunky pixel size
+    //    seq_list[slot].location = nextshape;
+    seq_list[slot].width  = cfiles[num].width;
+    seq_list[slot].height = cfiles[num].height;
+    seq_list[slot].count  = cfiles[num].count;
+
+    sprintf(png_name,
+            "assets/shape_%d_%s_%dx%d_x%d.png",
+            num,
+            cfiles[num].debug_name,
+            cfiles[num].width * 16,
+            cfiles[num].height,
+            cfiles[num].count);
+
+    CHECK(NULL != (seq_list[slot].surface = IMG_Load(png_name)));
+    RUNLOGF("Loaded \"%s\".", png_name);
+
+    // if ((nextshape + (size * 6)) <= (shape_mem + SHAPE_SZ))
+    // {
+    //     load_track_range(cfiles[num].file_id, cfiles[num].numblocks, nextshape, 8);
+    //     nextshape += size * 5;
+    //     seq_list[slot].maskloc = nextshape;
+    //     nextshape += size;
+    // }
+    // else
+    // {
+    //     RUNLOG("!!! out of shape mem for shape");
+    // }
+}
+#endif
 
 #if 0
 extern struct IOExtTD *lastreq, diskreqs[10], *diskreq1;
@@ -1032,11 +1123,13 @@ void prep(int16_t slot)
 
     RUNLOGF("<= prep(%d)", slot);
 
+#if ORIGINAL_OBJECT_DATA        // Xark: not using mask
     make_mask(seq_list[slot].location,
               seq_list[slot].maskloc,
               seq_list[slot].width,
               seq_list[slot].height,
               seq_list[slot].count);
+#endif
 }
 
 void load_next(void)
@@ -1646,8 +1739,8 @@ void set_objects(struct object * list, int16_t length, int32_t f)
                 cf = setfig_table[id].cfile_entry;
                 if (cfiles[cf].file_id != cfiles[set_file].file_id)
                 {
-                    set_file  = cf;
-                    nextshape = seq_list[SETFIG].location;
+                    set_file = cf;
+                    // Xark:                    nextshape = seq_list[SETFIG].location;
                     read_shapes(cf);
                     prep(SETFIG);
                     motor_off();

@@ -159,7 +159,7 @@ void save_raw_asset(const char * fname, void * ptr, int32_t len, int appendflag)
     (void)ptr;
     (void)len;
     (void)appendflag;
-#if SAVE_RAW
+#if SAVE_RAW_DATA
     FILE * rp;
 
     RUNLOGF("<= *** save_raw_asset(\"%s\", %p, %d)", fname, ptr, len);

@@ -254,6 +254,11 @@ extern int16_t s1, s2;
 extern int16_t secret_timer, light_timer, freeze_timer;
 extern UWORD   region_num, new_region;
 
+extern struct shape anim_list[20];
+extern int16_t      anix, anix2;
+
+extern USHORT hero_x, hero_y, map_x, map_y;
+
 extern USHORT pagecolors[];
 
 extern char skipp;
@@ -341,7 +346,7 @@ int32_t      px_to_im(USHORT x, USHORT y);
 int16_t      newx(int16_t x, int16_t dir, int16_t speed);
 int16_t      newy(int16_t y, int16_t dir, int16_t speed);
 UBYTE *      mapxy(int32_t x, int32_t y);
-void         map_adjust(int32_t x, int32_t y);
+void         map_adjust(int16_t x, int16_t y);
 void         bigdraw(int32_t x, int32_t y);
 void         genmini(int32_t x, int32_t y);
 void         move(int32_t x, int32_t y);

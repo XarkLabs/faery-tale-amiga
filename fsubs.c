@@ -208,7 +208,7 @@
 //                  dc.b    XY,(160-30*4)/2,160,"Copyright 1986 MicroIllusions "
 //                  dc.b    ETX
 
-#if 0   // source code version
+#if 0        // source code version
 UBYTE titletext[] =
     "\x80\x1c\x21"        // XY, (160-26*4)/2, 33
     "\x22The Faery Tale Adventure\x22"
@@ -220,7 +220,7 @@ UBYTE titletext[] =
     "David Joiner"
     "\x80\x14\xa0"        // XY, (160-30*4)/2,160
     "Copyright 1986 MicroIllusions ";
-#else   // from released binary
+#else        // from released binary
 UBYTE titletext[] =
     "\x80\x54\x21"        // XY, (160-26*4)/2, 33
     "\x22The Faery Tale Adventure\x22"
@@ -1723,11 +1723,51 @@ int16_t wrap(int16_t v)
 //         rts
 
 // TODO: map_adjust - adjust map position
-void map_adjust(int32_t x, int32_t y)
+void map_adjust(int16_t x, int16_t y)
 {
-    (void)x;
-    (void)y;
-    RUNLOGF("<= map_adjust(%d, %d) STUB", x, y);
+    // spammy    RUNLOGF("<= map_adjust(%d, %d)", x, y);
+    x -= 144;
+    y -= 70;
+
+    int16_t x_d2 = x - map_x;
+    int16_t y_d3 = y - map_y;
+
+    x_d2 = (x_d2 << 1) >> 1;
+    y_d3 = (y_d3 << 1) >> 1;
+
+    if (x_d2 < -70)
+    {
+        map_x = x + 70;
+    }
+    else if (x_d2 > 70)
+    {
+        map_x = x - 70;
+    }
+    else if (x_d2 < -20)
+    {
+        map_x -= 1;
+    }
+    else if (x_d2 > 20)
+    {
+        map_x += 1;
+    }
+
+    if (y_d3 < -24)
+    {
+        map_y = y + 24;
+    }
+    else if (y_d3 > 44)
+    {
+        map_y = y - 44;
+    }
+    else if (y_d3 < -10)
+    {
+        map_y -= 1;
+    }
+    else if (y_d3 > 10)
+    {
+        map_y += 1;
+    }
 }
 
 //

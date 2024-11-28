@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include <SDL.h>
+#include <SDL_image.h>
 
 #define FTA_NEXGEN 1        // always defined
 

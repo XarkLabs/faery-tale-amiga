@@ -28,11 +28,6 @@ extern uint16_t xreg, yreg; /* where the region is */
 
 //  #endasm
 
-extern struct shape anim_list[20];
-extern int16_t      anix, anix2;
-
-extern USHORT hero_x, hero_y, map_x, map_y;
-
 /* motion states */
 #define WALKING  12
 #define STILL    13
@@ -918,15 +913,68 @@ void read_shapes(int32_t num)
     if ((nextshape + (size * 6)) <= (shape_mem + SHAPE_SZ))
     {
         load_track_range(cfiles[num].file_id, cfiles[num].numblocks, nextshape, 8);
-#if SAVE_RAW
-        sprintf(raw_asset_fname,
-                "raw_assets/shape_%d_%s_%dx%d_x%d.raw",
-                num,
-                cfiles[num].debug_name,
-                cfiles[num].width * 16,
-                cfiles[num].height,
-                cfiles[num].count);
-        save_raw_asset(raw_asset_fname, nextshape, size * 6, 1);
+#define SAVE_OBJECT_PNG 1
+#if SAVE_OBJECT_PNG
+        if (TRUE)
+        {
+            SDL_Surface * object =
+                SDL_CreateRGBSurfaceWithFormat(0,
+                                               cfiles[num].width * 16,
+                                               cfiles[num].height* cfiles[num].count,
+                                               8,
+                                               SDL_PIXELFORMAT_INDEX8);
+
+            SDL_SetPaletteColors(
+                object->format->palette, vp_page.ColorMap->colors, 0, NUM_AMIGA_COLORS);
+
+            if (!SDL_LockSurface(object))
+            {
+                UBYTE * sp_st = nextshape;
+                UBYTE * ob_st = object->pixels;
+                for (int c = 0; c < cfiles[num].count; c++)
+                {
+                    UBYTE * sp = sp_st;
+                    for (int p = 0; p < 5; p++)
+                    {
+                        UBYTE * dp = ob_st;
+                        UBYTE   bp = 1 << p;
+                        for (int v = 0; v < cfiles[num].height; v++)
+                        {
+                            UBYTE bit = 0x80;
+                            for (int h = 0; h < cfiles[num].width * 16; h++)
+                            {
+                                if (*sp & bit)
+                                {
+                                    dp[h] |= bp;
+                                }
+                                bit >>= 1;
+                                if (!bit)
+                                {
+                                    bit = 0x80;
+                                    sp++;
+                                }
+                            }
+                            dp += object->pitch;
+                        }
+                    }
+                    ob_st += cfiles[num].width * 16 * cfiles[num].height;
+                    sp_st += seq_list[slot].bytes * 5;        // skip mask area
+                }
+
+
+                sprintf(raw_asset_fname,
+                        "raw_assets/shape_%d_%s_%dx%d_x%d.png",
+                        num,
+                        cfiles[num].debug_name,
+                        cfiles[num].width * 16,
+                        cfiles[num].height,
+                        cfiles[num].count);
+                RUNLOGF("Saving \"%s\"...", raw_asset_fname);
+                IMG_SavePNG(object, raw_asset_fname);
+                SDL_UnlockSurface(object);
+                SDL_FreeSurface(object);
+            }
+        }
 #endif
         nextshape += size * 5;
         seq_list[slot].maskloc = nextshape;
@@ -994,7 +1042,8 @@ void prep(int16_t slot)
 void load_next(void)
 {
     if (!IsReadLastDiskIO() || CheckLastDiskIO())
-        /* if (lastreq->iotd_Req.io_Command != CMD_READ || CheckIO((struct IORequest *)lastreq)) */
+        /* if (lastreq->iotd_Req.io_Command != CMD_READ || CheckIO((struct IORequest *)lastreq))
+         */
         load_new_region();
 }
 

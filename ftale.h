@@ -7,10 +7,16 @@
 
 #define FTA_NEXGEN 1        // always defined
 
-#define ORIGINAL_OBJECT_DATA 0        // read old data and save as PNG
+#define ORIGINAL_OBJECT_DATA 0        // read old game object data
 #if ORIGINAL_OBJECT_DATA
-#define SAVE_RAW_DATA 0        // save RAW game assets
-#define SAVE_PNG_DATA 0        // save shape PNGs
+#define SAVE_RAW_SHAPE_DATA  0
+#define SAVE_PNG_OBJECT_DATA 0        // export object data as PNGs
+#endif
+
+#define ORIGINAL_MAP_DATA 1        // read old game map data and save as PNG
+#if ORIGINAL_MAP_DATA
+#define SAVE_RAW_MAP_DATA 0
+#define SAVE_PNG_MAP_DATA 0        // save shape PNGs
 #endif
 
 #include "amigaos.h"        // Xark: most AmigaOS includes (like "amiga39.pre")
@@ -456,6 +462,8 @@ uint16_t  swap_endian16(uint16_t v);
 SDL_Color amiga_color(UWORD color);
 void      print_surface_info(char * msg, SDL_Surface * s);
 void      save_raw_asset(const char * fname, void * ptr, int32_t len, int appendflag);
+void      save_png_1bpp_asset(char * fname, void * ptr, int w, int h);
+void      save_png_5bpp_asset(char * fname, void * ptr, int w, int h);
 int       sdl_init(void);
 void      sdl_exit(int retval) __attribute__((noreturn));
 void      sdl_update_cursor(struct ViewPort * vp);

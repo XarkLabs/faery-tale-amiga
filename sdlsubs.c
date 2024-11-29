@@ -153,25 +153,6 @@ const char * c_string(const char * s, int maxlen)
     return str;
 }
 
-void save_raw_asset(const char * fname, void * ptr, int32_t len, int appendflag)
-{
-    (void)fname;
-    (void)ptr;
-    (void)len;
-    (void)appendflag;
-#if SAVE_RAW_DATA
-    FILE * rp;
-
-    RUNLOGF("<= *** save_raw_asset(\"%s\", %p, %d)", fname, ptr, len);
-
-    if ((rp = fopen(fname, appendflag ? "w+" : "w")) != NULL)
-    {
-        CHECK(1 == fwrite(ptr, len, 1, rp));
-
-        fclose(rp);
-    }
-#endif
-}
 
 int sdl_init(void)
 {
@@ -229,8 +210,7 @@ int sdl_init(void)
     // This small loop lets SDL2 process some initial events (like controllers)
     for (int f = 0; f < 30; f++)
     {
-        SDL_SetRenderDrawColor(
-            sdl_renderer, 0x00, 0x00, 0x00, 255);
+        SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0x00, 0x00, 255);
         SDL_RenderClear(sdl_renderer);
         SDL_RenderPresent(sdl_renderer);
         sdl_pump();
@@ -956,5 +936,103 @@ void sdl_extract_bitplane(SDL_Surface * dest, UBYTE * planedata, UBYTE planemask
     }
 }
 
+void save_raw_asset(const char * fname, void * ptr, int32_t len, int appendflag)
+{
+    (void)fname;
+    (void)ptr;
+    (void)len;
+    FILE * rp;
 
+    RUNLOGF("<= *** save_raw_asset(\"%s\", %p, %d)", fname, ptr, len);
+
+    if ((rp = fopen(fname, appendflag ? "a" : "w")) != NULL)
+    {
+        CHECK(1 == fwrite(ptr, len, 1, rp));
+
+        fclose(rp);
+    }
+}
+
+void save_png_1bpp_asset(char * fname, void * ptr, int width, int height)
+{
+    SDL_Surface * s = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
+    s->format->palette->colors[0].r = 0x0;
+    s->format->palette->colors[0].g = 0x0;
+    s->format->palette->colors[0].b = 0x0;
+    s->format->palette->colors[0].a = 0xff;
+
+    s->format->palette->colors[1].r = 0xff;
+    s->format->palette->colors[1].g = 0xff;
+    s->format->palette->colors[1].b = 0xff;
+    s->format->palette->colors[1].a = 0xff;
+
+    if (!SDL_LockSurface(s))
+    {
+        UBYTE * sp = ptr;
+        UBYTE * dp = s->pixels;
+        for (int v = 0; v < height; v++)
+        {
+            UBYTE bit = 0x80;
+            for (int h = 0; h < width; h++)
+            {
+                if (*sp & bit)
+                {
+                    dp[h] = 0x1;
+                }
+                bit >>= 1;
+                if (!bit)
+                {
+                    bit = 0x80;
+                    sp++;
+                }
+            }
+            dp += s->pitch;
+        }
+        SDL_UnlockSurface(s);
+    }
+
+    RUNLOGF("Saving \"%s\"...", fname);
+    IMG_SavePNG(s, fname);
+    SDL_FreeSurface(s);
+}
+
+// WIP
+void save_png_5bpp_asset(char * fname, void * ptr, int width, int height)
+{
+    SDL_Surface * s = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
+    SDL_SetPaletteColors(s->format->palette, vp_page.ColorMap->colors, 0, NUM_AMIGA_COLORS);
+
+    if (!SDL_LockSurface(s))
+    {
+        UBYTE * sp = ptr;
+        for (int p = 0; p < 5; p++)
+        {
+            UBYTE   bp = 1 << p;
+            UBYTE * dp = s->pixels;
+            for (int v = 0; v < height; v++)
+            {
+                UBYTE bit = 0x80;
+                for (int h = 0; h < width; h++)
+                {
+                    if (*sp & bit)
+                    {
+                        dp[h] |= bp;
+                    }
+                    bit >>= 1;
+                    if (!bit)
+                    {
+                        bit = 0x80;
+                        sp++;
+                    }
+                }
+                dp += s->pitch;
+            }
+        }
+        SDL_UnlockSurface(s);
+    }
+
+    RUNLOGF("Saving \"%s\"...", fname);
+    IMG_SavePNG(s, fname);
+    SDL_FreeSurface(s);
+}
 // EOF

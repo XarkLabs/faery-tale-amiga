@@ -678,8 +678,8 @@ UWORD new_region;
 UWORD lregion;
 UWORD region_num = 3;
 
-struct need current_loads  = {{0, 0, 0, 0}, 1, 2, 0, 0, 0, "?"};
-struct need file_index[10] = {
+struct need current_loads         = {{0, 0, 0, 0}, 1, 2, 0, 0, 0, "?"};
+struct need file_index[NO_REGION] = {
     {{320, 480, 520, 560}, 0, 1, 32, 160, 22, "Snowy-Region"},      /* F1 - snowy region */
     {{320, 360, 400, 440}, 2, 3, 32, 160, 21, "Witch-Woods"},       /* F2 - witch wood */
     {{320, 360, 520, 560}, 2, 1, 32, 168, 22, "Swamp-Region"},      /* F3 - swampy region */
@@ -1293,8 +1293,13 @@ int main(int argc, char ** argv)
     struct shape *   an;
     int              res = 0;
 
-    (void)argc;
-    (void)argv;
+    for (int a = 1; a < argc; a++)
+    {
+        if (strncmp("-f", argv[a], 2) == 0)
+        {
+            cheat2 = TRUE;
+        }
+    }
 
     res = sdl_init();
     if (res)
@@ -1430,7 +1435,13 @@ no_intro:
     LoadRGB4(&vp_text, blackcolors, 32);
     screen_size(156);
     load_track_range(896, 24, shadow_mem, 0);
+#if SAVE_RAW_MAP_DATA
     save_raw_asset("raw_assets/shadow_mem_gfx.raw", shadow_mem, 24 * 512, 0);
+#endif
+#if SAVE_PNG_MAP_DATA
+    save_png_1bpp_asset(
+        "raw_assets/shadow_mem_gfx.png", shadow_mem, 16, 32 * 192);        // 2x32 words * 192 tiles
+#endif
 
     // unpackbrush("game/hiscreen", bm_text, 0, 0);
     unpack_png("assets/hiscreen.png", bm_text, 0, 0);
@@ -1484,7 +1495,7 @@ no_intro:
     cmode = 0;
     print_options();
 
-#if SAVE_PNG_DATA
+#if SAVE_PNG_OBJECT_DATA
     save_objects();
     sdl_exit(0);
 #endif
@@ -5078,38 +5089,54 @@ void load_new_region(void)
     if (nd->sector != current_loads.sector)
     {
         load_track_range(nd->sector, 64, sector_mem, 0);
-#if SAVE_RAW_DATA
+#if SAVE_RAW_MAP_DATA
         sprintf(raw_asset_fname, "raw_assets/sector_%03d_%s.raw", nd->sector, nd->debug_name);
         save_raw_asset(raw_asset_fname, sector_mem, 64 * 512, 0);
 #endif
         current_loads.sector = nd->sector;
     }
+    else
+    {
+        RUNLOGF("... nd->sector == current_loads.sector == %d [%s]", nd->sector, nd->debug_name);
+    }
     if (nd->region != current_loads.region)
     {
         load_track_range(nd->region, 8, map_mem, 0);
-#if SAVE_RAW_DATA
+#if SAVE_RAW_MAP_DATA
         sprintf(raw_asset_fname, "raw_assets/map_%03d_%s.raw", nd->region, nd->debug_name);
         save_raw_asset(raw_asset_fname, map_mem, 8 * 512, 0);
 #endif
         current_loads.region = nd->region;
     }
+    else
+    {
+        RUNLOGF("... nd->region == current_loads.region == %d [%s]", nd->region, nd->debug_name);
+    }
     if (nd->terra1 != current_loads.terra1)
     {
         load_track_range(TERRA_BLOCK + nd->terra1, 1, terra_mem, 1);
-#if SAVE_RAW_DATA
+#if SAVE_RAW_MAP_DATA
         sprintf(raw_asset_fname, "raw_assets/terrain_%03d_%s.raw", nd->terra1, nd->debug_name);
         save_raw_asset(raw_asset_fname, terra_mem, 1 * 512, 0);
 #endif
         current_loads.terra1 = nd->terra1;
     }
+    else
+    {
+        RUNLOGF("... nd->terra1 == current_loads.terra1 == %d [%s]", nd->terra1, nd->debug_name);
+    }
     if (nd->terra2 != current_loads.terra2)
     {
         load_track_range(TERRA_BLOCK + nd->terra2, 1, terra_mem + 512, 2);
-#if SAVE_RAW_DATA
+#if SAVE_RAW_MAP_DATA
         sprintf(raw_asset_fname, "raw_assets/terrain_%03d_%s.raw", nd->terra2, nd->debug_name);
         save_raw_asset(raw_asset_fname, terra_mem + 512, 1 * 512, 0);
 #endif
         current_loads.terra2 = nd->terra2;
+    }
+    else
+    {
+        RUNLOGF("... nd->terra2 == current_loads.terra2 == %d [%s]", nd->terra2, nd->debug_name);
     }
     imem0 = image_mem;
     for (i = 0; i < 4; i++)
@@ -5118,33 +5145,46 @@ void load_new_region(void)
         {
             imem = imem0;
             load_track_range(nd->image[i] + 0, 8, imem, 3);
-#if SAVE_RAW_DATA
+#if SAVE_RAW_MAP_DATA
             sprintf(raw_asset_fname, "raw_assets/image_%03d_%s.raw", nd->image[i], nd->debug_name);
             save_raw_asset(raw_asset_fname, imem, 8 * 512, 0);
 #endif
             imem += IPLAN_SZ;
             load_track_range(nd->image[i] + 8, 8, imem, 4);
-#if SAVE_RAW_DATA
+#if SAVE_RAW_MAP_DATA
             save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
 #endif
             imem += IPLAN_SZ;
             load_track_range(nd->image[i] + 16, 8, imem, 5);
-#if SAVE_RAW_DATA
+#if SAVE_RAW_MAP_DATA
             save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
 #endif
             imem += IPLAN_SZ;
             load_track_range(nd->image[i] + 24, 8, imem, 6);
-#if SAVE_RAW_DATA
+#if SAVE_RAW_MAP_DATA
             save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
 #endif
             imem += IPLAN_SZ;
             load_track_range(nd->image[i] + 32, 8, imem, 7);
-#if SAVE_RAW_DATA
+#if SAVE_RAW_MAP_DATA
             save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
+#endif
+
+#if SAVE_PNG_MAP_DATA
+            sprintf(raw_asset_fname, "raw_assets/image_%03d_%s.png", nd->image[i], nd->debug_name);
+            save_png_5bpp_asset(raw_asset_fname, imem0, 16, 32 * 256);
 #endif
             current_loads.image[i] = nd->image[i];
             return;
         }
+        else
+        {
+            RUNLOGF("... nd->image[i] == current_loads.image[i] == [%d]%d [%s]",
+                    i,
+                    nd->image[i],
+                    nd->debug_name);
+        }
+
         imem0 += QPLAN_SZ;
     }
 

@@ -15,9 +15,12 @@
         "Katra",
         "Marheim",
         "Pixle",
+        "Talin",
         "Tambry",
-        "Vermillion"
+        "Vermillion",
+        "Xark"
     ],
-    "cSpell.diagnosticLevel": "Hint"
+    "cSpell.diagnosticLevel": "Hint",
+    "editor.formatOnSave": true
 
 }

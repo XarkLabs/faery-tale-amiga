@@ -874,7 +874,7 @@ extern uint16_t safe_r;
 
 extern int16_t actor_file, set_file;
 
-#if SAVE_PNG_DATA
+#if SAVE_PNG_OBJECT_DATA
 void save_objects(void)
 {
     LoadRGB4(&vp_page, pagecolors, 32);
@@ -1013,7 +1013,7 @@ void read_shapes(int32_t num)
     if ((nextshape + (size * 6)) <= (shape_mem + SHAPE_SZ))
     {
         load_track_range(cfiles[num].file_id, cfiles[num].numblocks, nextshape, 8);
-#if SAVE_RAW_DATA
+#if SAVE_RAW_SHAPE_DATA
         sprintf(raw_asset_fname,
                 "raw_assets/shape_%d_%s_%dx%d_x%d.raw",
                 num,

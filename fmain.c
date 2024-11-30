@@ -1436,11 +1436,11 @@ no_intro:
     screen_size(156);
     load_track_range(896, 24, shadow_mem, 0);
 #if SAVE_RAW_MAP_DATA
-    save_raw_asset("raw_assets/shadow_mem_gfx.raw", shadow_mem, 24 * 512, 0);
+    save_raw_asset("raw_assets/shadow_mem.raw", shadow_mem, 24 * 512, 0);
 #endif
 #if SAVE_PNG_MAP_DATA
     save_png_1bpp_asset(
-        "raw_assets/shadow_mem_gfx.png", shadow_mem, 16, 32 * 192);        // 2x32 words * 192 tiles
+        "raw_assets/shadow_mem.png", shadow_mem, 16, 32 * 192);        // 2x32 words * 192 tiles
 #endif
 
     // unpackbrush("game/hiscreen", bm_text, 0, 0);

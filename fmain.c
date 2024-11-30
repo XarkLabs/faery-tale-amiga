@@ -1500,6 +1500,15 @@ no_intro:
     sdl_exit(0);
 #endif
 
+#if SAVE_PNG_MAP_DATA
+    for (int r = 0; r < NO_REGION; r++)
+    {
+        new_region = r;
+        load_all();
+    }
+    sdl_exit(0);
+#endif
+
     /* main program loop */
     RUNLOG("*** FTA main loop ***");
 

@@ -1000,6 +1000,7 @@ void save_png_1bpp_asset(char * fname, void * ptr, int width, int height)
 void save_png_5bpp_asset(char * fname, void * ptr, int width, int height)
 {
     SDL_Surface * s = SDL_CreateRGBSurfaceWithFormat(0, width, height, 8, SDL_PIXELFORMAT_INDEX8);
+    LoadRGB4(&vp_page, pagecolors, 32);
     SDL_SetPaletteColors(s->format->palette, vp_page.ColorMap->colors, 0, NUM_AMIGA_COLORS);
 
     if (!SDL_LockSurface(s))

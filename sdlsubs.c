@@ -13,6 +13,7 @@
 #define DEBUG_WINDOW 0
 
 char raw_asset_fname[128];
+char asset_fname[128];
 
 BOOL    big_endian;
 BOOL    sdl_quit;
@@ -1036,4 +1037,16 @@ void save_png_5bpp_asset(char * fname, void * ptr, int width, int height)
     IMG_SavePNG(s, fname);
     SDL_FreeSurface(s);
 }
+
+#if 0
+void load_bin_asset(char * fname, UBYTE * mem, int size)
+{
+    FILE * fp;
+    CHECK(NULL != (fp = fopen(fname, "r")));
+    if (fp)
+    {
+    }
+}
+#endif
+
 // EOF

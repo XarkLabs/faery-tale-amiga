@@ -7,13 +7,13 @@
 
 #define FTA_NEXGEN 1        // always defined
 
-#define ORIGINAL_OBJECT_DATA 0        // read old game object data
+#define ORIGINAL_OBJECT_DATA 0        // read old game object data (else PNGs)
 #if ORIGINAL_OBJECT_DATA
 #define SAVE_RAW_SHAPE_DATA  0
 #define SAVE_PNG_OBJECT_DATA 0        // export object data as PNGs
 #endif
 
-#define ORIGINAL_MAP_DATA 1        // read old game map data and save as PNG
+#define ORIGINAL_MAP_DATA 1        // read old game map data (else PNGs + bin files)
 #if ORIGINAL_MAP_DATA
 #define SAVE_RAW_MAP_DATA 0
 #define SAVE_PNG_MAP_DATA 0        // save shape PNGs
@@ -445,6 +445,7 @@ void UnMakeBitMap(struct BitMap * b);
 // sdlsubs.c
 extern BOOL  big_endian;
 extern char  raw_asset_fname[128];
+extern char  asset_fname[128];
 extern float sdl_window_scale;
 extern BOOL  sdl_quit;
 extern BOOL  sdl_screenshot;
@@ -486,7 +487,7 @@ void      sdl_blitsurface8_or_bitplane(SDL_Surface * src,
                                        SDL_Rect *    dr,
                                        UBYTE         planebyte);
 void      sdl_extract_bitplane(SDL_Surface * dest, UBYTE * planedata, UBYTE planemask);
-
+void      load_bin_asset(char * fname, UBYTE * mem, int size);
 
 void sdl_pump(void);
 BOOL unpack_png(char * filename, struct BitMap * bitmap, int16_t wx, int16_t y);

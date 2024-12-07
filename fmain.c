@@ -5083,6 +5083,7 @@ void load_all(void)
         load_new_region();
 }
 
+#if ORIGINAL_MAP_DATA
 void load_new_region(void)
 {
     register struct need * nd;
@@ -5099,7 +5100,7 @@ void load_new_region(void)
     {
         load_track_range(nd->sector, 64, sector_mem, 0);
 #if SAVE_RAW_MAP_DATA
-        sprintf(raw_asset_fname, "raw_assets/sector_%03d_%s.raw", nd->sector, nd->debug_name);
+        sprintf(raw_asset_fname, "raw_assets/sector_%03d.raw", nd->sector);
         save_raw_asset(raw_asset_fname, sector_mem, 64 * 512, 0);
 #endif
         current_loads.sector = nd->sector;
@@ -5112,7 +5113,7 @@ void load_new_region(void)
     {
         load_track_range(nd->region, 8, map_mem, 0);
 #if SAVE_RAW_MAP_DATA
-        sprintf(raw_asset_fname, "raw_assets/map_%03d_%s.raw", nd->region, nd->debug_name);
+        sprintf(raw_asset_fname, "raw_assets/map_%03d.raw", nd->region);
         save_raw_asset(raw_asset_fname, map_mem, 8 * 512, 0);
 #endif
         current_loads.region = nd->region;
@@ -5125,9 +5126,144 @@ void load_new_region(void)
     {
         load_track_range(TERRA_BLOCK + nd->terra1, 1, terra_mem, 1);
 #if SAVE_RAW_MAP_DATA
-        sprintf(raw_asset_fname, "raw_assets/terrain_%03d_%s.raw", nd->terra1, nd->debug_name);
+        sprintf(raw_asset_fname, "raw_assets/terrain_%02d.raw", nd->terra1);
         save_raw_asset(raw_asset_fname, terra_mem, 1 * 512, 0);
 #endif
+        current_loads.terra1 = nd->terra1;
+    }
+    else
+    {
+        RUNLOGF("... nd->terra1 == current_loads.terra1 == %d", nd->terra1);
+    }
+    if (nd->terra2 != current_loads.terra2)
+    {
+        load_track_range(TERRA_BLOCK + nd->terra2, 1, terra_mem + 512, 2);
+#if SAVE_RAW_MAP_DATA
+        sprintf(raw_asset_fname, "raw_assets/terrain_%02d.raw", nd->terra2);
+        save_raw_asset(raw_asset_fname, terra_mem + 512, 1 * 512, 0);
+#endif
+        current_loads.terra2 = nd->terra2;
+    }
+    else
+    {
+        RUNLOGF("... nd->terra2 == current_loads.terra2 == %d", nd->terra2);
+    }
+    imem0 = image_mem;
+    for (i = 0; i < 4; i++)
+    {
+        if (nd->image[i] != current_loads.image[i])
+        {
+            imem = imem0;
+            load_track_range(nd->image[i] + 0, 8, imem, 3);
+#if SAVE_RAW_MAP_DATA
+            sprintf(raw_asset_fname, "raw_assets/image_%03d.raw", nd->image[i]);
+            save_raw_asset(raw_asset_fname, imem, 8 * 512, 0);
+#endif
+            imem += IPLAN_SZ;
+            load_track_range(nd->image[i] + 8, 8, imem, 4);
+#if SAVE_RAW_MAP_DATA
+            save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
+#endif
+            imem += IPLAN_SZ;
+            load_track_range(nd->image[i] + 16, 8, imem, 5);
+#if SAVE_RAW_MAP_DATA
+            save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
+#endif
+            imem += IPLAN_SZ;
+            load_track_range(nd->image[i] + 24, 8, imem, 6);
+#if SAVE_RAW_MAP_DATA
+            save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
+#endif
+            imem += IPLAN_SZ;
+            load_track_range(nd->image[i] + 32, 8, imem, 7);
+#if SAVE_RAW_MAP_DATA
+            save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
+#endif
+
+#if SAVE_PNG_MAP_DATA
+            sprintf(raw_asset_fname, "raw_assets/image_%03d.png", nd->image[i]);
+            save_png_5bpp_asset(raw_asset_fname, imem0, 16, 32 * 256);
+#endif
+            current_loads.image[i] = nd->image[i];
+            return;
+        }
+        else
+        {
+            RUNLOGF("... nd->image[i] == current_loads.image[i] == [%d]%d [%s]",
+                    i,
+                    nd->image[i],
+                    nd->debug_name);
+        }
+
+        imem0 += QPLAN_SZ;
+    }
+
+    if (new_region == 4 && stuff[STATBASE] < 5) /* are we in desert sector */
+    {
+        i          = ((11 * 128) + 26);
+        map_mem[i] = map_mem[i + 1] = map_mem[i + 128] = map_mem[i + 129] = 254;
+    }
+
+    //     for (i = 0; i < 7; i++)
+    //     {
+    // #if 1
+    //         if (IsReadDiskIO(i))
+    //             WaitDiskIO(i);
+    //         InvalidDiskIO(i);
+    // #else
+    //         lastreq = &(diskreqs[i]);
+    //         if (lastreq->iotd_Req.io_Command == CMD_READ)
+    //             WaitIO((struct IORequest *)lastreq);
+    //         lastreq->iotd_Req.io_Command = CMD_INVALID;
+    // #endif
+    //     }
+    //
+    //     motor_off();
+
+    region_num = new_region;
+    new_region = NO_REGION;
+}
+#else
+// load map tile images from PNG
+// TODO: map sections from bin files
+void load_new_region(void)
+{
+    register struct need * nd;
+    register int32_t       i;
+
+    RUNLOGF(
+        "<= load_new_region() [region %03d %s] PNG", new_region, file_index[new_region].debug_name);
+
+    if (MAP_STABLE)
+        return;
+    nd = &(file_index[new_region]);
+    if (nd->sector != current_loads.sector)
+    {
+        //        load_track_range(nd->sector, 64, sector_mem, 0);
+        sprintf(asset_fname, "assets/sector_%03d_%s.raw", nd->sector, nd->debug_name);
+        load_bin_asset(asset_fname, sector_mem, 64 * 512);
+        current_loads.sector = nd->sector;
+    }
+    else
+    {
+        RUNLOGF("... nd->sector == current_loads.sector == %d [%s]", nd->sector, nd->debug_name);
+    }
+    if (nd->region != current_loads.region)
+    {
+        //        load_track_range(nd->region, 8, map_mem, 0);
+        sprintf(asset_fname, "assets/map_%03d_%s.raw", nd->region, nd->debug_name);
+        load_bin_asset(asset_fname, map_mem, 8 * 512);
+        current_loads.region = nd->region;
+    }
+    else
+    {
+        RUNLOGF("... nd->region == current_loads.region == %d [%s]", nd->region, nd->debug_name);
+    }
+    if (nd->terra1 != current_loads.terra1)
+    {
+        //        load_track_range(TERRA_BLOCK + nd->terra1, 1, terra_mem, 1);
+        sprintf(asset_fname, "assets/terrain_%03d_%s.raw", nd->terra1, nd->debug_name);
+        load_bin_asset(asset_fname, terra_mem, 1 * 512);
         current_loads.terra1 = nd->terra1;
     }
     else
@@ -5222,6 +5358,7 @@ void load_new_region(void)
     region_num = new_region;
     new_region = NO_REGION;
 }
+#endif
 
 void effect(int16_t num, int32_t speed)
 {

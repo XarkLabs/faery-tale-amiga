@@ -695,7 +695,11 @@ struct need file_index[NO_REGION] = {
 struct TextFont * tfont;        // topaz font
 struct TextFont * afont;        // amber font
 
+#if ORIGINAL_MAP_DATA
 uint8_t * image_mem;
+#else
+SDL_Surface * image_surface[4];
+#endif
 uint8_t * sector_mem;
 uint8_t * map_mem;
 uint8_t * shadow_mem;
@@ -983,8 +987,10 @@ int open_all(void)
     init_music(new_wave, wavmem, volmem);
     SETFN(AL_MUSIC);
 
+#if ORIGINAL_MAP_DATA
     if ((image_mem = AllocMem(IMAGE_SZ, MEMF_CHIP)) == NULL)
         return 6;
+#endif
     SETFN(AL_IMAGE);
     if ((sector_mem = AllocMem(SECTOR_SZ, MEMF_CHIP)) == NULL)
         return 7;
@@ -1037,8 +1043,10 @@ int close_all(void)
         FreeMem(shape_mem, SHAPE_SZ);
     if (TSTFN(AL_SECTOR))
         FreeMem(sector_mem, SECTOR_SZ);
+#if ORIGINAL_MAP_DATA
     if (TSTFN(AL_IMAGE))
         FreeMem(image_mem, IMAGE_SZ);
+#endif
     if (TSTFN(AL_MUSIC))
     {
         wrap_music();
@@ -5240,7 +5248,7 @@ void load_new_region(void)
     if (nd->sector != current_loads.sector)
     {
         //        load_track_range(nd->sector, 64, sector_mem, 0);
-        sprintf(asset_fname, "assets/sector_%03d_%s.raw", nd->sector, nd->debug_name);
+        sprintf(asset_fname, "assets/sector_%03d.bin", nd->sector);
         load_bin_asset(asset_fname, sector_mem, 64 * 512);
         current_loads.sector = nd->sector;
     }
@@ -5251,7 +5259,7 @@ void load_new_region(void)
     if (nd->region != current_loads.region)
     {
         //        load_track_range(nd->region, 8, map_mem, 0);
-        sprintf(asset_fname, "assets/map_%03d_%s.raw", nd->region, nd->debug_name);
+        sprintf(asset_fname, "assets/map_%03d.bin", nd->region);
         load_bin_asset(asset_fname, map_mem, 8 * 512);
         current_loads.region = nd->region;
     }
@@ -5262,7 +5270,7 @@ void load_new_region(void)
     if (nd->terra1 != current_loads.terra1)
     {
         //        load_track_range(TERRA_BLOCK + nd->terra1, 1, terra_mem, 1);
-        sprintf(asset_fname, "assets/terrain_%03d_%s.raw", nd->terra1, nd->debug_name);
+        sprintf(asset_fname, "assets/terrain_%02d.bin", nd->terra1);
         load_bin_asset(asset_fname, terra_mem, 1 * 512);
         current_loads.terra1 = nd->terra1;
     }
@@ -5272,66 +5280,41 @@ void load_new_region(void)
     }
     if (nd->terra2 != current_loads.terra2)
     {
-        load_track_range(TERRA_BLOCK + nd->terra2, 1, terra_mem + 512, 2);
-#if SAVE_RAW_MAP_DATA
-        sprintf(raw_asset_fname, "raw_assets/terrain_%03d_%s.raw", nd->terra2, nd->debug_name);
-        save_raw_asset(raw_asset_fname, terra_mem + 512, 1 * 512, 0);
-#endif
+        //        load_track_range(TERRA_BLOCK + nd->terra2, 1, terra_mem + 512, 2);
+        sprintf(asset_fname, "assets/terrain_%02d.bin", nd->terra2);
+        load_bin_asset(asset_fname, terra_mem + 512, 1 * 512);
         current_loads.terra2 = nd->terra2;
     }
     else
     {
         RUNLOGF("... nd->terra2 == current_loads.terra2 == %d [%s]", nd->terra2, nd->debug_name);
     }
-    imem0 = image_mem;
+
     for (i = 0; i < 4; i++)
     {
         if (nd->image[i] != current_loads.image[i])
         {
-            imem = imem0;
-            load_track_range(nd->image[i] + 0, 8, imem, 3);
-#if SAVE_RAW_MAP_DATA
-            sprintf(raw_asset_fname, "raw_assets/image_%03d_%s.raw", nd->image[i], nd->debug_name);
-            save_raw_asset(raw_asset_fname, imem, 8 * 512, 0);
-#endif
-            imem += IPLAN_SZ;
-            load_track_range(nd->image[i] + 8, 8, imem, 4);
-#if SAVE_RAW_MAP_DATA
-            save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
-#endif
-            imem += IPLAN_SZ;
-            load_track_range(nd->image[i] + 16, 8, imem, 5);
-#if SAVE_RAW_MAP_DATA
-            save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
-#endif
-            imem += IPLAN_SZ;
-            load_track_range(nd->image[i] + 24, 8, imem, 6);
-#if SAVE_RAW_MAP_DATA
-            save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
-#endif
-            imem += IPLAN_SZ;
-            load_track_range(nd->image[i] + 32, 8, imem, 7);
-#if SAVE_RAW_MAP_DATA
-            save_raw_asset(raw_asset_fname, imem, 8 * 512, 1);
-#endif
+            if (image_surface[i] != NULL)
+            {
+                SDL_FreeSurface(image_surface[i]);
+                image_surface[i] = NULL;
+            }
+            sprintf(asset_fname, "assets/image_%03d.png", nd->image[i]);
+            RUNLOGF("... Loading PNG \"%s\"", asset_fname);
+            CHECK(NULL != (image_surface[i] = IMG_Load(asset_fname)));
 
-#if SAVE_PNG_MAP_DATA
-            sprintf(raw_asset_fname, "raw_assets/image_%03d_%s.png", nd->image[i], nd->debug_name);
-            save_png_5bpp_asset(raw_asset_fname, imem0, 16, 32 * 256);
-#endif
             current_loads.image[i] = nd->image[i];
             return;
         }
         else
         {
-            RUNLOGF("... nd->image[i] == current_loads.image[i] == [%d]%d [%s]",
+            RUNLOGF("... nd->image[i] == current_loads.image[i] == [%d] == %d [%s]",
                     i,
                     nd->image[i],
                     nd->debug_name);
         }
-
-        imem0 += QPLAN_SZ;
     }
+
 
     if (new_region == 4 && stuff[STATBASE] < 5) /* are we in desert sector */
     {

@@ -1038,15 +1038,16 @@ void save_png_5bpp_asset(char * fname, void * ptr, int width, int height)
     SDL_FreeSurface(s);
 }
 
-#if 0
 void load_bin_asset(char * fname, UBYTE * mem, int size)
 {
     FILE * fp;
     CHECK(NULL != (fp = fopen(fname, "r")));
     if (fp)
     {
+        CHECK(1 == fread(mem, size, 1, fp));
+        RUNLOGF("Loaded BIN file \"%s\" @%p, %d", fname, mem, size);
+        fclose(fp);
     }
 }
-#endif
 
 // EOF

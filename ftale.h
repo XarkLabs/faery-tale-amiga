@@ -13,10 +13,10 @@
 #define SAVE_PNG_OBJECT_DATA 0        // export object data as PNGs
 #endif
 
-#define ORIGINAL_MAP_DATA 1        // read old game map data (else PNGs + bin files)
+#define ORIGINAL_MAP_DATA 0        // read old game map data (else PNGs + bin files)
 #if ORIGINAL_MAP_DATA
-#define SAVE_RAW_MAP_DATA 0
-#define SAVE_PNG_MAP_DATA 0        // save shape PNGs
+#define SAVE_RAW_MAP_DATA 0        // export map binaries
+#define SAVE_PNG_MAP_DATA 0        // export shape PNGs
 #endif
 
 #include "amigaos.h"        // Xark: most AmigaOS includes (like "amiga39.pre")

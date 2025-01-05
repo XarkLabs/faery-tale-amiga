@@ -897,6 +897,7 @@ int32_t px_to_im(USHORT x, USHORT y)
 //         movem.l        (sp)+,d1-d3/a0-a1
 //         rts
 //
+
 // ; this routine blits the map characters onto the screen
 // ;        d1-d4 are offsets
 // ;        d5 is screen plane offset
@@ -973,14 +974,6 @@ int32_t px_to_im(USHORT x, USHORT y)
 //         movem.l    (sp)+,d0-d7/a0-a6
 //         rts
 //
-
-// TODO: map_draw - render map
-void map_draw(void)
-{
-    RUNLOG("<= map_draw() STUB");
-    SetRast(&rp_map, 24);        // TEMP
-}
-
 //
 // ; this will be a long set of in-line code
 //
@@ -1034,6 +1027,37 @@ void map_draw(void)
 //         clr.l    d7
 //         rts
 //
+
+
+// map_draw - render map
+void map_draw(void)
+{
+    RUNLOG("<= map_draw()");
+    //    SetRast(&rp_map, 24);        // TEMP
+
+    int16_t * mapptr = minimap;
+    int       dummy  = 0;
+    for (int xc = 0; xc < 38; xc += 2)
+    {
+        // next_strip()
+        for (int yc = 0; yc < 6; yc++)
+        {
+            // next_image()
+            int16_t img  = dummy++;        //*mapptr++; TODO: real map data
+            int16_t inum = img >> 6;
+            (void)mapptr;
+            (void)img;
+
+            SDL_Rect sr = {0, img * 32, 16, 32};
+            SDL_Rect dr = {xc * 8, yc * 32, 16, 32};
+
+
+            sdl_blitsurface8(image_surface[inum], &sr, rp_map.BitMap->Surface, &dr);
+        }
+    }
+}
+
+
 //         public    _strip_draw
 // _strip_draw
 //         movem.l    d0-d7/a0-a6,-(sp)

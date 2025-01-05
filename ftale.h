@@ -292,6 +292,8 @@ extern char skipp;
 
 extern UBYTE titletext[];
 
+extern SDL_Surface * image_surface[4];
+
 extern struct View     v;
 extern struct ViewPort vp_page;
 extern struct ViewPort vp_text;

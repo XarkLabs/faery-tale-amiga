@@ -1028,35 +1028,34 @@ int32_t px_to_im(USHORT x, USHORT y)
 //         rts
 //
 
+// next_strip - render column of map
+int16_t * next_strip(int16_t * mapptr, int32_t strip)
+{
+    for (int yc = 0; yc < 6; yc++)
+    {
+        // next_image()
+        int16_t img  = *mapptr++;
+        int16_t inum = img >> 6;
+
+        SDL_Rect sr = {0, img * 32, 16, 32};
+        SDL_Rect dr = {strip * 8, yc * 32, 16, 32};
+
+        sdl_blitsurface8(image_surface[inum], &sr, rp_map.BitMap->Surface, &dr);
+    }
+    return mapptr;
+}
 
 // map_draw - render map
 void map_draw(void)
 {
     RUNLOG("<= map_draw()");
-    //    SetRast(&rp_map, 24);        // TEMP
 
     int16_t * mapptr = minimap;
-    int       dummy  = 0;
     for (int xc = 0; xc < 38; xc += 2)
     {
-        // next_strip()
-        for (int yc = 0; yc < 6; yc++)
-        {
-            // next_image()
-            int16_t img  = dummy++;        //*mapptr++; TODO: real map data
-            int16_t inum = img >> 6;
-            (void)mapptr;
-            (void)img;
-
-            SDL_Rect sr = {0, img * 32, 16, 32};
-            SDL_Rect dr = {xc * 8, yc * 32, 16, 32};
-
-
-            sdl_blitsurface8(image_surface[inum], &sr, rp_map.BitMap->Surface, &dr);
-        }
+        mapptr = next_strip(mapptr, xc);
     }
 }
-
 
 //         public    _strip_draw
 // _strip_draw
@@ -1098,8 +1097,10 @@ void map_draw(void)
 // TODO: strip_draw - draw an entire column of map for x scroll
 void strip_draw(int32_t s)
 {
-    (void)s;
-    RUNLOGF("<= strip_draw(%d) STUB", s);
+    RUNLOGF("<= strip_draw(%d)", s);
+    int16_t * mapptr = minimap + (s * 6);
+
+    next_strip(mapptr, s);
 }
 
 //
@@ -1172,11 +1173,23 @@ void strip_draw(int32_t s)
 //         movem.l    (sp)+,d0-d7/a0-a6
 //         rts
 
-// TODO: row_draw - draw an entire row of map for y scroll
-void row_draw(int32_t y)
+// row_draw - draw an entire row of map for y scroll
+void row_draw(int32_t row)
 {
-    (void)y;
-    RUNLOGF("<= row_draw(%d) STUB", y);
+    RUNLOGF("<= row_draw(%d) STUB", row);
+
+    int16_t * mapptr = minimap + (row / 2);
+    for (int xc = 0; xc < 38; xc += 2)
+    {
+        int16_t img  = *mapptr;
+        int16_t inum = img >> 6;
+        mapptr += 6;
+
+        SDL_Rect sr = {0, img * 32, 16, 32};
+        SDL_Rect dr = {xc * 8, row * 32, 16, 32};
+
+        sdl_blitsurface8(image_surface[inum], &sr, rp_map.BitMap->Surface, &dr);
+    }
 }
 
 //
@@ -1551,6 +1564,22 @@ UBYTE * mapxy(int32_t x, int32_t y)
 void genmini(int32_t img_x, int32_t img_y)
 {
     RUNLOGF("<= genmini(%d, %d) STUB", img_x, img_y);
+
+    uint8_t * mapptr     = map_mem;
+    uint8_t * secptr     = sector_mem;
+    int16_t * minimapptr = minimap;        // word?
+
+    for (int i = 0; i < 19; i++)
+    {
+        int16_t x, y;
+
+        x = (img_x + i) & 0x07ff;
+        (void)x;                 // WIP...
+        (void)y;                 // WIP...
+        (void)mapptr;            // WIP...
+        (void)secptr;            // WIP...
+        (void)minimapptr;        // WIP...
+    }
 }
 
 //

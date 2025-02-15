@@ -271,6 +271,9 @@ extern struct object ob_list8[];
 
 extern int16_t minimap[120];
 
+extern uint8_t * sector_mem;
+extern uint8_t * map_mem;
+
 extern BYTE svflag;
 
 extern UBYTE itrans[];
